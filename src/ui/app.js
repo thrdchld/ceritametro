@@ -27,6 +27,7 @@ import {
   improveOutline
 } from '../core/wizard-engine.js';
 import { generateImagePrompt, generateStoryImage } from '../core/image-engine.js';
+import { fetchAvailableModels } from '../core/ai-client.js';
 import { copyToClipboard } from '../utils/clipboard.js';
 import { exportHistoryJSON, importHistoryJSON, exportStoryMarkdown } from '../utils/export.js';
 
@@ -45,6 +46,8 @@ class AppController {
       improvedOutlineData: null,
       currentStory: null,
       historyList: [],
+      scannedTextModels: [],
+      scannedImageModels: [],
       alert: null
     };
 
@@ -151,7 +154,7 @@ class AppController {
     } else if (this.currentView === 'story-result') {
       contentHtml = renderStoryResultView(this.state.currentStory);
     } else if (this.currentView === 'settings') {
-      contentHtml = renderSettingsView(getSettings());
+      contentHtml = renderSettingsView(getSettings(), this.state.scannedTextModels, this.state.scannedImageModels);
     } else if (this.currentView === 'history') {
       contentHtml = renderHistoryView(this.state.historyList);
     } else if (this.currentView === 'brain') {
@@ -354,6 +357,47 @@ class AppController {
         saveSettings(updated);
         setupHistorySupabase();
         this.showAlert('Pengaturan berhasil disimpan!', 'success');
+      });
+    }
+
+    // Model Scanning Event Handlers
+    const btnScanText = document.getElementById('btn-scan-text-models');
+    if (btnScanText) {
+      btnScanText.addEventListener('click', async () => {
+        const endpoint = document.getElementById('setting-endpoint').value;
+        const apiKey = document.getElementById('setting-apiKey').value;
+        this.setLoading('Memindai daftar model text yang tersedia dari API...');
+        try {
+          const models = await fetchAvailableModels({ endpoint, apiKey });
+          this.state.scannedTextModels = models;
+          this.currentView = 'settings';
+          this.render();
+          this.showAlert(`Berhasil menemukan ${models.length} model text dari API! Silakan pilih dari dropdown.`, 'success');
+        } catch (err) {
+          this.showAlert(err.message, 'error');
+          this.currentView = 'settings';
+          this.render();
+        }
+      });
+    }
+
+    const btnScanImage = document.getElementById('btn-scan-image-models');
+    if (btnScanImage) {
+      btnScanImage.addEventListener('click', async () => {
+        const endpoint = document.getElementById('setting-imageEndpoint').value;
+        const apiKey = document.getElementById('setting-imageApiKey').value || document.getElementById('setting-apiKey').value;
+        this.setLoading('Memindai daftar model gambar yang tersedia dari API...');
+        try {
+          const models = await fetchAvailableModels({ endpoint, apiKey });
+          this.state.scannedImageModels = models;
+          this.currentView = 'settings';
+          this.render();
+          this.showAlert(`Berhasil menemukan ${models.length} model gambar dari API! Silakan pilih dari dropdown.`, 'success');
+        } catch (err) {
+          this.showAlert(err.message, 'error');
+          this.currentView = 'settings';
+          this.render();
+        }
       });
     }
 

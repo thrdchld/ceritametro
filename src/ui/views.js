@@ -349,7 +349,18 @@ export function renderStoryResultView(storyItem) {
 /**
  * SETTINGS VIEW
  */
-export function renderSettingsView(settings) {
+export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = []) {
+  const textModelOptions = scannedTextModels.length > 0
+    ? scannedTextModels
+    : [settings.model, 'gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'claude-3-5-sonnet', 'gemini-1.5-pro', 'llama-3.3-70b'].filter(Boolean);
+
+  const imageModelOptions = scannedImageModels.length > 0
+    ? scannedImageModels
+    : [settings.imageModel, 'dall-e-3', 'dall-e-2', 'recraft-v3', 'flux-1.1-pro'].filter(Boolean);
+
+  const uniqueTextModels = Array.from(new Set(textModelOptions));
+  const uniqueImageModels = Array.from(new Set(imageModelOptions));
+
   return `
     <div class="card">
       <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem;">PENGATURAN API & SUPABASE</h2>
@@ -371,8 +382,15 @@ export function renderSettingsView(settings) {
         </div>
 
         <div class="form-group">
-          <label class="form-label">Model Nama</label>
-          <input type="text" id="setting-model" class="form-control" value="${settings.model}" placeholder="gpt-4o-mini" />
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label class="form-label" style="margin-bottom: 0;">Pilih Model Text</label>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-text-models">
+              🔍 Pindai Model dari API
+            </button>
+          </div>
+          <select id="setting-model" class="form-select">
+            ${uniqueTextModels.map(m => `<option value="${m}" ${m === settings.model ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
         </div>
 
         <hr style="border:0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
@@ -390,8 +408,15 @@ export function renderSettingsView(settings) {
         </div>
 
         <div class="form-group">
-          <label class="form-label">Image Model Nama</label>
-          <input type="text" id="setting-imageModel" class="form-control" value="${settings.imageModel}" placeholder="dall-e-3" />
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label class="form-label" style="margin-bottom: 0;">Pilih Model Gambar</label>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-image-models">
+              🔍 Pindai Model Gambar dari API
+            </button>
+          </div>
+          <select id="setting-imageModel" class="form-select">
+            ${uniqueImageModels.map(m => `<option value="${m}" ${m === settings.imageModel ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
         </div>
 
         <hr style="border:0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />

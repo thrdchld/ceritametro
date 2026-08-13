@@ -155,3 +155,60 @@ export async function callAIImage({ prompt }) {
     throw new Error(err.message || 'Gagal menghasilkan gambar.');
   }
 }
+
+/**
+ * Fetches available models list from OpenAI standard GET /v1/models endpoint
+ */
+export async function fetchAvailableModels({ endpoint, apiKey }) {
+  if (!apiKey) {
+    throw new Error('Isi API Key terlebih dahulu sebelum memindai model.');
+  }
+
+  let baseUrl = endpoint || 'https://api.openai.com/v1/chat/completions';
+  let modelsUrl = '';
+  
+  if (baseUrl.includes('/chat/completions')) {
+    modelsUrl = baseUrl.replace('/chat/completions', '/models');
+  } else if (baseUrl.includes('/images/generations')) {
+    modelsUrl = baseUrl.replace('/images/generations', '/models');
+  } else if (baseUrl.endsWith('/v1') || baseUrl.endsWith('/v1/')) {
+    modelsUrl = baseUrl.replace(/\/+$/, '') + '/models';
+  } else {
+    modelsUrl = baseUrl.replace(/\/+$/, '') + '/models';
+  }
+
+  try {
+    const response = await fetch(modelsUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      let msg = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errJson = JSON.parse(errText);
+        if (errJson.error && errJson.error.message) msg = errJson.error.message;
+      } catch (e) {
+        if (errText) msg += ` - ${errText.slice(0, 100)}`;
+      }
+      throw new Error(msg);
+    }
+
+    const json = await response.json();
+    if (json.data && Array.isArray(json.data)) {
+      const list = json.data.map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean);
+      list.sort();
+      return list;
+    }
+
+    throw new Error('Respon server tidak memiliki daftar "data" model.');
+  } catch (err) {
+    console.error('Fetch models error:', err);
+    throw new Error(`Gagal memindai model: ${err.message}`);
+  }
+}
+
