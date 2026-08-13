@@ -1,0 +1,29 @@
+{
+  "name": "ceritametro",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node build.js",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thrdchld/ceritametro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thrdchld/ceritametro/issues"
+  },
+  "homepage": "https://github.com/thrdchld/ceritametro#readme",
+  "devDependencies": {
+    "esbuild-wasm": "^0.28.2",
+    "vite": "^8.2.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.3"
+  }
+}

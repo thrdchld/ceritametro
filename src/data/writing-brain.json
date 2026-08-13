@@ -1,0 +1,71 @@
+{
+  "narrative": [
+    "Every scene must have a clear dramatic purpose.",
+    "Do not narrate an entire character life story; enter scenes as late as possible.",
+    "Ensure every scene changes information, tension, conflict, or emotion.",
+    "Deliver background information strictly when needed by current actions."
+  ],
+  "character": [
+    "Characters must want something concrete in every scene.",
+    "Differentiate character wants vs underlying emotional needs.",
+    "Show character traits through specific behaviors and habits.",
+    "Embrace realistic character contradictions."
+  ],
+  "scene": [
+    "Structure scenes with: goal -> obstacle -> action -> reaction -> outcome change.",
+    "Write scenes directly rather than summarizing events in retrospection."
+  ],
+  "dialogue": [
+    "Dialogue must never be an exposition dump or factual report.",
+    "Use subtext, pauses, partial responses, and evasion.",
+    "Differentiate speech patterns between characters based on background.",
+    "Silence and non-verbal reactions are as powerful as spoken words."
+  ],
+  "emotion": [
+    "Show emotion strictly through behavior, physical reactions, and concrete decisions.",
+    "Avoid explicit emotion labels like 'ia merasa sedih', 'ia sangat kecewa', 'ia merasa takut'.",
+    "Let the reader infer emotional intensity from specific physical details.",
+    "Avoid automatic melodrama; keep reactions restrained and realistic."
+  ],
+  "pacing": [
+    "Vary sentence lengths and paragraph lengths naturally for human rhythm.",
+    "Speed up pacing during high tension; slow down during key observational moments.",
+    "Target 800-1200 words (ideal ±1000 words); never pad text for word count."
+  ],
+  "mystery": [
+    "Establish clear urban anomalies and unanswered questions early.",
+    "Predetermine the true logical answer before writing any scene.",
+    "Plant fair-play clues naturally before the reveal.",
+    "Use logical misdirection based on human assumptions, not artificial deception."
+  ],
+  "twist": [
+    "Twists are optional; a strong emotional reveal is better than a forced twist.",
+    "When using a twist, ensure re-reading past scenes makes the setup clear and logical."
+  ],
+  "ending": [
+    "Provide a satisfying payoff to the main mystery core.",
+    "Open endings are allowed but must answer 80-90% of the mystery, leaving 10-20% for natural interpretation.",
+    "Avoid explaining the moral or lesson at the end. Ending is not a motivational caption."
+  ],
+  "humanization": [
+    "Use specific, concrete, grounded Indonesian details.",
+    "Maintain a restrained, natural tone without over-polished or artificially poetic sentences.",
+    "Avoid generic metaphors."
+  ],
+  "indonesian_prose": [
+    "Use modern, natural, semi-formal Indonesian suitable for mobile reading.",
+    "Avoid literal translations of English idioms or syntax.",
+    "Keep vocabulary simple and precise."
+  ],
+  "facebook": [
+    "Format with short, clean paragraphs optimized for mobile reading.",
+    "Create a fast, intriguing opening hook.",
+    "Avoid giant blocks of text."
+  ],
+  "anti_ai": [
+    "Never use generic openings like 'Di tengah hiruk-pikuk kota Jakarta...'",
+    "Never use explicit moral summaries like 'Ia menyadari bahwa kejujuran adalah...'",
+    "Never use cliché transitions: 'tanpa terasa', 'pada akhirnya', 'sejak saat itu'.",
+    "Never use markdown formatting artifacts (**bold**, *italic*, # headers) inside the final story text."
+  ]
+}

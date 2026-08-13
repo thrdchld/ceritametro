@@ -1,0 +1,1638 @@
+Repository `thrdchld/ceritametro` saat ini memang masih sangat kosong: branch utama `main` dan praktis baru memiliki `README.md`.
+
+Berikan prompt berikut langsung ke **Antigravity CLI** dari dalam repository tersebut.
+
+```text
+MASTER IMPLEMENTATION PROMPT — CERITA METRO
+
+Repository:
+https://github.com/thrdchld/ceritametro
+
+Branch utama:
+main
+
+Kondisi repository saat ini:
+- Repository masih kosong/minimal.
+- Saat ini hanya ada README.md.
+- Jangan mengasumsikan ada kode aplikasi lama.
+- Bangun aplikasi dari awal.
+
+============================================================
+01. MISI PROYEK
+============================================================
+
+Bangun sebuah web app pribadi bernama:
+
+CERITA METRO
+
+Tagline:
+
+Realistic Metro-Pop Mystery
+
+Tujuan aplikasi:
+
+Membantu saya membuat cerpen Indonesia sekitar 800–1.200 kata, idealnya ±1.000 kata, dengan karakteristik:
+
+- realistis
+- modern
+- berlatar kehidupan Indonesia
+- bernuansa metro-pop
+- misterius tetapi masuk akal
+- memiliki teka-teki
+- memiliki petunjuk
+- dapat memiliki plot twist
+- dapat memiliki open ending
+- emosional tetapi tidak melodramatis
+- nyaman dibaca di smartphone
+- siap copy-paste ke Facebook
+- dapat menghasilkan prompt gambar
+- dapat menghasilkan gambar AI
+
+Prioritas terpenting bukan banyaknya fitur.
+
+Prioritas:
+
+1. Kualitas tulisan.
+2. Naturalness / human-like prose.
+3. Logika cerita.
+4. Kualitas mystery.
+5. Kenyamanan UX.
+6. Kode ringan dan mudah dipelihara.
+7. Kemudahan dikembangkan ke platform lain.
+
+============================================================
+02. JANGAN TERLALU ADVANCED
+============================================================
+
+Untuk MVP jangan membuat:
+
+- Supabase
+- Firebase
+- database
+- login
+- authentication
+- embeddings
+- vector database
+- RAG
+- machine learning
+- backend server sendiri
+- Docker
+- multi-user
+- payment
+- analytics
+- social features
+
+Aplikasi ini hanya untuk penggunaan pribadi.
+
+Gunakan:
+
+- localStorage untuk history/configuration
+- endpoint AI yang dikonfigurasi pengguna
+- browser-side API calls
+
+Namun buat AI layer terpisah sehingga di masa depan mudah dipindahkan ke backend/serverless.
+
+============================================================
+03. PLATFORM
+============================================================
+
+Target deployment:
+
+GitHub Pages.
+
+Web app harus benar-benar berfungsi sebagai aplikasi.
+
+Boleh menggunakan:
+
+- Vite + vanilla JavaScript
+
+atau
+
+- framework ringan jika memang membuat kode lebih mudah dipelihara.
+
+Prioritas:
+
+simple
+portable
+clear
+fast
+responsive
+
+Jangan menggunakan framework besar hanya demi terlihat modern.
+
+Jika memakai Vite:
+buat struktur yang mudah dipahami.
+
+Contoh:
+
+src/
+  main.js
+  styles.css
+  core/
+    ai-client.js
+    story-engine.js
+    wizard-engine.js
+    critic-engine.js
+    image-engine.js
+    writing-brain.js
+    history.js
+    storage.js
+  ui/
+    app.js
+    components.js
+    views.js
+  utils/
+    text.js
+    clipboard.js
+    validation.js
+
+Struktur boleh disederhanakan jika jumlah file menjadi berlebihan.
+
+============================================================
+04. KODE HARUS PORTABLE
+============================================================
+
+Tulis kode agar mudah dipahami oleh AI lain.
+
+Jangan membuat fungsi raksasa.
+
+Jangan mencampurkan:
+- UI
+- state
+- AI request
+- story logic
+- history
+
+dalam satu file.
+
+Gunakan nama fungsi yang jelas.
+
+Minimal fungsi konseptual:
+
+callAI()
+
+generateStoryIdeas()
+
+generateWizardOptions()
+
+buildStoryLogic()
+
+buildScenePlan()
+
+generateDraft()
+
+criticizeDraft()
+
+humanizeDraft()
+
+cleanStoryText()
+
+generateImagePrompt()
+
+generateImage()
+
+regenerateImage()
+
+saveStory()
+
+loadHistory()
+
+deleteStory()
+
+exportHistoryJSON()
+
+importHistoryJSON()
+
+exportStoryMarkdown()
+
+copyStory()
+
+copyImagePrompt()
+
+============================================================
+05. AI PROVIDER LAYER
+============================================================
+
+AI harus dipanggil melalui satu abstraction layer.
+
+Jangan melakukan fetch endpoint AI langsung dari banyak tempat.
+
+Buat konfigurasi:
+
+AI_CONFIG
+
+Contoh:
+
+{
+  endpoint: "",
+  apiKey: "",
+  model: "",
+  imageEndpoint: "",
+  imageApiKey: "",
+  imageModel: ""
+}
+
+Saya akan mengisi endpoint dan API key sendiri.
+
+Buat Settings UI untuk:
+- endpoint
+- API key
+- text model
+- image endpoint
+- image API key
+- image model
+
+Simpan konfigurasi di localStorage.
+
+Tampilkan warning:
+
+"API key disimpan di browser. Gunakan hanya untuk aplikasi pribadi."
+
+Untuk MVP ini client-side API key diperbolehkan.
+
+Tetapi struktur AI client harus memungkinkan pemindahan ke:
+- Cloudflare Worker
+- serverless function
+- Edge Function
+- backend
+
+di masa depan.
+
+============================================================
+06. IDENTITAS GENRE
+============================================================
+
+Genre utama:
+
+Realistic Metro-Pop Mystery
+
+Variasi:
+
+- Slow-Burn Urban Mystery
+- Slice of Life Mystery
+- Psychological Mystery
+- Contemporary Drama
+- Social Mystery
+
+Cerita harus realistis.
+
+Misteri harus dapat dijelaskan secara akal.
+
+DILARANG:
+
+- hantu
+- setan
+- jin
+- kutukan
+- paranormal
+- supernatural
+- makhluk gaib
+- dunia lain
+- perjalanan waktu
+- kemampuan gaib
+- kejadian tanpa penjelasan rasional
+
+Misteri boleh berasal dari:
+
+- rahasia keluarga
+- pekerjaan
+- hubungan
+- kehilangan
+- identitas
+- dokumen
+- foto
+- pesan
+- telepon
+- paket
+- rekening
+- konflik sosial
+- kesalahan manusia
+- perilaku aneh
+- kebetulan yang masuk akal
+- informasi tersembunyi
+- masa lalu
+
+============================================================
+07. WRITING QUALITY — MASALAH YANG HARUS DICEGAH
+============================================================
+
+Model saat ini sering menghasilkan tulisan yang:
+
+- terasa seperti sinopsis
+- terlalu menjelaskan
+- terlalu rapi
+- membosankan
+- monoton
+- terlalu banyak "ia merasa..."
+- terlalu banyak "ia menyadari..."
+- terlalu banyak "akhirnya..."
+- terlalu banyak "ternyata..."
+- penuh moral eksplisit
+- memakai metafora generik
+- dialognya seperti laporan
+- tidak ada subtext
+- karakter hanya bergerak karena plot membutuhkan
+- twist dijelaskan
+- ending dijelaskan
+- transisi terlalu mekanis
+- terlalu banyak kalimat generik
+- terlalu puitis dengan cara yang tidak natural
+- terlalu sedikit detail spesifik
+- memakai Markdown artifacts seperti **bold**
+
+Jangan menyelesaikan masalah ini dengan instruksi:
+
+"make it human."
+
+Gunakan pipeline penulisan.
+
+============================================================
+08. STORY GENERATION PIPELINE
+============================================================
+
+Jangan:
+
+IDE
+↓
+CERITA FINAL
+
+Gunakan:
+
+IDE
+↓
+STORY LOGIC
+↓
+OUTLINE
+↓
+SCENE PLAN
+↓
+DRAFT
+↓
+CRITIC
+↓
+HUMANIZATION
+↓
+FINAL FORMAT
+
+Jika provider hanya memungkinkan satu request besar:
+tetap gunakan prompt terstruktur yang membuat model mengikuti tahap tersebut secara internal.
+
+Idealnya implementasi memungkinkan beberapa AI calls.
+
+Namun jangan membuat sistem terlalu mahal/berat.
+
+============================================================
+09. STORY LOGIC
+============================================================
+
+Sebelum menulis draft, AI harus menentukan:
+
+- premise
+- karakter utama
+- tujuan karakter
+- konflik
+- misteri
+- jawaban sebenarnya
+- petunjuk
+- misdirection
+- reveal
+- ending
+
+Urutan penting:
+
+PREMISE
+↓
+TRUE ANSWER
+↓
+MOTIVATION
+↓
+CLUES
+↓
+MISDIRECTION
+↓
+OUTLINE
+↓
+DRAFT
+
+Jangan menulis cerita terlebih dahulu lalu mencari jawaban misteri di akhir.
+
+============================================================
+10. FAIR-PLAY MYSTERY
+============================================================
+
+Aturan:
+
+- Jawaban harus logis.
+- Petunjuk harus muncul sebelum reveal.
+- Pembaca boleh salah menafsirkan petunjuk.
+- Tidak boleh muncul fakta baru yang tidak dipersiapkan.
+- Jangan menipu pembaca dengan menyembunyikan informasi yang secara natural diketahui narator.
+- Twist harus terasa mengejutkan tetapi masuk akal.
+
+Setelah reveal:
+pembaca harus dapat melihat kembali petunjuk sebelumnya dan berkata:
+
+"Petunjuknya sebenarnya sudah ada."
+
+============================================================
+11. PLOT TWIST
+============================================================
+
+Twist tidak wajib.
+
+AI boleh memilih:
+
+- no major twist
+- emotional reveal
+- light twist
+- strong twist
+- hidden motivation
+- identity reveal
+- perspective reversal
+- bittersweet reveal
+
+Jangan memaksakan twist.
+
+Cerita yang kuat dengan reveal sederhana lebih baik daripada twist palsu.
+
+============================================================
+12. OPEN ENDING
+============================================================
+
+Open ending harus menyelesaikan inti cerita.
+
+Ideal:
+
+80–90% misteri utama terjawab.
+
+Sisakan:
+10–20% interpretasi.
+
+Jangan mengakhiri dengan:
+
+"Dan sampai sekarang tidak ada yang tahu..."
+
+Open ending harus terasa seperti:
+cerita selesai, tetapi satu pintu kecil tetap terbuka.
+
+============================================================
+13. NATURAL INDONESIAN PROSE
+============================================================
+
+Gunakan bahasa Indonesia yang:
+
+- natural
+- modern
+- semi-formal
+- tidak kaku
+- tidak terasa diterjemahkan dari bahasa Inggris
+- nyaman dibaca smartphone
+- tidak terlalu puitis
+- tidak terlalu formal
+
+Gunakan kata sederhana jika cukup.
+
+Jangan membuat setiap kalimat terdengar "indah".
+
+Prioritaskan:
+
+natural
+specific
+concrete
+human
+
+============================================================
+14. SHOW, DON'T OVER-TELL
+============================================================
+
+Prioritas:
+
+ACTION
+→ BEHAVIOR
+→ PHYSICAL REACTION
+→ DIALOGUE
+→ INTERNAL THOUGHT
+→ EXPLICIT EMOTION
+
+Hindari berlebihan:
+
+"Dia merasa sedih."
+
+"Maya merasa sangat kecewa."
+
+"Dia merasa takut."
+
+Gunakan tindakan.
+
+Contoh:
+
+"Maya mengembalikan barang itu ke rak."
+
+"Bapak itu memegang koper lebih erat."
+
+"Doni membuka aplikasi bank sekali lagi."
+
+Biarkan pembaca menyimpulkan.
+
+============================================================
+15. DIALOGUE
+============================================================
+
+Dialog tidak boleh menjadi exposition dump.
+
+Buruk:
+
+"Saya sebenarnya adalah anak dari pemilik tanah tersebut dan keluarga saya memalsukan dokumen."
+
+Lebih baik:
+
+"Bapak mau ke mana?"
+
+"Keluar kota."
+
+"Sendiri?"
+
+Pria itu mengencangkan pegangan koper.
+
+"Iya."
+
+Informasi keluar secara bertahap.
+
+Gunakan:
+- subtext
+- jeda
+- respons sebagian
+- penghindaran
+- perbedaan gaya bicara
+- diam
+
+Karakter tidak selalu mengatakan apa yang mereka rasakan.
+
+============================================================
+16. CHARACTER AGENCY
+============================================================
+
+Setiap keputusan penting harus mempunyai alasan.
+
+Secara internal periksa:
+
+Apa yang karakter inginkan?
+Apa yang karakter takutkan?
+Apa yang karakter ketahui?
+Apa yang karakter belum ketahui?
+Apa risikonya?
+Mengapa pilihan itu masuk akal?
+
+Jangan membuat karakter:
+terlalu pintar
+atau
+terlalu bodoh
+
+hanya demi plot.
+
+============================================================
+17. SCENE ENGINE
+============================================================
+
+Cerita harus ditulis sebagai scene, bukan summary.
+
+Setiap scene memiliki:
+
+- goal
+- obstacle
+- action
+- reaction
+- change
+- useful information
+
+Setiap scene harus mengubah sesuatu.
+
+Jika scene tidak mengubah:
+- informasi
+- konflik
+- relasi
+- emosi
+- keputusan
+
+maka pertimbangkan untuk menghapusnya.
+
+============================================================
+18. HUMAN RHYTHM
+============================================================
+
+Variasikan:
+
+- panjang kalimat
+- panjang paragraf
+- dialog
+- aksi
+- observasi
+- jeda
+
+Jangan:
+
+"Ia berjalan. Ia melihat. Ia berpikir. Ia merasa. Ia kemudian pergi."
+
+Jangan juga membuat setiap paragraf super pendek secara mekanis.
+
+Ritme harus natural.
+
+============================================================
+19. SPECIFICITY
+============================================================
+
+Gunakan detail konkret yang spesifik terhadap:
+- karakter
+- lokasi
+- situasi
+
+Jangan menambahkan detail hanya untuk terlihat literer.
+
+Buruk:
+
+"Jakarta sangat panas."
+
+Lebih baik:
+
+"Kaca depan mobil terasa panas bahkan sebelum Doni keluar dari parkiran."
+
+============================================================
+20. ANTI-AI PATTERNS
+============================================================
+
+Kurangi ketergantungan pada pola:
+
+- di tengah hiruk-pikuk kota
+- tanpa terasa waktu berlalu
+- pada akhirnya
+- sejak saat itu
+- ia menyadari bahwa
+- ia merasa sangat
+- hidup mengajarkan
+- takdir
+- harapan
+- perjalanan hidup
+- semua terjadi karena suatu alasan
+- ternyata
+- akhirnya ia sadar
+- yang tidak ia ketahui adalah
+
+Bukan berarti dilarang absolut.
+
+Evaluasi konteks.
+
+Tujuannya menghindari pengulangan formula.
+
+============================================================
+21. AVOID GENERIC MORAL
+============================================================
+
+Jangan menulis:
+
+"Dia belajar bahwa kejujuran adalah hal penting."
+
+"Kadang hidup mempertemukan kita dengan..."
+
+"Sejak saat itu ia memahami..."
+
+Cerita harus memperlihatkan makna melalui tindakan.
+
+Ending tidak boleh menjadi caption motivasi.
+
+============================================================
+22. NO EXCESSIVE METAPHOR
+============================================================
+
+Hindari metafora generik:
+
+- Jakarta seperti pemanggang raksasa
+- hatinya menciut
+- dadanya sesak seperti...
+- langit ikut menangis
+- kota tak pernah tidur
+- harapan seperti cahaya
+
+Gunakan metafora hanya jika benar-benar membantu.
+
+============================================================
+23. PACING
+============================================================
+
+Target:
+
+800–1.200 kata.
+
+Ideal:
+sekitar 1.000.
+
+Jangan menambah paragraf kosong demi word count.
+
+Jika cerita selesai dengan 900 kata dan kuat:
+biarkan sekitar 900.
+
+============================================================
+24. STORY CRITIC
+============================================================
+
+Setelah draft:
+
+Periksa:
+
+1. Apakah terasa seperti sinopsis?
+2. Apakah terlalu menjelaskan?
+3. Apakah dialog natural?
+4. Apakah karakter mempunyai agency?
+5. Apakah ada detail konkret?
+6. Apakah ritme monoton?
+7. Apakah misterinya logis?
+8. Apakah petunjuk cukup?
+9. Apakah reveal memiliki payoff?
+10. Apakah ending terlalu menjelaskan?
+11. Apakah ada phrase repetition?
+12. Apakah ada AI-like phrase?
+13. Apakah ada Markdown artifacts?
+
+Kemudian lakukan targeted rewrite.
+
+Jangan selalu rewrite seluruh cerita.
+
+Jika yang bermasalah hanya beberapa paragraf:
+perbaiki paragraf tersebut.
+
+============================================================
+25. HUMANIZATION PASS
+============================================================
+
+DRAFT
+↓
+CRITIC
+↓
+TARGETED REWRITE
+↓
+FINAL CHECK
+
+Jangan sengaja membuat:
+- typo
+- grammar salah
+- slang berlebihan
+
+Humanization berarti natural, bukan buruk.
+
+============================================================
+26. ANTI-SINOPSIS TEST
+============================================================
+
+Setelah draft:
+
+Ringkas cerita menjadi 5 kalimat secara internal.
+
+Jika 5 kalimat tersebut sudah cukup menggantikan hampir seluruh cerita:
+berarti terlalu banyak summary.
+
+Ubah bagian summary menjadi scene.
+
+============================================================
+27. BORING PARAGRAPH TEST
+============================================================
+
+Setiap paragraf harus minimal memiliki salah satu:
+
+- progression
+- information
+- emotion
+- tension
+- character
+- atmosphere
+- action
+
+Jika tidak:
+hapus atau gabungkan.
+
+============================================================
+28. MARKDOWN CLEANUP
+============================================================
+
+Cerita final TIDAK BOLEH mengandung:
+
+**
+*
+__
+#
+```
+
+Markdown heading
+Markdown bold
+Markdown italic
+
+Judul juga plain text.
+
+UI yang menentukan:
+
+* serif/sans
+* bold/normal
+* italic/normal
+
+Clipboard hanya plain text.
+
+============================================================
+29. MODE 1 — IDE SENDIRI
+========================
+
+Input:
+
+textarea besar.
+
+Pengguna dapat menulis semua ide.
+
+Tema opsional:
+
+* Bebas
+* Keluarga
+* Ekonomi
+* Pekerjaan
+* Cinta
+* Kehidupan Kota
+* Persahabatan
+* Kehilangan
+* Lainnya
+
+Setelah input:
+
+Tawarkan 2 metode:
+
+A. 5 PILIHAN ALUR
+
+B. STORY WIZARD
+
+============================================================
+30. MODE 1A — 5 PILIHAN ALUR
+============================
+
+AI membuat 5 alur yang benar-benar berbeda.
+
+Masing-masing:
+
+* Judul sementara
+* Tags
+* Sinopsis/alur dari awal sampai akhir
+
+Harus mencakup:
+premise
+conflict
+mystery
+development
+reveal
+ending
+
+Pengguna:
+
+[Gunakan Alur Ini]
+
+Setelah memilih:
+langsung generate final.
+
+============================================================
+31. MODE 1B — WIZARD
+====================
+
+8 stage:
+
+1. Premise
+2. Tokoh
+3. Lokasi
+4. Misteri
+5. Konflik
+6. Petunjuk
+7. Pengungkapan
+8. Ending
+
+Setiap stage memberikan 5 pilihan adaptive.
+
+Pilihan kelima:
+
+AI Pilihkan yang Paling Kuat
+
+Pilihan harus berdasarkan semua pilihan sebelumnya.
+
+User dapat kembali.
+
+Pilihan sebelumnya tidak hilang.
+
+============================================================
+32. MODE 2 — OTOMATIS
+=====================
+
+AI sendiri membuat 5 cerita.
+
+Setiap kartu:
+
+* judul
+* tags
+* sinopsis/alur dari awal sampai akhir
+
+User memilih satu.
+
+Langsung generate final.
+
+Tidak perlu review tambahan.
+
+============================================================
+33. MODE 3 — WIZARD STORY
+=========================
+
+AI membuat 5 premis.
+
+User memilih.
+
+Masuk ke 8 stage.
+
+Setiap stage memiliki 5 adaptive choices.
+
+Kemudian review.
+
+============================================================
+34. REVIEW
+==========
+
+Untuk Mode 1 Wizard dan Mode 3:
+
+tampilkan:
+
+REVIEW ALUR
+
+Judul
+Premise
+Tokoh
+Lokasi
+Misteri
+Konflik
+Petunjuk
+Pengungkapan
+Ending
+
+Lalu:
+
+"Kenapa alur ini bekerja?"
+
+2–3 kalimat.
+
+Tombol:
+
+[GENERATE CERITA]
+
+[PERBAIKI ALUR]
+
+============================================================
+35. IMPROVE OUTLINE
+===================
+
+Jika user memilih:
+
+[PERBAIKI ALUR]
+
+Tampilkan:
+
+VERSI SAAT INI
+
+VERSI PERBAIKAN
+
+Alasan singkat.
+
+User pilih:
+
+[Gunakan Versi Perbaikan]
+
+[Pertahankan Versi Saat Ini]
+
+Jangan diam-diam mengganti alur.
+
+============================================================
+36. FINAL STORY OUTPUT
+======================
+
+Output hanya:
+
+JUDUL
+
+isi cerita.
+
+Tidak:
+
+* synopsis
+* genre
+* analysis
+* note
+* hashtag
+* Tamat
+* prompt image
+
+============================================================
+37. TITLE FORMAT
+================
+
+Default:
+serif + bold + normal
+
+Kontrol:
+
+Font:
+Serif / Sans Serif
+
+Weight:
+Bold / Normal
+
+Style:
+Normal / Italic
+
+Jangan masukkan markup ke clipboard.
+
+============================================================
+38. IMAGE PROMPT
+================
+
+Setelah final story:
+
+Generate image prompt berbahasa Inggris.
+
+Prompt harus spesifik terhadap cerita.
+
+Visual identity:
+
+* modern metro-pop
+* vintage editorial poster
+* Indonesian urban environment
+* muted lavender
+* dusty purple
+* mauve
+* soft violet
+* cinematic
+* premium story cover
+* subtle grain
+* faceless
+* Islamic-friendly
+* modest wardrobe
+
+Karakter perempuan Muslim:
+hijab/khimar
+pakaian panjang
+wajah tidak terlihat
+
+Jangan:
+
+* horror
+* supernatural
+* gore
+* sensual
+* inappropriate clothing
+
+============================================================
+39. IMAGE ENGINE
+================
+
+Alur:
+
+final story
+↓
+image prompt
+↓
+image generation endpoint
+↓
+image
+
+Buttons:
+
+[Generate Image]
+
+[Generate Again]
+
+[Edit Prompt]
+
+[Copy Prompt]
+
+Generate Again:
+gunakan prompt yang sama.
+
+Edit Prompt:
+user dapat mengubah prompt lalu generate.
+
+Image failure tidak boleh menghapus story.
+
+============================================================
+40. HISTORY
+===========
+
+Gunakan localStorage.
+
+Setiap story menyimpan:
+
+id
+createdAt
+updatedAt
+mode
+title
+idea
+theme
+outline
+story
+imagePrompt
+imageData/imageURL
+feedback
+titleFormat
+
+History bisa:
+
+* open
+* delete
+* copy
+* regenerate image
+* export
+
+============================================================
+41. IMPORT / EXPORT
+===================
+
+Wajib:
+
+Export JSON
+Import JSON
+Export Markdown
+
+JSON:
+backup lengkap.
+
+Markdown:
+untuk dibaca.
+
+Import harus divalidasi.
+
+Jangan crash pada file rusak.
+
+============================================================
+42. WRITING BRAIN
+=================
+
+Buat:
+
+src/data/writing-brain.json
+
+Jangan menanam writing knowledge raksasa dalam JS.
+
+Writing Brain categories:
+
+* narrative
+* character
+* scene
+* dialogue
+* emotion
+* pacing
+* mystery
+* twist
+* ending
+* humanization
+* indonesian_prose
+* facebook
+* anti_ai
+
+Isi minimal prinsip-prinsip berikut:
+
+NARRATIVE:
+
+* scene has purpose
+* do not narrate entire life
+* enter scene late
+* every scene changes something
+* information delivered when needed
+
+CHARACTER:
+
+* character wants something
+* wants vs needs
+* habits
+* character through actions
+* contradictions
+
+SCENE:
+
+* goal
+* obstacle
+* action
+* reaction
+* change
+
+DIALOGUE:
+
+* not exposition
+* subtext
+* indirect response
+* different speech patterns
+* silence
+
+EMOTION:
+
+* show through behavior
+* avoid repeated emotion labels
+* specific details
+* reader inference
+* avoid automatic melodrama
+
+PACING:
+
+* varied rhythm
+* speed up tension
+* slow down important moments
+* do not pad for word count
+
+MYSTERY:
+
+* anomaly
+* question
+* answer predetermined
+* planted clues
+* logical misdirection
+* fair play
+* no cheating
+
+TWIST:
+
+* setup
+* reinterpretation
+* logical
+* not mandatory
+
+ENDING:
+
+* payoff
+* open ending is still complete
+* avoid explaining the meaning
+* actions can be stronger than narration
+
+HUMANIZATION:
+
+* specific details
+* natural rhythm
+* avoid over-polished prose
+* avoid unnecessary metaphors
+* believable imperfect characters
+* cut pretty but useless sentences
+
+INDONESIAN PROSE:
+
+* natural Indonesian
+* no literal English syntax
+* simple vocabulary when sufficient
+* dialogue follows relationship
+* characters speak differently
+
+FACEBOOK:
+
+* short paragraphs
+* fast hook
+* readable on mobile
+* no long text blocks
+
+ANTI_AI:
+
+* avoid generic opening
+* avoid explicit moral
+* avoid cliché transitions
+* avoid emotional repetition
+* avoid exposition dialogue
+* avoid explanatory ending
+* avoid repetitive sentence structures
+* avoid phrase repetition
+
+============================================================
+43. STYLE PROFILE
+=================
+
+Untuk MVP:
+
+Simpan di localStorage.
+
+Struktur:
+
+{
+"language": "natural Indonesian",
+"prose": "natural, concrete, restrained",
+"paragraphs": "short",
+"dialogue": "natural with subtext",
+"emotion": "shown through behavior",
+"description": "specific but restrained",
+"pacing": "medium",
+"metaphor": "low",
+"ending": "open or bittersweet when suitable",
+"mystery": "realistic and logical",
+"avoid": []
+}
+
+Jangan membuat machine learning.
+
+Jangan membuat embedding.
+
+Feedback user hanya disimpan untuk tahap berikutnya.
+
+============================================================
+44. SETTINGS
+============
+
+Settings:
+
+AI endpoint
+API key
+text model
+image endpoint
+image API key
+image model
+
+Save ke localStorage.
+
+Tampilkan API key sebagai password field.
+
+============================================================
+45. UI
+======
+
+UI harus:
+
+* ringan
+* modern
+* minimal
+* tidak terlihat seperti dashboard enterprise
+* nyaman dibaca
+* mobile-first
+
+Warna:
+
+background:
+#F6F2F7
+
+text:
+#29242C
+
+primary:
+#6E5A78
+
+secondary:
+#A995B0
+
+accent:
+#8D7299
+
+card:
+#FFFFFF
+
+Gunakan whitespace.
+
+Radius 12–16 px.
+
+Shadow sangat ringan.
+
+============================================================
+46. HOME
+========
+
+Header:
+
+CERITA METRO
+
+Realistic Metro-Pop Mystery
+
+Mode cards:
+
+IDE SENDIRI
+"Masukkan ide yang ada di kepala."
+
+OTOMATIS
+"Biarkan AI memilihkan 5 cerita."
+
+WIZARD STORY
+"Bangun cerita tahap demi tahap."
+
+Quick access:
+
+WRITING BRAIN
+RIWAYAT
+PENGATURAN
+
+============================================================
+47. STORY RESULT
+================
+
+Card:
+
+CERITA FACEBOOK
+
+Title format controls
+
+Judul
+
+Cerita
+
+[COPY CERITA]
+
+Card:
+
+PROMPT GAMBAR
+
+textarea
+
+[COPY PROMPT]
+
+[EDIT & GENERATE]
+
+Card:
+
+GAMBAR
+
+image
+
+[GENERATE ULANG]
+
+============================================================
+48. LOADING
+===========
+
+Gunakan status ringan:
+
+"Menyusun ide..."
+
+"Membangun alur..."
+
+"Menulis draft..."
+
+"Memeriksa cerita..."
+
+"Merapikan prosa..."
+
+"Membuat prompt gambar..."
+
+"Menghasilkan gambar..."
+
+"Selesai."
+
+============================================================
+49. ERROR HANDLING
+==================
+
+AI failure:
+"Gagal membuat hasil. Coba lagi."
+
+Image failure:
+"Gambar belum berhasil dibuat."
+
+History import failure:
+"File tidak valid."
+
+Jangan menghapus hasil sebelumnya ketika request baru gagal.
+
+============================================================
+50. CODE QUALITY
+================
+
+Gunakan:
+
+* semantic HTML
+* accessible controls
+* keyboard friendly
+* responsive CSS
+* clean naming
+
+Jangan:
+
+* giant component
+* giant function
+* duplicate API code
+* hardcoded generated story
+* fake image generation
+* fake success response
+
+============================================================
+51. DEVELOPMENT PROCESS
+=======================
+
+Karena repository hanya berisi README, mulai dengan:
+
+1. Audit repository.
+2. Pilih stack minimal.
+3. Buat project structure.
+4. Implement UI skeleton.
+5. Implement AI client.
+6. Implement Mode 2 dahulu karena paling sederhana.
+7. Implement Mode 1.
+8. Implement Wizard reusable engine.
+9. Implement critic/humanization.
+10. Implement image engine.
+11. Implement history.
+12. Implement import/export.
+13. Tambahkan Writing Brain.
+14. Test semuanya.
+15. Build production.
+
+Jangan mengimplementasikan tiga mode secara bersamaan sebelum core story engine bekerja.
+
+============================================================
+52. TESTING STRATEGY
+====================
+
+Gunakan sample prompt:
+
+"Seorang sopir taksi online yang sedang kesulitan membayar uang sekolah anaknya menerima penumpang tua dengan koper. Koper itu tertinggal. Beberapa orang kemudian mengejar mobilnya dan meminta koper tersebut."
+
+Gunakan untuk menguji:
+
+* mystery
+* pacing
+* dialogue
+* character agency
+* open ending
+* humanization
+
+Pastikan hasil bukan seperti sinopsis.
+
+============================================================
+53. QUALITY TEST
+================
+
+Sebuah cerita dianggap berhasil jika:
+
+* pembaca mengalami adegan
+* bukan membaca ringkasan
+* karakter punya motivasi
+* dialog natural
+* emosi ditunjukkan
+* ada detail konkret
+* mystery masuk akal
+* clues sudah muncul
+* reveal memiliki payoff
+* ending tidak menggurui
+* tidak membosankan
+* tidak penuh frase AI
+* tidak ada Markdown artifacts
+* siap copy Facebook
+
+============================================================
+54. GITHUB WORKFLOW
+===================
+
+Setelah implementasi:
+
+* buat commit yang jelas
+* update README jika perlu
+* buat GitHub Pages workflow jika cocok
+* pastikan npm build berhasil
+* pastikan output production dapat di-deploy ke GitHub Pages
+
+Jangan memasukkan API key pribadi ke repository.
+
+Konfigurasi key harus dilakukan melalui UI/browser untuk MVP atau mekanisme environment yang aman jika nanti dipindahkan ke backend.
+
+============================================================
+55. JANGAN MENGHENTIKAN PEKERJAAN PADA PLAN
+===========================================
+
+Baca spesifikasi.
+
+Audit repository.
+
+Kemudian implementasikan.
+
+Jika ada keputusan teknis kecil yang tidak ditentukan:
+pilih opsi paling sederhana yang menjaga:
+
+* portability
+* maintainability
+* performance
+
+Jangan bertanya untuk hal-hal kecil yang bisa diputuskan sendiri.
+
+Namun jika ada konflik antara requirement:
+prioritaskan kualitas story engine.
+
+============================================================
+56. HASIL YANG SAYA HARAPKAN
+============================
+
+Pada akhir implementasi repository harus memiliki web app yang bisa saya jalankan dengan:
+
+npm install
+npm run dev
+
+dan build production dengan:
+
+npm run build
+
+Aplikasi harus bisa berjalan di browser.
+
+Saya ingin struktur kode yang dapat dibaca AI lain dan mudah dikembangkan.
+
+Saya tidak ingin proyek yang rumit.
+
+Saya ingin fondasi yang kuat.
+
+Mulai sekarang.
+
+```
+
+Saya menyarankan Antigravity **mengimplementasikan dari repository kosong secara bertahap**, bukan membuat semuanya sebagai satu file besar. Walaupun target akhirnya GitHub Pages, struktur modular seperti `ai-client`, `story-engine`, `wizard-engine`, `critic`, `history`, dan `image-engine` akan jauh lebih mudah kamu ubah ketika nanti ingin membuat versi yang lebih kompleks. Repo saat ini memang masih hanya berisi README, jadi tidak ada legacy code yang perlu dipertahankan. 
+```
+
