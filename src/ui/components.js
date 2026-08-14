@@ -48,13 +48,57 @@ export function renderHeader({ activeView = 'home' }) {
 }
 
 /**
- * Loading Status Indicator
+ * Enhanced Visual Progress Status & Checklist Component
  */
-export function renderLoading(statusMessage = 'Sedang memproses...') {
+export function renderLoading(statusMessage = 'Sedang memproses...', currentStep = 0, totalSteps = 0, stepList = []) {
+  const percent = totalSteps > 0 ? Math.min(100, Math.round((currentStep / totalSteps) * 100)) : 0;
+
   return `
-    <div class="card loading-overlay">
-      <div class="spinner"></div>
-      <div class="loading-status" id="loading-status-text">${statusMessage}</div>
+    <div class="card loading-progress-card">
+      <div class="loading-header">
+        <div class="spinner"></div>
+        <div>
+          <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.1rem; margin: 0;">
+            PROSES SEDANG BERLANGSUNG
+          </h3>
+          <div class="loading-status" id="loading-status-text" style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.25rem;">
+            ${statusMessage}
+          </div>
+        </div>
+      </div>
+
+      ${totalSteps > 0 ? `
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem; margin-bottom:1.25rem; font-weight: 500;">
+          <span>Langkah ${currentStep} dari ${totalSteps}</span>
+          <span>${percent}% Selesai</span>
+        </div>
+      ` : ''}
+
+      ${stepList.length > 0 ? `
+        <div class="step-checklist">
+          ${stepList.map((step, idx) => {
+            const stepNum = idx + 1;
+            let icon = '⚪';
+            let cls = 'step-pending';
+            if (stepNum < currentStep) {
+              icon = '✅';
+              cls = 'step-done';
+            } else if (stepNum === currentStep) {
+              icon = '⏳';
+              cls = 'step-active';
+            }
+            return `
+              <div class="step-item ${cls}">
+                <span class="step-icon">${icon}</span>
+                <span class="step-text">${step}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
     </div>
   `;
 }

@@ -1,8 +1,8 @@
 /**
- * Main Application Controller & State Manager — V3 Architecture
+ * Main Application Controller & State Manager — V3 Architecture with Interactive Chatbot & Rich Progress
  */
 
-import { renderHeader, renderLoading, renderAlert } from './components.js';
+import { renderHeader, renderLoading, renderAlert, renderProposalCard } from './components.js';
 import {
   renderHomeView,
   renderMode1InputView,
@@ -61,6 +61,12 @@ import {
 import { copyToClipboard } from '../utils/clipboard.js';
 import { exportStoryMarkdown } from '../utils/export.js';
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 class AppController {
   constructor() {
     this.currentView = 'home';
@@ -87,6 +93,7 @@ class AppController {
       activeResearchSession: null,
       activeBrainstormConvId: null,
       restorePreview: null,
+      loadingState: null,
       alert: null
     };
   }
@@ -105,16 +112,28 @@ class AppController {
     }, 4000);
   }
 
-  setLoading(message) {
+  setLoading(message, currentStep = 0, totalSteps = 0, stepList = []) {
+    this.state.loadingState = { message, currentStep, totalSteps, stepList };
     const container = document.getElementById('app-content');
     if (container) {
-      container.innerHTML = renderLoading(message);
+      container.innerHTML = renderLoading(message, currentStep, totalSteps, stepList);
     }
   }
 
-  updateLoadingStatus(message) {
-    const el = document.getElementById('loading-status-text');
-    if (el) el.textContent = message;
+  updateLoadingStatus(message, currentStep, totalSteps, stepList = []) {
+    if (this.state.loadingState) {
+      if (message) this.state.loadingState.message = message;
+      if (currentStep !== undefined && currentStep !== null) this.state.loadingState.currentStep = currentStep;
+      if (totalSteps !== undefined && totalSteps !== null) this.state.loadingState.totalSteps = totalSteps;
+      if (stepList.length > 0) this.state.loadingState.stepList = stepList;
+    } else {
+      this.state.loadingState = { message, currentStep: currentStep || 0, totalSteps: totalSteps || 0, stepList };
+    }
+    const container = document.getElementById('app-content');
+    if (container) {
+      const s = this.state.loadingState;
+      container.innerHTML = renderLoading(s.message, s.currentStep, s.totalSteps, s.stepList);
+    }
   }
 
   scrollToTop() {
@@ -318,7 +337,8 @@ class AppController {
     const btnImproveWizardOutline = document.getElementById('btn-improve-wizard-outline');
     if (btnImproveWizardOutline) {
       btnImproveWizardOutline.addEventListener('click', async () => {
-        this.setLoading('Merancang perbaikan alur cerita...');
+        const steps = ['Menganalisis alur saat ini', 'Merancang perbaikan dinamika misteri'];
+        this.setLoading('Merancang perbaikan alur cerita...', 1, 2, steps);
         try {
           const res = await improveOutline(this.state.wizardSelections);
           this.state.improvedOutlineData = res;
@@ -363,7 +383,8 @@ class AppController {
         const userFeedback = prompt('Berikan masukan/kritik tentang cerita ini untuk didiskusikan dengan Editor AI (misal: "Dialog terlalu kaku" atau "Ending terlalu menjelaskan"):');
         if (userFeedback === null) return;
 
-        this.setLoading('Membuka sesi diskusi kritik cerita...');
+        const steps = ['Membaca konteks cerita', 'Menganalisis masukan pengguna', 'Menyusun saran perbaikan'];
+        this.setLoading('Membuka sesi diskusi kritik cerita...', 1, 3, steps);
         try {
           const res = await initiateStoryFeedbackLoop({
             story: this.state.currentStory,
@@ -532,13 +553,24 @@ class AppController {
           return;
         }
 
-        this.setLoading(`Melakukan ${mode === 'deep' ? 'Deep Research' : 'Quick Research'}...`);
+        const researchSteps = [
+          'Mengumpulkan sumber & referensi sastra',
+          'Melakukan sintesis & analisis teknik penulisan',
+          'Merumuskan rekomendasi & usulan aturan (proposals)'
+        ];
+
+        this.setLoading(`Melakukan ${mode === 'deep' ? 'Deep Research' : 'Quick Research'}...`, 1, 3, researchSteps);
         try {
           const report = await executeResearch({
             question,
             mode,
             manualSourceText: manualText,
-            updateStatus: (msg) => this.updateLoadingStatus(msg)
+            updateStatus: (msg) => {
+              let step = 1;
+              if (msg.includes('sintesis') || msg.includes('analisis')) step = 2;
+              if (msg.includes('usulan') || msg.includes('rekomendasi')) step = 3;
+              this.updateLoadingStatus(msg, step, 3, researchSteps);
+            }
           });
           this.state.activeResearchSession = report;
           this.currentView = 'research';
@@ -565,47 +597,125 @@ class AppController {
     });
   }
 
+  // --- Interactive Chatbot Experience for Brainstorming ---
+
   bindBrainstormEvents() {
     const brainstormForm = document.getElementById('brainstorm-form');
     const inputArea = document.getElementById('brainstorm-input-text');
+    const chatWin = document.getElementById('brainstorm-chat-window');
 
-    if (brainstormForm && inputArea) {
-      const handleSend = async (mode) => {
-        const text = inputArea.value;
-        if (!text || !text.trim()) return;
+    if (!brainstormForm || !inputArea || !chatWin) return;
 
-        this.setLoading('Editor AI sedang memproses...');
-        try {
-          const res = await sendBrainstormMessage({
-            conversationId: this.state.activeBrainstormConvId,
-            userMessage: text,
-            mode,
-            updateStatus: (msg) => this.updateLoadingStatus(msg)
-          });
+    // Auto-scroll chat to bottom
+    chatWin.scrollTop = chatWin.scrollHeight;
 
-          this.state.activeBrainstormConvId = res.conversation.id;
-          this.currentView = 'brainstorm';
-          this.render();
-          // Scroll chat to bottom
-          const chatWin = document.getElementById('brainstorm-chat-window');
-          if (chatWin) chatWin.scrollTop = chatWin.scrollHeight;
-        } catch (err) {
-          this.showAlert('Gagal memproses percakapan: ' + err.message, 'error');
-          this.currentView = 'brainstorm';
-          this.render();
-        }
-      };
+    const handleSendInline = async (mode) => {
+      const text = inputArea.value;
+      if (!text || !text.trim()) return;
 
-      brainstormForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleSend('discuss');
-      });
+      const userText = text.trim();
+      inputArea.value = ''; // Clear immediately
+      inputArea.focus();
 
+      // 1. Append User Message Bubble immediately
+      const placeholderMsg = chatWin.querySelector('div[style*="text-align: center"]');
+      if (placeholderMsg) placeholderMsg.remove();
+
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble chat-user';
+      userBubble.innerHTML = `
+        <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 0.25rem;">ANDA</div>
+        <div style="font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(userText)}</div>
+      `;
+      chatWin.appendChild(userBubble);
+
+      // 2. Append AI Typing Indicator Bubble immediately
+      const typingIndicator = document.createElement('div');
+      typingIndicator.className = 'chat-bubble chat-ai chat-typing';
+      typingIndicator.id = 'ai-typing-indicator';
+      typingIndicator.innerHTML = `
+        <div class="chat-typing-container">
+          <span>Editor AI sedang berpikir</span>
+          <div class="typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      `;
+      chatWin.appendChild(typingIndicator);
+      chatWin.scrollTop = chatWin.scrollHeight;
+
+      // Disable buttons while waiting
+      const btnDiscuss = document.getElementById('btn-send-discuss');
       const btnCritique = document.getElementById('btn-send-critique');
-      if (btnCritique) {
-        btnCritique.addEventListener('click', () => handleSend('critique'));
+      if (btnDiscuss) btnDiscuss.disabled = true;
+      if (btnCritique) btnCritique.disabled = true;
+
+      try {
+        const res = await sendBrainstormMessage({
+          conversationId: this.state.activeBrainstormConvId,
+          userMessage: userText,
+          mode
+        });
+
+        this.state.activeBrainstormConvId = res.conversation.id;
+
+        // Remove typing indicator
+        if (typingIndicator.parentNode) typingIndicator.remove();
+
+        // 3. Append Real AI Message Bubble
+        const latestAiMsg = res.conversation.messages[res.conversation.messages.length - 1];
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'chat-bubble chat-ai';
+        aiBubble.innerHTML = `
+          <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 0.25rem;">EDITOR AI</div>
+          <div style="font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap;">${escapeHtml(latestAiMsg.text)}</div>
+          
+          ${latestAiMsg.critiqueBreakdown && latestAiMsg.critiqueBreakdown.problems ? `
+            <div style="margin-top: 0.75rem; background: rgba(0,0,0,0.04); padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.85rem;">
+              <strong>🔍 Kelemahan:</strong> ${escapeHtml(latestAiMsg.critiqueBreakdown.problems)}<br/>
+              <strong>💡 Saran:</strong> ${escapeHtml(latestAiMsg.critiqueBreakdown.suggestedImprovement)}
+            </div>
+          ` : ''}
+        `;
+        chatWin.appendChild(aiBubble);
+
+        // 4. Append Proposal Card if generated
+        if (res.newProposal) {
+          const propContainer = document.createElement('div');
+          propContainer.innerHTML = renderProposalCard(res.newProposal);
+          chatWin.appendChild(propContainer.firstElementChild);
+          this.bindProposalApprovalEvents();
+        }
+
+        chatWin.scrollTop = chatWin.scrollHeight;
+      } catch (err) {
+        if (typingIndicator.parentNode) typingIndicator.remove();
+        this.showAlert('Gagal memproses percakapan: ' + err.message, 'error');
+      } finally {
+        if (btnDiscuss) btnDiscuss.disabled = false;
+        if (btnCritique) btnCritique.disabled = false;
       }
+    };
+
+    brainstormForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSendInline('discuss');
+    });
+
+    const btnCritique = document.getElementById('btn-send-critique');
+    if (btnCritique) {
+      btnCritique.addEventListener('click', () => handleSendInline('critique'));
     }
+
+    // Keyboard shortcut: Enter to send, Shift+Enter for newline
+    inputArea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendInline('discuss');
+      }
+    });
 
     const btnNewBs = document.getElementById('btn-new-brainstorm');
     if (btnNewBs) {
@@ -618,15 +728,12 @@ class AppController {
   }
 
   bindProposalApprovalEvents() {
-    // Approval Workflow Handlers
     const approveBtns = document.querySelectorAll('.btn-approve-proposal');
     approveBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.dataset.proposal-id;
         const card = btn.closest('.proposal-card');
         if (!card) return;
 
-        // Extract title, category, content
         const titleEl = card.querySelector('h4');
         const contentEl = card.querySelector('p');
         const tagEl = card.querySelector('.tag');
@@ -643,7 +750,6 @@ class AppController {
           source: 'research'
         });
 
-        // Hide card visually
         card.style.opacity = '0.5';
         card.style.pointerEvents = 'none';
         btn.textContent = '✅ Approved & Saved!';
@@ -688,22 +794,12 @@ class AppController {
 
         const conv = createBrainstormConversation(`Diskusi Proposal: ${content.slice(0, 25)}...`);
         this.state.activeBrainstormConvId = conv.id;
+        this.currentView = 'brainstorm';
+        this.render();
 
-        this.setLoading('Membuka sesi diskusi proposal...');
-        try {
-          await sendBrainstormMessage({
-            conversationId: conv.id,
-            userMessage: `Saya ingin mendiskusikan usulan rule Writing Brain ini: "${content}". Apakah aturan ini sudah tepat atau perlu disesuaikan?`,
-            mode: 'discuss',
-            updateStatus: (msg) => this.updateLoadingStatus(msg)
-          });
-
-          this.currentView = 'brainstorm';
-          this.render();
-          this.showAlert('Sesi diskusi proposal berhasil dibuka!', 'success');
-        } catch (err) {
-          this.showAlert('Gagal membuka diskusi: ' + err.message, 'error');
-          this.render();
+        const inputArea = document.getElementById('brainstorm-input-text');
+        if (inputArea) {
+          inputArea.value = `Saya ingin mendiskusikan usulan rule ini: "${content}". Apakah aturan ini sudah tepat atau perlu disesuaikan?`;
         }
       });
     });
@@ -729,11 +825,23 @@ class AppController {
           }
         }
 
-        this.setLoading('Menyiapkan Full App ZIP Backup...');
+        const backupSteps = [
+          'Mengumpulkan data domain',
+          'Menyusun struktur file JSON',
+          'Memproses gambar cover',
+          'Mengompresi file ZIP'
+        ];
+
+        this.setLoading('Menyiapkan Full App ZIP Backup...', 1, 4, backupSteps);
         try {
-          const backupRes = await createFullAppBackupZip(options, (msg) => this.updateLoadingStatus(msg));
+          const backupRes = await createFullAppBackupZip(options, (msg) => {
+            let step = 1;
+            if (msg.includes('JSON') || msg.includes('Manifest')) step = 2;
+            if (msg.includes('gambar')) step = 3;
+            if (msg.includes('ZIP')) step = 4;
+            this.updateLoadingStatus(msg, step, 4, backupSteps);
+          });
           
-          // Trigger file download
           const blob = new Blob([backupRes.blob], { type: 'application/zip' });
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
@@ -759,9 +867,15 @@ class AppController {
         const file = e.target.files[0];
         if (!file) return;
 
-        this.setLoading('Membaca & memvalidasi file backup ZIP...');
+        const importSteps = ['Membaca file ZIP', 'Validasi manifest', 'Pratinjau data'];
+        this.setLoading('Membaca & memvalidasi file backup ZIP...', 1, 3, importSteps);
         try {
-          const parsed = await parseAndValidateBackupZip(file, (msg) => this.updateLoadingStatus(msg));
+          const parsed = await parseAndValidateBackupZip(file, (msg) => {
+            let step = 1;
+            if (msg.includes('Manifest')) step = 2;
+            if (msg.includes('Pratinjau')) step = 3;
+            this.updateLoadingStatus(msg, step, 3, importSteps);
+          });
           this.state.restorePreview = parsed;
           this.currentView = 'backup';
           this.render();
@@ -774,18 +888,18 @@ class AppController {
       });
     }
 
-    // Restore Strategy Handlers
     const btnRestoreMerge = document.getElementById('btn-restore-merge');
     if (btnRestoreMerge) {
       btnRestoreMerge.addEventListener('click', () => {
         if (!this.state.restorePreview) return;
-        this.setLoading('Melakukan Restore (MERGE)...');
+        const steps = ['Validasi data', 'Memulihkan data domain', 'Menggabungkan entri'];
+        this.setLoading('Melakukan Restore (MERGE)...', 1, 3, steps);
         try {
           executeRestore({
             backupData: this.state.restorePreview,
             strategy: 'merge',
             restoreAiSettings: !!this.state.restorePreview.aiSettings,
-            updateStatus: (msg) => this.updateLoadingStatus(msg)
+            updateStatus: (msg) => this.updateLoadingStatus(msg, 2, 3, steps)
           });
 
           this.state.restorePreview = null;
@@ -807,13 +921,14 @@ class AppController {
           return;
         }
 
-        this.setLoading('Melakukan Restore (REPLACE ALL)...');
+        const steps = ['Membersihkan data lama', 'Memulihkan data backup', 'Mengganti data domain'];
+        this.setLoading('Melakukan Restore (REPLACE ALL)...', 1, 3, steps);
         try {
           executeRestore({
             backupData: this.state.restorePreview,
             strategy: 'replace',
             restoreAiSettings: !!this.state.restorePreview.aiSettings,
-            updateStatus: (msg) => this.updateLoadingStatus(msg)
+            updateStatus: (msg) => this.updateLoadingStatus(msg, 2, 3, steps)
           });
 
           this.state.restorePreview = null;
@@ -973,15 +1088,16 @@ class AppController {
     });
   }
 
-  // --- Execution Methods ---
+  // --- Execution Methods with Multi-Step Visual Progress ---
 
   async executeMode2() {
-    this.setLoading('Menyusun ide...');
+    const steps = ['Menyusun 5 alur misteri realistis'];
+    this.setLoading('Menyusun ide alur cerita...', 1, 1, steps);
     try {
       const options = await generateOutlineOptions({
         userIdea: '',
         theme: 'Bebas',
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => this.updateLoadingStatus(msg, 1, 1, steps)
       });
       this.state.outlineOptions = options;
       this.currentView = 'outline-choices';
@@ -994,12 +1110,13 @@ class AppController {
   }
 
   async executeMode1A(idea, theme) {
-    this.setLoading('Menyusun 5 alur dari ide Anda...');
+    const steps = ['Menyusun 5 pilihan alur dari ide Anda'];
+    this.setLoading('Menyusun 5 alur dari ide Anda...', 1, 1, steps);
     try {
       const options = await generateOutlineOptions({
         userIdea: idea,
         theme,
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => this.updateLoadingStatus(msg, 1, 1, steps)
       });
       this.state.outlineOptions = options;
       this.currentView = 'outline-choices';
@@ -1012,11 +1129,12 @@ class AppController {
   }
 
   async executeMode3() {
-    this.setLoading('Menyiapkan Wizard Story...');
+    const steps = ['Menyiapkan 5 pilihan premis awal'];
+    this.setLoading('Menyiapkan Story Wizard...', 1, 1, steps);
     try {
       const premises = await generateInitialPremises({
         theme: 'Bebas',
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => this.updateLoadingStatus(msg, 1, 1, steps)
       });
       this.state.wizardSelections = {};
       this.state.wizardChoicesCurrentStage = premises.map((p, idx) => ({
@@ -1042,12 +1160,13 @@ class AppController {
       return;
     }
 
-    this.setLoading(`Memuat pilihan untuk tahap ${WIZARD_STAGES[index].title}...`);
+    const steps = [`Memuat opsi adaptif untuk tahap ${WIZARD_STAGES[index].title}`];
+    this.setLoading(`Memuat tahap ${WIZARD_STAGES[index].title}...`, 1, 1, steps);
     try {
       const choices = await generateWizardStageChoices({
         stageIndex: index,
         currentSelections: this.state.wizardSelections,
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => this.updateLoadingStatus(msg, 1, 1, steps)
       });
       this.state.wizardChoicesCurrentStage = choices;
       this.currentView = 'wizard-stage';
@@ -1058,7 +1177,8 @@ class AppController {
   }
 
   async finishWizardToReview() {
-    this.setLoading('Menganalisis efektivitas alur cerita...');
+    const steps = ['Menganalisis efektivitas dramatis & logis alur'];
+    this.setLoading('Menganalisis alur cerita...', 1, 1, steps);
     try {
       const whyItWorks = await generateOutlineReview(this.state.wizardSelections);
       this.state.wizardWhyItWorks = whyItWorks;
@@ -1072,14 +1192,26 @@ class AppController {
   }
 
   async generateFinalStory(outline) {
-    this.setLoading('Membangun alur & menulis draft...');
+    const storySteps = [
+      'Membangun Scene Plan terstruktur (3-4 adegan)',
+      'Menulis draft cerpen utuh adegan demi adegan (±1.000 kata)',
+      'Melakukan Quality Audit V2 & Humanization Pass'
+    ];
+
+    this.setLoading('Membangun logika cerita & scene plan...', 1, 3, storySteps);
+
     try {
       const result = await generateFinalStoryFromOutline({
         outline,
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => {
+          let currentStep = 1;
+          if (msg.includes('draft') || msg.includes('Menulis')) currentStep = 2;
+          if (msg.includes('Audit') || msg.includes('Humanization')) currentStep = 3;
+          this.updateLoadingStatus(msg, currentStep, 3, storySteps);
+        }
       });
 
-      this.updateLoadingStatus('Membuat prompt gambar cover...');
+      this.updateLoadingStatus('Membuat prompt gambar cover...', 3, 3, storySteps);
       let imagePrompt = '';
       try {
         imagePrompt = await generateImagePrompt({
@@ -1116,11 +1248,16 @@ class AppController {
   }
 
   async generateImage(prompt) {
-    this.setLoading('Menghasilkan gambar cover AI...');
+    const imageSteps = [
+      'Menyusun prompt visual metro-pop Indonesia',
+      'Menghubungi AI Image Provider'
+    ];
+
+    this.setLoading('Menghasilkan gambar cover AI...', 1, 2, imageSteps);
     try {
       const imageUrl = await generateStoryImage({
         prompt,
-        updateStatus: (msg) => this.updateLoadingStatus(msg)
+        updateStatus: (msg) => this.updateLoadingStatus(msg, 2, 2, imageSteps)
       });
 
       this.state.currentStory.imagePrompt = prompt;

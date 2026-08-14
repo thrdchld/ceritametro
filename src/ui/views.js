@@ -616,11 +616,11 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
 
       <!-- Message Input Form -->
       <form id="brainstorm-form" style="margin-top: 1rem;">
-        <div class="form-group" style="margin-bottom: 0.75rem;">
-          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 70px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda..."></textarea>
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 70px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda... (Tekan Enter untuk kirim, Shift+Enter untuk baris baru)"></textarea>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; justify-content: space-between; flex-wrap: wrap;">
+        <div style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
           <div style="display: flex; gap: 0.5rem;">
             <button type="submit" class="btn btn-primary btn-sm" id="btn-send-discuss">
               💬 [ Discuss ]
@@ -629,7 +629,7 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
               🔍 [ Critique ]
             </button>
           </div>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-clear-brainstorm-chat">Clear</button>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">Enter ↵ untuk Discuss • Shift+Enter baris baru</div>
         </div>
       </form>
     </div>
