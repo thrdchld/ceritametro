@@ -1,5 +1,5 @@
 /**
- * Main Application Controller & State Manager
+ * Main Application Controller & State Manager — V3 Architecture
  */
 
 import { renderHeader, renderLoading, renderAlert } from './components.js';
@@ -11,9 +11,12 @@ import {
   renderWizardReviewView,
   renderImproveOutlineView,
   renderStoryResultView,
+  renderWritingBrainView,
+  renderResearchView,
+  renderBrainstormView,
+  renderBackupView,
   renderSettingsView,
-  renderHistoryView,
-  renderWritingBrainView
+  renderHistoryView
 } from './views.js';
 
 import { getSettings, saveSettings } from '../core/storage.js';
@@ -28,8 +31,35 @@ import {
 } from '../core/wizard-engine.js';
 import { generateImagePrompt, generateStoryImage } from '../core/image-engine.js';
 import { fetchAvailableModels } from '../core/ai-client.js';
+import {
+  getWritingBrainEntries,
+  addKnowledgeEntry,
+  updateKnowledgeEntry,
+  deleteKnowledgeEntry,
+  getStyleProfile,
+  checkBrainHealth,
+  BRAIN_CATEGORIES
+} from '../core/writing-brain.js';
+import {
+  executeResearch,
+  getResearchSessions,
+  getResearchSessionById
+} from '../core/research-engine.js';
+import {
+  getBrainstormConversations,
+  getBrainstormConversationById,
+  createBrainstormConversation,
+  sendBrainstormMessage,
+  initiateStoryFeedbackLoop
+} from '../core/brainstorm-engine.js';
+import {
+  createFullAppBackupZip,
+  parseAndValidateBackupZip,
+  executeRestore,
+  getBackupHistoryMetadata
+} from '../core/backup-engine.js';
 import { copyToClipboard } from '../utils/clipboard.js';
-import { exportHistoryJSON, importHistoryJSON, exportStoryMarkdown } from '../utils/export.js';
+import { exportStoryMarkdown } from '../utils/export.js';
 
 class AppController {
   constructor() {
@@ -48,6 +78,15 @@ class AppController {
       historyList: [],
       scannedTextModels: [],
       scannedImageModels: [],
+      
+      // V3 Domain State
+      wbFilterCategory: 'all',
+      wbSearchQuery: '',
+      wbHealthReport: null,
+      researchMode: 'quick',
+      activeResearchSession: null,
+      activeBrainstormConvId: null,
+      restorePreview: null,
       alert: null
     };
   }
@@ -81,8 +120,6 @@ class AppController {
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  // --- Global Event Delegation ---
 
   bindGlobalEvents() {
     document.addEventListener('click', (e) => {
@@ -123,8 +160,6 @@ class AppController {
     }
   }
 
-  // --- Rendering ---
-
   render() {
     const root = document.getElementById('app');
     if (!root) return;
@@ -158,12 +193,32 @@ class AppController {
       });
     } else if (this.currentView === 'story-result') {
       contentHtml = renderStoryResultView(this.state.currentStory);
+    } else if (this.currentView === 'brain') {
+      contentHtml = renderWritingBrainView({
+        entries: getWritingBrainEntries(),
+        profile: getStyleProfile(),
+        healthReport: this.state.wbHealthReport,
+        filterCategory: this.state.wbFilterCategory,
+        searchQuery: this.state.wbSearchQuery
+      });
+    } else if (this.currentView === 'research') {
+      contentHtml = renderResearchView({
+        sessions: getResearchSessions(),
+        activeSession: this.state.activeResearchSession,
+        mode: this.state.researchMode
+      });
+    } else if (this.currentView === 'brainstorm') {
+      const activeConv = getBrainstormConversationById(this.state.activeBrainstormConvId);
+      contentHtml = renderBrainstormView({ conversation: activeConv });
+    } else if (this.currentView === 'backup') {
+      contentHtml = renderBackupView({
+        historyMeta: getBackupHistoryMetadata(),
+        restorePreview: this.state.restorePreview
+      });
     } else if (this.currentView === 'settings') {
       contentHtml = renderSettingsView(getSettings(), this.state.scannedTextModels, this.state.scannedImageModels);
     } else if (this.currentView === 'history') {
       contentHtml = renderHistoryView(this.state.historyList);
-    } else if (this.currentView === 'brain') {
-      contentHtml = renderWritingBrainView();
     }
 
     root.innerHTML = `
@@ -177,15 +232,18 @@ class AppController {
     this.bindViewEvents();
   }
 
-  // --- View-Specific Event Bindings ---
-
   bindViewEvents() {
     this.bindMode1Events();
     this.bindOutlineEvents();
     this.bindWizardEvents();
     this.bindStoryResultEvents();
+    this.bindWritingBrainEvents();
+    this.bindResearchEvents();
+    this.bindBrainstormEvents();
+    this.bindBackupEvents();
     this.bindSettingsEvents();
     this.bindHistoryEvents();
+    this.bindProposalApprovalEvents();
   }
 
   bindMode1Events() {
@@ -221,7 +279,6 @@ class AppController {
   }
 
   bindWizardEvents() {
-    // Wizard stage choice selection
     const choiceItems = document.querySelectorAll('.wizard-choice-item');
     choiceItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -251,7 +308,6 @@ class AppController {
       });
     }
 
-    // Wizard review buttons
     const btnGenerateWizardFinal = document.getElementById('btn-generate-wizard-final');
     if (btnGenerateWizardFinal) {
       btnGenerateWizardFinal.addEventListener('click', () => {
@@ -274,7 +330,6 @@ class AppController {
       });
     }
 
-    // Improve outline buttons
     const btnUseImproved = document.getElementById('btn-use-improved-outline');
     if (btnUseImproved) {
       btnUseImproved.addEventListener('click', () => {
@@ -298,7 +353,31 @@ class AppController {
         const fullText = `${this.state.currentStory.title}\n\n${this.state.currentStory.story}`;
         const ok = await copyToClipboard(fullText);
         if (ok) this.showAlert('Cerita berhasil dicopy ke clipboard!', 'success');
-        else this.showAlert('Gagal copy teks.', 'error');
+      });
+    }
+
+    // Story Critique Feedback Loop
+    const btnCritiqueStory = document.getElementById('btn-critique-story');
+    if (btnCritiqueStory) {
+      btnCritiqueStory.addEventListener('click', async () => {
+        const userFeedback = prompt('Berikan masukan/kritik tentang cerita ini untuk didiskusikan dengan Editor AI (misal: "Dialog terlalu kaku" atau "Ending terlalu menjelaskan"):');
+        if (userFeedback === null) return;
+
+        this.setLoading('Membuka sesi diskusi kritik cerita...');
+        try {
+          const res = await initiateStoryFeedbackLoop({
+            story: this.state.currentStory,
+            userCritique: userFeedback,
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+          this.state.activeBrainstormConvId = res.conversation.id;
+          this.currentView = 'brainstorm';
+          this.render();
+          this.showAlert('Sesi diskusi kritik cerita berhasil dibuka!', 'success');
+        } catch (err) {
+          this.showAlert('Gagal membuka diskusi kritik: ' + err.message, 'error');
+          this.render();
+        }
       });
     }
 
@@ -334,7 +413,6 @@ class AppController {
       });
     }
 
-    // Title format select handlers
     this.bindTitleFormatEvents();
   }
 
@@ -363,8 +441,402 @@ class AppController {
     }
   }
 
+  bindWritingBrainEvents() {
+    const btnAddWb = document.getElementById('btn-wb-add-entry');
+    if (btnAddWb) {
+      btnAddWb.addEventListener('click', () => {
+        const title = prompt('Judul Knowledge:');
+        if (!title) return;
+        const content = prompt('Isi Aturan / Knowledge (1-2 kalimat):');
+        if (!content) return;
+        const category = prompt(`Kategori (Pilih salah satu:\n${BRAIN_CATEGORIES.join(', ')}):`, 'User Preferences');
+
+        addKnowledgeEntry({
+          title,
+          content,
+          category: BRAIN_CATEGORIES.includes(category) ? category : 'User Preferences',
+          source: 'user'
+        });
+        this.render();
+        this.showAlert('Knowledge baru berhasil ditambahkan!', 'success');
+      });
+    }
+
+    const btnHealth = document.getElementById('btn-wb-health-check');
+    if (btnHealth) {
+      btnHealth.addEventListener('click', () => {
+        this.state.wbHealthReport = checkBrainHealth();
+        this.render();
+        this.showAlert('Health check Writing Brain selesai!', 'success');
+      });
+    }
+
+    const searchInput = document.getElementById('wb-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.state.wbSearchQuery = e.target.value;
+        this.render();
+      });
+    }
+
+    const catFilter = document.getElementById('wb-category-filter');
+    if (catFilter) {
+      catFilter.addEventListener('change', (e) => {
+        this.state.wbFilterCategory = e.target.value;
+        this.render();
+      });
+    }
+
+    const editBtns = document.querySelectorAll('.btn-edit-wb');
+    editBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const entries = getWritingBrainEntries();
+        const item = entries.find(e => e.id === id);
+        if (!item) return;
+
+        const newContent = prompt('Edit Isi Knowledge:', item.content);
+        if (newContent && newContent.trim()) {
+          updateKnowledgeEntry(id, { content: newContent.trim() });
+          this.render();
+          this.showAlert('Knowledge berhasil diperbarui!', 'success');
+        }
+      });
+    });
+
+    const delBtns = document.querySelectorAll('.btn-delete-wb');
+    delBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        if (confirm('Hapus entri knowledge ini dari Writing Brain?')) {
+          deleteKnowledgeEntry(id);
+          this.render();
+          this.showAlert('Knowledge berhasil dihapus.', 'info');
+        }
+      });
+    });
+  }
+
+  bindResearchEvents() {
+    const researchForm = document.getElementById('research-form');
+    if (researchForm) {
+      researchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const question = document.getElementById('research-question-input').value;
+        const manualText = document.getElementById('research-manual-text').value;
+        const modeRadio = document.querySelector('input[name="research-mode"]:checked');
+        const mode = modeRadio ? modeRadio.value : 'quick';
+
+        if (!question || !question.trim()) {
+          this.showAlert('Masukkan pertanyaan riset terlebih dahulu.', 'error');
+          return;
+        }
+
+        this.setLoading(`Melakukan ${mode === 'deep' ? 'Deep Research' : 'Quick Research'}...`);
+        try {
+          const report = await executeResearch({
+            question,
+            mode,
+            manualSourceText: manualText,
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+          this.state.activeResearchSession = report;
+          this.currentView = 'research';
+          this.render();
+          this.showAlert('Riset selesai! Tinjau usulan aturan (proposals) di bawah.', 'success');
+        } catch (err) {
+          this.showAlert('Gagal riset: ' + err.message, 'error');
+          this.currentView = 'research';
+          this.render();
+        }
+      });
+    }
+
+    const openResearchBtns = document.querySelectorAll('.btn-open-research');
+    openResearchBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const session = getResearchSessionById(id);
+        if (session) {
+          this.state.activeResearchSession = session;
+          this.render();
+        }
+      });
+    });
+  }
+
+  bindBrainstormEvents() {
+    const brainstormForm = document.getElementById('brainstorm-form');
+    const inputArea = document.getElementById('brainstorm-input-text');
+
+    if (brainstormForm && inputArea) {
+      const handleSend = async (mode) => {
+        const text = inputArea.value;
+        if (!text || !text.trim()) return;
+
+        this.setLoading('Editor AI sedang memproses...');
+        try {
+          const res = await sendBrainstormMessage({
+            conversationId: this.state.activeBrainstormConvId,
+            userMessage: text,
+            mode,
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+
+          this.state.activeBrainstormConvId = res.conversation.id;
+          this.currentView = 'brainstorm';
+          this.render();
+          // Scroll chat to bottom
+          const chatWin = document.getElementById('brainstorm-chat-window');
+          if (chatWin) chatWin.scrollTop = chatWin.scrollHeight;
+        } catch (err) {
+          this.showAlert('Gagal memproses percakapan: ' + err.message, 'error');
+          this.currentView = 'brainstorm';
+          this.render();
+        }
+      };
+
+      brainstormForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleSend('discuss');
+      });
+
+      const btnCritique = document.getElementById('btn-send-critique');
+      if (btnCritique) {
+        btnCritique.addEventListener('click', () => handleSend('critique'));
+      }
+    }
+
+    const btnNewBs = document.getElementById('btn-new-brainstorm');
+    if (btnNewBs) {
+      btnNewBs.addEventListener('click', () => {
+        const newConv = createBrainstormConversation();
+        this.state.activeBrainstormConvId = newConv.id;
+        this.render();
+      });
+    }
+  }
+
+  bindProposalApprovalEvents() {
+    // Approval Workflow Handlers
+    const approveBtns = document.querySelectorAll('.btn-approve-proposal');
+    approveBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.proposal-id;
+        const card = btn.closest('.proposal-card');
+        if (!card) return;
+
+        // Extract title, category, content
+        const titleEl = card.querySelector('h4');
+        const contentEl = card.querySelector('p');
+        const tagEl = card.querySelector('.tag');
+
+        const title = titleEl ? titleEl.textContent.trim().split('\n')[0] : 'Proposed Rule';
+        const category = tagEl ? tagEl.textContent.trim() : 'Learned Rules';
+        const content = contentEl ? contentEl.textContent.replace(/^"|"$/g, '').trim() : '';
+
+        addKnowledgeEntry({
+          title,
+          category,
+          content,
+          type: 'rule',
+          source: 'research'
+        });
+
+        // Hide card visually
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+        btn.textContent = '✅ Approved & Saved!';
+        this.showAlert(`Rule "${title}" berhasil ditambahkan ke Writing Brain!`, 'success');
+      });
+    });
+
+    const editProposalBtns = document.querySelectorAll('.btn-edit-proposal');
+    editProposalBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.proposal-card');
+        if (!card) return;
+        const contentEl = card.querySelector('p');
+        if (!contentEl) return;
+
+        const newContent = prompt('Edit Isi Rule Proposal:', contentEl.textContent.replace(/^"|"$/g, '').trim());
+        if (newContent && newContent.trim()) {
+          contentEl.textContent = `"${newContent.trim()}"`;
+          this.showAlert('Usulan rule diperbarui. Klik Approve untuk menyimpan ke Writing Brain.', 'info');
+        }
+      });
+    });
+
+    const rejectProposalBtns = document.querySelectorAll('.btn-reject-proposal');
+    rejectProposalBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.proposal-card');
+        if (card) {
+          card.remove();
+          this.showAlert('Usulan rule ditolak.', 'info');
+        }
+      });
+    });
+
+    const discussProposalBtns = document.querySelectorAll('.btn-discuss-proposal');
+    discussProposalBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const card = btn.closest('.proposal-card');
+        if (!card) return;
+        const contentEl = card.querySelector('p');
+        const content = contentEl ? contentEl.textContent.replace(/^"|"$/g, '') : '';
+
+        const conv = createBrainstormConversation(`Diskusi Proposal: ${content.slice(0, 25)}...`);
+        this.state.activeBrainstormConvId = conv.id;
+
+        this.setLoading('Membuka sesi diskusi proposal...');
+        try {
+          await sendBrainstormMessage({
+            conversationId: conv.id,
+            userMessage: `Saya ingin mendiskusikan usulan rule Writing Brain ini: "${content}". Apakah aturan ini sudah tepat atau perlu disesuaikan?`,
+            mode: 'discuss',
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+
+          this.currentView = 'brainstorm';
+          this.render();
+          this.showAlert('Sesi diskusi proposal berhasil dibuka!', 'success');
+        } catch (err) {
+          this.showAlert('Gagal membuka diskusi: ' + err.message, 'error');
+          this.render();
+        }
+      });
+    });
+  }
+
+  bindBackupEvents() {
+    const btnExportZip = document.getElementById('btn-export-full-zip');
+    if (btnExportZip) {
+      btnExportZip.addEventListener('click', async () => {
+        const options = {
+          includeWritingBrain: document.getElementById('chk-bk-brain').checked,
+          includeResearch: document.getElementById('chk-bk-research').checked,
+          includeBrainstorm: document.getElementById('chk-bk-brainstorm').checked,
+          includeStories: document.getElementById('chk-bk-stories').checked,
+          includeImages: document.getElementById('chk-bk-images').checked,
+          includeAiSettings: document.getElementById('chk-bk-ai').checked,
+          includeApiKeys: document.getElementById('chk-bk-keys').checked
+        };
+
+        if (options.includeApiKeys) {
+          if (!confirm('⚠️ WARNING: Backup ini akan memuat API Key Anda secara jelas. Pastikan Anda tidak membagikan file ZIP ini secara publik. Lanjutkan?')) {
+            return;
+          }
+        }
+
+        this.setLoading('Menyiapkan Full App ZIP Backup...');
+        try {
+          const backupRes = await createFullAppBackupZip(options, (msg) => this.updateLoadingStatus(msg));
+          
+          // Trigger file download
+          const blob = new Blob([backupRes.blob], { type: 'application/zip' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = backupRes.fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          this.currentView = 'backup';
+          this.render();
+          this.showAlert(`Backup berhasil dibuat: ${backupRes.fileName}`, 'success');
+        } catch (err) {
+          this.showAlert('Gagal membuat backup ZIP: ' + err.message, 'error');
+          this.currentView = 'backup';
+          this.render();
+        }
+      });
+    }
+
+    const inputImportZip = document.getElementById('input-import-backup-zip');
+    if (inputImportZip) {
+      inputImportZip.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        this.setLoading('Membaca & memvalidasi file backup ZIP...');
+        try {
+          const parsed = await parseAndValidateBackupZip(file, (msg) => this.updateLoadingStatus(msg));
+          this.state.restorePreview = parsed;
+          this.currentView = 'backup';
+          this.render();
+          this.showAlert('File ZIP valid! Tinjau pratinjau di bawah dan pilih strategi Restore.', 'success');
+        } catch (err) {
+          this.showAlert(err.message, 'error');
+          this.currentView = 'backup';
+          this.render();
+        }
+      });
+    }
+
+    // Restore Strategy Handlers
+    const btnRestoreMerge = document.getElementById('btn-restore-merge');
+    if (btnRestoreMerge) {
+      btnRestoreMerge.addEventListener('click', () => {
+        if (!this.state.restorePreview) return;
+        this.setLoading('Melakukan Restore (MERGE)...');
+        try {
+          executeRestore({
+            backupData: this.state.restorePreview,
+            strategy: 'merge',
+            restoreAiSettings: !!this.state.restorePreview.aiSettings,
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+
+          this.state.restorePreview = null;
+          this.currentView = 'backup';
+          this.render();
+          this.showAlert('Data aplikasi berhasil digabungkan (Merge) dari backup ZIP!', 'success');
+        } catch (err) {
+          this.showAlert('Gagal memulihkan data: ' + err.message, 'error');
+          this.render();
+        }
+      });
+    }
+
+    const btnRestoreReplace = document.getElementById('btn-restore-replace');
+    if (btnRestoreReplace) {
+      btnRestoreReplace.addEventListener('click', () => {
+        if (!this.state.restorePreview) return;
+        if (!confirm('⚠️ PERINGATAN KETAT: Seluruh data lokal saat ini akan DIGANTIKAN oleh isi file backup ZIP. Lanjutkan?')) {
+          return;
+        }
+
+        this.setLoading('Melakukan Restore (REPLACE ALL)...');
+        try {
+          executeRestore({
+            backupData: this.state.restorePreview,
+            strategy: 'replace',
+            restoreAiSettings: !!this.state.restorePreview.aiSettings,
+            updateStatus: (msg) => this.updateLoadingStatus(msg)
+          });
+
+          this.state.restorePreview = null;
+          this.currentView = 'backup';
+          this.render();
+          this.showAlert('Seluruh data aplikasi berhasil diganti dari backup ZIP!', 'success');
+        } catch (err) {
+          this.showAlert('Gagal memulihkan data: ' + err.message, 'error');
+          this.render();
+        }
+      });
+    }
+
+    const btnRestoreCancel = document.getElementById('btn-restore-cancel');
+    if (btnRestoreCancel) {
+      btnRestoreCancel.addEventListener('click', () => {
+        this.state.restorePreview = null;
+        this.render();
+      });
+    }
+  }
+
   bindSettingsEvents() {
-    // Settings form submit
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) {
       settingsForm.addEventListener('submit', (e) => {
@@ -382,7 +854,6 @@ class AppController {
       });
     }
 
-    // Model chip click handlers — clicking a chip selects that model
     const modelChips = document.querySelectorAll('.model-chip');
     modelChips.forEach(chip => {
       chip.addEventListener('click', () => {
@@ -391,7 +862,6 @@ class AppController {
         const input = document.getElementById(targetId);
         if (input) {
           input.value = modelName;
-          // Update active state visually
           const container = chip.closest('.model-chips');
           if (container) {
             container.querySelectorAll('.model-chip').forEach(c => c.classList.remove('model-chip-active'));
@@ -401,7 +871,6 @@ class AppController {
       });
     });
 
-    // Scan text models
     const btnScanText = document.getElementById('btn-scan-text-models');
     if (btnScanText) {
       btnScanText.addEventListener('click', async () => {
@@ -412,7 +881,6 @@ class AppController {
         try {
           const models = await fetchAvailableModels({ endpoint, apiKey });
           this.state.scannedTextModels = models;
-          // Save current form values before re-render
           const currentSettings = {
             endpoint: document.getElementById('setting-endpoint').value,
             apiKey: document.getElementById('setting-apiKey').value,
@@ -424,7 +892,7 @@ class AppController {
           saveSettings(currentSettings);
           this.currentView = 'settings';
           this.render();
-          this.showAlert(`✅ Ditemukan ${models.length} model text! Klik model di bawah atau ketik nama model.`, 'success');
+          this.showAlert(`✅ Ditemukan ${models.length} model text!`, 'success');
         } catch (err) {
           this.showAlert(err.message, 'error');
           btnScanText.disabled = false;
@@ -433,7 +901,6 @@ class AppController {
       });
     }
 
-    // Scan image models
     const btnScanImage = document.getElementById('btn-scan-image-models');
     if (btnScanImage) {
       btnScanImage.addEventListener('click', async () => {
@@ -444,7 +911,6 @@ class AppController {
         try {
           const models = await fetchAvailableModels({ endpoint, apiKey });
           this.state.scannedImageModels = models;
-          // Save current form values before re-render
           const currentSettings = {
             endpoint: document.getElementById('setting-endpoint').value,
             apiKey: document.getElementById('setting-apiKey').value,
@@ -456,7 +922,7 @@ class AppController {
           saveSettings(currentSettings);
           this.currentView = 'settings';
           this.render();
-          this.showAlert(`✅ Ditemukan ${models.length} model gambar! Klik model di bawah atau ketik nama model.`, 'success');
+          this.showAlert(`✅ Ditemukan ${models.length} model gambar!`, 'success');
         } catch (err) {
           this.showAlert(err.message, 'error');
           btnScanImage.disabled = false;
@@ -505,32 +971,6 @@ class AppController {
         }
       });
     });
-
-    const btnExportJson = document.getElementById('btn-export-history-json');
-    if (btnExportJson) {
-      btnExportJson.addEventListener('click', () => {
-        exportHistoryJSON(this.state.historyList);
-      });
-    }
-
-    const inputImportJson = document.getElementById('input-import-history-json');
-    if (inputImportJson) {
-      inputImportJson.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-          const imported = await importHistoryJSON(file);
-          for (const s of imported) {
-            saveStory(s);
-          }
-          this.state.historyList = loadHistory();
-          this.render();
-          this.showAlert(`Berhasil mengimpor ${imported.length} cerita!`, 'success');
-        } catch (err) {
-          this.showAlert('File tidak valid: ' + err, 'error');
-        }
-      });
-    }
   }
 
   // --- Execution Methods ---
@@ -639,7 +1079,6 @@ class AppController {
         updateStatus: (msg) => this.updateLoadingStatus(msg)
       });
 
-      // Generate Image Prompt
       this.updateLoadingStatus('Membuat prompt gambar cover...');
       let imagePrompt = '';
       try {
@@ -664,7 +1103,6 @@ class AppController {
         criticNotes: result.criticNotes
       };
 
-      // Save to localStorage
       saveStory(storyItem);
 
       this.state.currentStory = storyItem;

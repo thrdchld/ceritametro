@@ -30,11 +30,17 @@ async function runBuild() {
               return { path: fullPath };
             } else if (!args.path.startsWith('/')) {
               try {
+                const subpathResolved = resolve('node_modules', args.path);
+                if (existsSync(subpathResolved)) return { path: subpathResolved };
+                if (existsSync(subpathResolved + '.js')) return { path: subpathResolved + '.js' };
+
                 const pkgDir = resolve('node_modules', args.path);
                 if (existsSync(pkgDir + '/package.json')) {
                   const pkgJson = JSON.parse(readFileSync(pkgDir + '/package.json', 'utf8'));
                   const mainFile = pkgJson.module || pkgJson.main || 'index.js';
-                  return { path: resolve(pkgDir, mainFile) };
+                  let resolvedMain = resolve(pkgDir, mainFile);
+                  if (!existsSync(resolvedMain) && existsSync(resolvedMain + '.js')) resolvedMain += '.js';
+                  return { path: resolvedMain };
                 }
               } catch (e) {}
             }

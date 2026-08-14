@@ -488,10 +488,158 @@ body {
   padding: 0.3rem;
 }
 
+/* Nav Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nav-item {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover, .nav-item.active-nav {
+  background-color: var(--accent-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Stats Cards */
+.stat-card {
+  background: #FAFAFC;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Writing Brain Entry Cards */
+.wb-entry-card {
+  background: #FAFAFC;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.wb-entry-card:hover {
+  border-color: var(--secondary);
+}
+
+/* Proposal Cards */
+.proposal-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  box-shadow: var(--shadow-sm);
+  margin-top: 0.75rem;
+}
+
+.proposal-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.proposal-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.85rem;
+}
+
+.warning-box {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+}
+
+.warning-duplicate {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #F59E0B;
+}
+
+.warning-contradiction {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #EF4444;
+}
+
+/* Chat Window & Bubbles */
+.chat-window {
+  background: #FAFAFC;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 0.85rem 1.15rem;
+  border-radius: 14px;
+}
+
+.chat-user {
+  align-self: flex-end;
+  background: var(--primary);
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-ai {
+  align-self: flex-start;
+  background: #FFFFFF;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 2px;
+  box-shadow: var(--shadow-sm);
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .app-main { padding: 1rem; }
   .card { padding: 1.25rem; }
   .story-box { padding: 1.25rem; font-size: 0.98rem; }
   .mode-grid { grid-template-columns: 1fr; }
+  .nav-text { display: none; }
+  .chat-bubble { max-width: 95%; }
 }
+

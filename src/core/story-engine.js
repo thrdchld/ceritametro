@@ -1,9 +1,10 @@
 /**
- * Story Generation Pipeline Engine — Quality Audit V2 Refined
+ * Story Generation Pipeline Engine — Connected to Evolving Writing Brain
  */
 
 import { callAIText } from './ai-client.js';
 import { criticizeAndHumanizeDraft } from './critic-engine.js';
+import { buildWritingContext } from './writing-brain.js';
 
 export const SYSTEM_STORY_PROMPT = `Anda adalah penulis profesional cerpen Indonesia bertema Realistic Metro-Pop Mystery.
 Gaya penulisan Anda sangat hidup, berfokus pada adegan (scene-first), ritme manusiawi, dialog bersubteks, serta misteri logis tanpa unsur gaib.
@@ -16,7 +17,7 @@ PRINSIP PENULISAN WAJIB (QUALITY AUDIT V2):
 
 2. DIALOG BERSUBTEKS (BUKAN Laporan Sinopsis):
    Dialog karakter HARUS memiliki tujuan, tekanan, hubungan, subteks, resistensi, dan jeda.
-   DILARANG membuat karakter berbicara seperti membacakan sinopsis/laporan data (Contoh BURUK: "Saya sudah memeriksa akta kelahiran Nastiti..."). Karakter TIDAK selalu memberikan informasi utama secara langsung.
+   DILARANG membuat karakter berbicara seperti membacakan sinopsis/laporan data. Karakter TIDAK selalu memberikan informasi utama secara langsung.
 
 3. MISTERI NON-LINEAR & HIPOTESIS BERTAHAP:
    Struktur misteri: Clue A -> Hipotesis A -> Clue B -> Hipotesis A Diragukan -> Hipotesis B -> Clue C -> Reinterpretasi -> Reveal.
@@ -24,17 +25,17 @@ PRINSIP PENULISAN WAJIB (QUALITY AUDIT V2):
 
 4. REVEAL RINGKAS & FOKUS BUKAN MONOLOG LENGKAP:
    Saat rahasia terungkap, DILARANG membuat karakter menjelaskan seluruh sejarah masa lalu dalam satu monolog panjang.
-   Gunakan 1 dokumen, 1 kalimat pendek, 1 foto, 1 tindakan, atau 1 detail fisik yang membuat semua petunjuk sebelumnya masuk akal. Pembaca yang menyambungkan titik-titiknya.
+   Gunakan 1 dokumen, 1 kalimat pendek, 1 foto, 1 tindakan, atau 1 detail fisik yang membuat semua petunjuk sebelumnya masuk akal.
 
 5. ENDING BERBASIS ADEGAN (Bukan Paragraf Moral):
    Tutup cerita dengan adegan konkret: benda, gerakan fisik, kalimat pendek, tatapan, atau tindakan. Lalu selesai.
    DILARANG menutup cerita dengan kesimpulan moral/refleksi: "Ia belajar bahwa...", "Ia sadar bahwa...", "Raka tahu bahwa...", "Ini adalah bukti bahwa...".
 
 6. KONKRET > PUITIS (Grounded Physical Detail):
-   Utamakan detail fisik spesifik daripada metafora puitis generik (Contoh BAGUS: "Kulit jok mobil sudah panas ketika Raka masuk" daripada "Jakarta terasa seperti tungku").
+   Utamakan detail fisik spesifik daripada metafora puitis generik.
 
 7. RITME KALIMAT MANUSIAWI (Human Rhythm):
-   Variasikan panjang-pendek kalimat dan paragraf secara alami. Jangan membuat semua paragraf terlalu pendek atau semua kalimat terlalu panjang.
+   Variasikan panjang-pendek kalimat dan paragraf secara alami.
 
 8. ANTI-AI PHRASES & ZERO MARKDOWN:
    DILARANG frasa klise AI: "di tengah hiruk-pikuk", "tanpa terasa", "pada akhirnya", "sejak saat itu", "dadanya sesak", "hatinya menciut", "langit kelam", "suasana terasa semakin panas", "takdir", "harapan", "perjalanan hidup".
@@ -47,7 +48,12 @@ PRINSIP PENULISAN WAJIB (QUALITY AUDIT V2):
 export async function generateOutlineOptions({ userIdea = '', theme = 'Bebas', updateStatus }) {
   if (updateStatus) updateStatus('Menyusun 5 pilihan alur cerita...');
 
+  const dynamicWritingContext = buildWritingContext({ task: 'generate_outline', genre: 'mystery', mode: 'auto' });
+
   const systemPrompt = `${SYSTEM_STORY_PROMPT}
+
+${dynamicWritingContext}
+
 Tugas Anda adalah menghasilkan 5 konsep alur cerpen misteri metro-pop yang unik, bernuansa misteri ambigu/non-linear, dan realistis.`;
 
   const userPrompt = `Input Pengguna:
@@ -93,10 +99,15 @@ Kembalikan respon DALAM FORMAT JSON BERIKUT:
  * Executes full pipeline from a selected outline to produce final story
  */
 export async function generateFinalStoryFromOutline({ outline, updateStatus }) {
+  const dynamicWritingContext = buildWritingContext({ task: 'generate_story', genre: 'mystery' });
+
   // Step 1: Build detailed Story Logic & Scene Plan
   if (updateStatus) updateStatus('Membangun logika cerita & scene plan...');
 
   const logicSystemPrompt = `${SYSTEM_STORY_PROMPT}
+
+${dynamicWritingContext}
+
 Tugas Anda adalah merancang Scene Plan terstruktur (3-4 adegan) sebelum menulis draft cerita. Setiap adegan wajib memiliki Goal, Obstacle, Action, Change, dan New Info/Hypothesis.`;
 
   const logicUserPrompt = `Alur Cerita Terpilih:
@@ -148,13 +159,16 @@ Kembalikan JSON:
   if (updateStatus) updateStatus('Menulis draft adegan demi adegan (±1.000 kata)...');
 
   const draftSystemPrompt = `${SYSTEM_STORY_PROMPT}
+
+${dynamicWritingContext}
+
 Tuliskan cerpen utuh adegan demi adegan secara hidup berdasarkan Scene Plan.
-PATUHI STRICTLY ATURAN QUALITY AUDIT V2:
+PATUHI STRICTLY ATURAN QUALITY AUDIT V2 & WRITING BRAIN KNOWLEDGE:
 - Tulis aksi, gestur, dan detail fisik konkret. KURANGI narasi narator yang menjelaskan pikiran/emosi ("Raka tahu bahwa...", "Ia menyadari...").
 - Dialog bersubteks, penuh jeda & nada ragu, BUKAN laporan sinopsis.
 - Reveal cukup 1 detail/dokumen/tindakan, BUKAN monolog panjang.
 - Ending berbasis adegan visual (benda/gerakan/tatapan), BUKAN kesimpulan moral.
-- ZEROS MARKDOWN SYMBOLS.`;
+- ZERO MARKDOWN SYMBOLS.`;
 
   const draftUserPrompt = `Tuliskan cerpen lengkap berdasarkan logika & adegan berikut:
 Judul: ${storyLogic.title}
@@ -172,7 +186,7 @@ ATURAN DRAFTING:
 1. Tulis langsung isi cerita lengkap sekitar 800 - 1.200 kata.
 2. Tuliskan judul di baris paling atas (tanpa tanda # atau **), lalu langsung isi cerita.
 3. JANGAN gunakan simbol markdown (**bold**, *italic*, # header, __).
-4. Pastikan dialog terasa seperti percakapan nyata manusia (ada tawar-menawar, kebingungan, ketegangan, bukan penjelasan kaku).`;
+4. Pastikan dialog terasa seperti percakapan nyata manusia.`;
 
   const rawDraft = await callAIText({
     systemPrompt: draftSystemPrompt,

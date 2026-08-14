@@ -1,9 +1,10 @@
 /**
- * Main Application View Templates
+ * Main Application View Templates — V3 Architecture
  */
 
-import writingBrainData from '../data/writing-brain.json';
+import { renderProposalCard } from './components.js';
 import { countWords } from '../utils/text.js';
+import { BRAIN_CATEGORIES } from '../core/writing-brain.js';
 
 export const THEME_OPTIONS = [
   'Bebas',
@@ -27,10 +28,10 @@ export function renderHomeView() {
         CERITA METRO
       </h1>
       <p style="font-size: 1.05rem; color: var(--primary); font-weight: 500;">
-        Realistic Metro-Pop Mystery Generator
+        Realistic Metro-Pop Mystery Generator & Evolving Writing Lab
       </p>
       <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 580px; margin: 0.75rem auto 0 auto;">
-        Buat cerpen misteri urban Indonesia yang logis, beremosi natural, dan nyaman dibaca di smartphone. Siap langsung copy-paste ke Facebook.
+        Buat cerpen misteri urban Indonesia yang logis, beremosi natural, dan diperkuat oleh Writing Brain lokal yang terus berkembang dari riset & diskusi.
       </p>
     </div>
 
@@ -44,7 +45,7 @@ export function renderHomeView() {
       <div class="mode-card" data-action="start-mode-2">
         <div class="mode-icon">⚡</div>
         <div class="mode-card-title">OTOMATIS</div>
-        <div class="mode-card-desc">Biarkan AI langsung membuatkan 5 pilihan alur cerita misteri realistis. Pilih 1 dan cerita langsung jadi!</div>
+        <div class="mode-card-desc">Biarkan AI langsung membuatkan 5 pilihan alur cerita misteri realistis berdasarkan Writing Brain.</div>
       </div>
 
       <div class="mode-card" data-action="start-mode-3">
@@ -54,15 +55,24 @@ export function renderHomeView() {
       </div>
     </div>
 
-    <div style="margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    <div style="margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
       <button class="btn btn-outline" data-route="brain">
         🧠 Writing Brain
       </button>
+      <button class="btn btn-outline" data-route="research">
+        🔍 AI Research
+      </button>
+      <button class="btn btn-outline" data-route="brainstorm">
+        💬 Brainstorm
+      </button>
       <button class="btn btn-outline" data-route="history">
-        📜 Riwayat Cerita
+        📜 Riwayat
+      </button>
+      <button class="btn btn-outline" data-route="backup">
+        📦 Backup ZIP
       </button>
       <button class="btn btn-outline" data-route="settings">
-        ⚙️ Pengaturan
+        ⚙️ Settings
       </button>
     </div>
   `;
@@ -81,7 +91,7 @@ export function renderMode1InputView() {
 
       <div class="form-group">
         <label class="form-label">Gagasan / Ide Cerita</label>
-        <textarea id="mode1-user-idea" class="form-textarea" placeholder="Contoh: Seorang sopir taksi online menemukan koper penumpang tua yang tertinggal. Tak lama kemudian beberapa orang mengejar mobilnya..."></textarea>
+        <textarea id="mode1-user-idea" class="form-textarea" placeholder="Contoh: Seorang eksekutor wasiat menemukan surat rahasia milik pengusaha..."></textarea>
       </div>
 
       <div class="form-group">
@@ -104,14 +114,14 @@ export function renderMode1InputView() {
 }
 
 /**
- * OUTLINE CHOICES VIEW (Mode 1A & Mode 2)
+ * OUTLINE CHOICES VIEW
  */
 export function renderOutlineChoicesView(options = []) {
   return `
     <div style="margin-bottom: 1.5rem;">
       <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 0.35rem;">Pilih 1 dari 5 Alur Cerita</h2>
       <p style="font-size: 0.9rem; color: var(--text-muted);">
-        AI telah menyusun 5 variasi alur misteri realistis. Pilih alur yang paling menarik bagi Anda.
+        AI telah menyusun 5 variasi alur misteri realistis berdasarkan Writing Brain Anda.
       </p>
     </div>
 
@@ -211,7 +221,7 @@ export function renderWizardReviewView({ wizardData, whyItWorks }) {
 }
 
 /**
- * IMPROVE OUTLINE MODAL/VIEW
+ * IMPROVE OUTLINE VIEW
  */
 export function renderImproveOutlineView({ currentOutline, improvedOutline, improvementReason }) {
   return `
@@ -262,10 +272,10 @@ export function renderStoryResultView(storyItem) {
   return `
     <div class="story-output-container">
       
-      <!-- CARD 1: CERITA FACEBOOK -->
+      <!-- CARD 1: CERITA FACEBOOK & STORY CRITIQUE FEEDBACK LOOP -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
-          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary);">CERITA FACEBOOK</h3>
+          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary);">CERITA FINAL</h3>
           <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">±${wordCnt} kata</span>
         </div>
 
@@ -295,12 +305,15 @@ export function renderStoryResultView(storyItem) {
           <div id="story-body-render">${storyItem.story}</div>
         </div>
 
-        <div style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap;">
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap;">
           <button class="btn btn-primary" id="btn-copy-story" style="flex: 2;">
             📋 [ COPY CERITA ]
           </button>
+          <button class="btn btn-secondary" id="btn-critique-story" style="flex: 1.5;" title="Diskusikan kelemahan cerita ini dengan AI untuk memperbarui Writing Brain">
+            💬 [ CRITIQUE THIS STORY ]
+          </button>
           <button class="btn btn-outline" id="btn-export-story-md" style="flex: 1;">
-            📥 Export Markdown
+            📥 Export MD
           </button>
         </div>
       </div>
@@ -347,9 +360,381 @@ export function renderStoryResultView(storyItem) {
 }
 
 /**
- * SETTINGS VIEW — Improved model selection UX
- * Models are shown as a searchable/selectable dropdown with manual input option.
- * Scanned models are cached and shown, user can also type custom model names.
+ * WRITING BRAIN DASHBOARD & KNOWLEDGE MANAGEMENT VIEW
+ */
+export function renderWritingBrainView({ entries = [], profile = {}, healthReport = null, activeTab = 'knowledge', filterCategory = 'all', searchQuery = '' }) {
+  const activeEntries = entries.filter(e => e.status === 'active');
+  const userRulesCount = activeEntries.filter(e => e.source === 'user').length;
+  const researchRulesCount = activeEntries.filter(e => e.source === 'research').length;
+  const brainstormRulesCount = activeEntries.filter(e => e.source === 'brainstorm').length;
+
+  // Filter entries
+  let filtered = activeEntries;
+  if (filterCategory !== 'all') {
+    filtered = filtered.filter(e => e.category === filterCategory);
+  }
+  if (searchQuery && searchQuery.trim()) {
+    const q = searchQuery.toLowerCase().trim();
+    filtered = filtered.filter(e => e.title.toLowerCase().includes(q) || e.content.toLowerCase().includes(q) || (e.tags || []).some(t => t.toLowerCase().includes(q)));
+  }
+
+  return `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">WRITING BRAIN DASHBOARD</h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            Lapisan pengetahuan kepenulisan lokal yang terus berkembang secara bertahap melalui approval workflow.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm" id="btn-wb-add-entry">
+            ➕ Add Knowledge
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-wb-health-check">
+            🏥 Health Check
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+        <div class="stat-card">
+          <div class="stat-num">${activeEntries.length}</div>
+          <div class="stat-label">Active Knowledge</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${userRulesCount}</div>
+          <div class="stat-label">User Rules</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${researchRulesCount}</div>
+          <div class="stat-label">Research Rules</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${brainstormRulesCount}</div>
+          <div class="stat-label">Brainstorm Rules</div>
+        </div>
+      </div>
+
+      ${healthReport ? `
+        <div class="card" style="background: var(--accent-light); border: 1px solid var(--primary); margin-bottom: 1.5rem;">
+          <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.5rem;">🏥 BRAIN HEALTH REPORT</h4>
+          <p style="font-size: 0.88rem;"><strong>Score:</strong> ${healthReport.healthScore}/100 | <strong>Duplikat:</strong> ${healthReport.duplicatesCount} | <strong>Entri Kosong:</strong> ${healthReport.emptyEntriesCount}</p>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">Health Check hanya berupa laporan dan tidak pernah mengubah data secara otomatis.</p>
+        </div>
+      ` : ''}
+
+      <!-- Filters & Search -->
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+        <input type="text" id="wb-search-input" class="form-control" placeholder="🔍 Cari pengetahuan..." value="${searchQuery}" style="flex: 2; min-width: 180px;" />
+        
+        <select id="wb-category-filter" class="form-select" style="flex: 1; min-width: 160px;">
+          <option value="all">Semua Kategori (${BRAIN_CATEGORIES.length})</option>
+          ${BRAIN_CATEGORIES.map(cat => `<option value="${cat}" ${filterCategory === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+        </select>
+      </div>
+
+      <!-- Knowledge Items List -->
+      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        ${filtered.length === 0 ? `
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Tidak ada knowledge entry yang sesuai filter.</div>
+        ` : filtered.map(e => `
+          <div class="wb-entry-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+              <div>
+                <span class="tag">${e.category}</span>
+                <strong style="font-size: 0.95rem; color: var(--text-main);">${e.title}</strong>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); background: #E6DEE8; padding: 0.15rem 0.5rem; border-radius: 4px;">v${e.version || 1} • ${e.source}</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.5; margin-bottom: 0.5rem;">${e.content}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">
+                ${(e.tags || []).map(t => `#${t}`).join(' ')}
+              </div>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-outline btn-sm btn-edit-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.78rem;">Edit</button>
+                <button class="btn btn-secondary btn-sm btn-delete-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.78rem; color: #991B1B;">Hapus</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * AI RESEARCH VIEW
+ */
+export function renderResearchView({ sessions = [], activeSession = null, mode = 'quick' }) {
+  return `
+    <div class="card">
+      <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">AI RESEARCH LAB</h2>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        Minta AI melakukan riset teknik penulisan & sintetis pengetahuan. Hasil riset akan menghasilkan usulan aturan (proposals) yang membutuhkan approval Anda.
+      </p>
+
+      <form id="research-form">
+        <div class="form-group">
+          <label class="form-label">Topik / Pertanyaan Riset</label>
+          <textarea id="research-question-input" class="form-textarea" placeholder="Contoh: Riset teknik membuat dialog bersubteks dalam cerpen misteri urban..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <div style="display: flex; gap: 0.5rem;">
+            <label class="btn ${mode === 'quick' ? 'btn-primary' : 'btn-outline'} btn-sm" style="cursor: pointer;">
+              <input type="radio" name="research-mode" value="quick" ${mode === 'quick' ? 'checked' : ''} style="display:none;" />
+              ⚡ Quick Research
+            </label>
+            <label class="btn ${mode === 'deep' ? 'btn-primary' : 'btn-outline'} btn-sm" style="cursor: pointer;">
+              <input type="radio" name="research-mode" value="deep" ${mode === 'deep' ? 'checked' : ''} style="display:none;" />
+              🔬 Deep Research
+            </label>
+          </div>
+
+          <span style="font-size: 0.82rem; color: var(--text-muted);">
+            ${mode === 'deep' ? 'Membandingkan beberapa sudut pandang & sintesis mendalam' : 'Riset cepat & ringkasan teknik praktis'}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teks Sumber / Catatan Manual (Opsional)</label>
+          <textarea id="research-manual-text" class="form-textarea" style="min-height: 80px; font-size: 0.88rem;" placeholder="Masukkan teks artikel, referensi, atau URL jika provider AI Anda tidak memiliki akses web langsung..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          🔍 Mulai Riset Penulisan
+        </button>
+      </form>
+    </div>
+
+    <!-- Active Research Report -->
+    ${activeSession ? `
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <span class="wizard-badge">${activeSession.mode === 'deep' ? 'DEEP RESEARCH REPORT' : 'QUICK RESEARCH REPORT'}</span>
+            <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--primary); margin-top: 0.35rem;">"${activeSession.question}"</h3>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">${new Date(activeSession.createdAt).toLocaleTimeString('id-ID')}</span>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 1rem; margin-bottom: 0.5rem;">💡 TEMUAN UTAMA & TEKNIK</h4>
+          <ul style="padding-left: 1.25rem; font-size: 0.9rem; line-height: 1.6;">
+            ${(activeSession.keyFindings || []).map(f => `<li>${f}</li>`).join('')}
+            ${(activeSession.importantTechniques || []).map(t => `<li><strong>Teknik:</strong> ${t}</li>`).join('')}
+          </ul>
+        </div>
+
+        ${(activeSession.recommendations || []).length > 0 ? `
+          <div style="background: var(--accent-light); padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem;">
+            <strong>📌 Rekomendasi Penerapan:</strong>
+            <ul style="padding-left: 1.25rem; margin-top: 0.35rem;">
+              ${activeSession.recommendations.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+
+        <!-- Proposed Knowledge Cards -->
+        <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.05rem; margin-bottom: 0.75rem;">
+          📝 USULAN RULE UNTUK WRITING BRAIN (${(activeSession.proposedKnowledge || []).length})
+        </h4>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          ${(activeSession.proposedKnowledge || []).map(p => renderProposalCard(p)).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- Past Sessions List -->
+    ${sessions.length > 0 ? `
+      <div class="card">
+        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">RIWAYAT RISET</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          ${sessions.slice(0, 10).map(s => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #FAFAFC; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--border);">
+              <span style="font-size: 0.88rem; font-weight: 500;">"${s.question.slice(0, 50)}..."</span>
+              <button class="btn btn-outline btn-sm btn-open-research" data-id="${s.id}">Buka Report</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+/**
+ * BRAINSTORMING & EDITOR PARTNER VIEW
+ */
+export function renderBrainstormView({ conversation = null, mode = 'discuss' }) {
+  const messages = conversation ? conversation.messages : [];
+  const proposals = conversation ? conversation.proposals : [];
+
+  return `
+    <div class="card" style="display: flex; flex-direction: column; min-height: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--primary);">EDITOR PARTNER & BRAINSTORM LAB</h2>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">Diskusi interaktif & kritik cerita untuk membentuk Writing Brain.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-new-brainstorm">➕ Diskusi Baru</button>
+      </div>
+
+      <!-- Chat Messages Window -->
+      <div class="chat-window" id="brainstorm-chat-window">
+        ${messages.length === 0 ? `
+          <div style="text-align: center; color: var(--text-muted); margin: auto; padding: 2rem;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+            <p style="font-size: 0.9rem;">Mulai diskusi dengan Editor AI mengenai alur, dialog, kelemahan cerita, atau aturan penulisan.</p>
+          </div>
+        ` : messages.map(msg => `
+          <div class="chat-bubble ${msg.sender === 'user' ? 'chat-user' : 'chat-ai'}">
+            <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 0.25rem;">${msg.sender === 'user' ? 'ANDA' : 'EDITOR AI'}</div>
+            <div style="font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap;">${msg.text}</div>
+            
+            ${msg.critiqueBreakdown && msg.critiqueBreakdown.problems ? `
+              <div style="margin-top: 0.75rem; background: rgba(0,0,0,0.04); padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.85rem;">
+                <strong>🔍 Kelemahan:</strong> ${msg.critiqueBreakdown.problems}<br/>
+                <strong>💡 Saran:</strong> ${msg.critiqueBreakdown.suggestedImprovement}
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Proposals generated in this session -->
+      ${proposals.length > 0 ? `
+        <div style="margin-top: 1rem; border-t: 1px solid var(--border); padding-top: 1rem;">
+          <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 0.95rem; margin-bottom: 0.5rem;">📝 USULAN RULE DARI DISKUSI:</h4>
+          ${proposals.map(p => renderProposalCard(p)).join('')}
+        </div>
+      ` : ''}
+
+      <!-- Message Input Form -->
+      <form id="brainstorm-form" style="margin-top: 1rem;">
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 70px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: space-between; flex-wrap: wrap;">
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary btn-sm" id="btn-send-discuss">
+              💬 [ Discuss ]
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-send-critique">
+              🔍 [ Critique ]
+            </button>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-clear-brainstorm-chat">Clear</button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+/**
+ * FULL APP BACKUP & RESTORE VIEW
+ */
+export function renderBackupView({ historyMeta = [], restorePreview = null }) {
+  return `
+    <div class="card">
+      <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">BACKUP & RESTORE APLIKASI</h2>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Cadangkan seluruh kondisi aplikasi (Writing Brain, Research, Brainstorm, History, Settings, Images) ke dalam satu file ZIP terstruktur yang mudah dipindahkan antar-device.
+      </p>
+
+      <!-- SECTION 1: EXPORT -->
+      <div style="background: #FAFAFC; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">📦 EXPORT FULL BACKUP ZIP</h3>
+        
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Pilih komponen data yang ingin dimasukkan ke dalam backup ZIP:
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; font-size: 0.88rem; margin-bottom: 1.25rem;">
+          <label><input type="checkbox" id="chk-bk-brain" checked /> Writing Brain</label>
+          <label><input type="checkbox" id="chk-bk-research" checked /> Research Sessions</label>
+          <label><input type="checkbox" id="chk-bk-brainstorm" checked /> Brainstorm Lab</label>
+          <label><input type="checkbox" id="chk-bk-stories" checked /> Story History</label>
+          <label><input type="checkbox" id="chk-bk-images" checked /> Generated Images</label>
+          <label><input type="checkbox" id="chk-bk-ai" checked /> AI Settings</label>
+          <label><input type="checkbox" id="chk-bk-keys" /> Include API Keys (Security Warning)</label>
+        </div>
+
+        <div style="background: #FDF2F2; color: #991B1B; padding: 0.65rem 0.85rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1.25rem; border: 1px solid #F87171;">
+          ⚠️ <strong>Catatan Keamanan:</strong> Secara default API Key tidak diikutkan agar file backup aman dibagikan. Jika Anda mencentang "Include API Keys", simpan file ZIP secara rahasia!
+        </div>
+
+        <button class="btn btn-primary btn-block" id="btn-export-full-zip">
+          📦 [ GENERATE & DOWNLOAD FULL ZIP BACKUP ]
+        </button>
+      </div>
+
+      <!-- SECTION 2: IMPORT / RESTORE -->
+      <div style="background: #FAFAFC; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">📥 IMPORT & RESTORE BACKUP ZIP</h3>
+        
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Pilih file backup ZIP (ceritametro-backup-YYYY-MM-DD_HH-mm-ss.zip) dari device lain untuk dipulihkan.
+        </p>
+
+        <label class="btn btn-secondary btn-block" style="cursor: pointer; text-align: center;">
+          📁 Pilih File Backup ZIP
+          <input type="file" id="input-import-backup-zip" accept=".zip" style="display: none;" />
+        </label>
+      </div>
+
+      <!-- RESTORE PREVIEW MODAL -->
+      ${restorePreview ? `
+        <div class="card" style="background: var(--accent-light); border: 2px solid var(--primary); margin-bottom: 1.5rem;">
+          <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.2rem; margin-bottom: 0.5rem;">📋 PRANJAU ISI BACKUP ZIP</h3>
+          
+          <div style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 1rem;">
+            <p><strong>File:</strong> ${restorePreview.manifest.backupFileName || 'backup.zip'}</p>
+            <p><strong>Dibuat Pada:</strong> ${restorePreview.manifest.createdAtLocal || '-'}</p>
+            <p><strong>Jumlah Cerita:</strong> ${restorePreview.stories.length} cerita</p>
+            <p><strong>Writing Brain Entries:</strong> ${restorePreview.writingBrainEntries.length} entri</p>
+            <p><strong>Research Sessions:</strong> ${restorePreview.researchSessions.length} sesi</p>
+            <p><strong>Brainstorm Conversations:</strong> ${restorePreview.brainstormConversations.length} diskusi</p>
+            <p><strong>API Keys:</strong> ${restorePreview.manifest.includesApiKeys ? 'Tersedia di Backup' : 'Tidak Ada di Backup'}</p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-restore-merge" style="flex: 1;">
+              🔀 [ MERGE (Gabungkan Data) ]
+            </button>
+            <button class="btn btn-secondary" id="btn-restore-replace" style="flex: 1; color: #991B1B;" title="Menggantikan seluruh data lokal saat ini">
+              ⚠️ [ REPLACE ALL (Timpa Semua) ]
+            </button>
+            <button class="btn btn-outline" id="btn-restore-cancel">Batal</button>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- BACKUP HISTORY METADATA -->
+      ${historyMeta.length > 0 ? `
+        <div>
+          <h4 style="font-family: var(--font-heading); font-size: 1rem; color: var(--primary); margin-bottom: 0.5rem;">LOG PEMBUATAN BACKUP TERAKHIR</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            ${historyMeta.map(h => `
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; background: #FAFAFC; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+                <span>📦 <strong>${h.fileName}</strong></span>
+                <span style="color: var(--text-muted);">${h.createdAtLocal} (${(h.size / 1024).toFixed(1)} KB)</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+/**
+ * SETTINGS VIEW
  */
 export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = []) {
   return `
@@ -447,15 +832,7 @@ export function renderHistoryView(stories = []) {
   return `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
       <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary);">RIWAYAT CERITA</h2>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn btn-secondary btn-sm" id="btn-export-history-json">
-          📤 Export JSON Backup
-        </button>
-        <label class="btn btn-outline btn-sm" style="cursor: pointer;">
-          📥 Import JSON
-          <input type="file" id="input-import-history-json" accept=".json" style="display: none;" />
-        </label>
-      </div>
+      <button class="btn btn-secondary btn-sm" data-route="backup">📦 Kelola Backup ZIP</button>
     </div>
 
     ${stories.length === 0 ? `
@@ -488,34 +865,5 @@ export function renderHistoryView(stories = []) {
         }).join('')}
       </div>
     `}
-  `;
-}
-
-/**
- * WRITING BRAIN VIEW
- */
-export function renderWritingBrainView() {
-  const categories = Object.keys(writingBrainData);
-
-  return `
-    <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem;">WRITING BRAIN</h2>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        Kumpulan aturan & prinsip gaya penulisan cerpen misteri metro-pop yang disuntikkan ke dalam AI Engine untuk menjamin kualitas tulisan.
-      </p>
-
-      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        ${categories.map(cat => `
-          <div style="background: #FAFAFC; padding: 1rem 1.25rem; border-radius: 10px; border: 1px solid var(--border);">
-            <h3 style="font-family: var(--font-heading); font-size: 1.05rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem;">
-              ${cat.replace('_', ' ')}
-            </h3>
-            <ul style="padding-left: 1.25rem; font-size: 0.88rem; color: var(--text-main);">
-              ${(writingBrainData[cat] || []).map(item => `<li style="margin-bottom: 0.3rem;">${item}</li>`).join('')}
-            </ul>
-          </div>
-        `).join('')}
-      </div>
-    </div>
   `;
 }

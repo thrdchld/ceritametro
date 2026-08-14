@@ -1,37 +1,40 @@
 /**
- * Story history management with LocalStorage
+ * Story History Management with Storage Abstraction
  */
 
-const STORAGE_KEY_HISTORY = 'cerita_metro_history';
+import { storage, KEYS } from './storage.js';
 
 /**
- * Loads stories list from localStorage
+ * Loads stories list from domain storage (with legacy fallback)
  */
 export function loadHistory() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
-    if (!raw) return [];
-    const stories = JSON.parse(raw);
-    return stories.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  } catch (err) {
-    console.error('Error loading history from localStorage:', err);
-    return [];
+  let stories = storage.get(KEYS.STORIES_INDEX);
+  
+  if (!stories || !Array.isArray(stories)) {
+    // Migration fallback from legacy key
+    const legacy = storage.get(KEYS.LEGACY_HISTORY);
+    if (Array.isArray(legacy)) {
+      stories = legacy;
+      storage.set(KEYS.STORIES_INDEX, stories);
+    } else {
+      stories = [];
+    }
   }
+
+  return stories.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
 /**
- * Saves history array to localStorage
+ * Saves history array to domain storage
  */
-function saveHistoryLocal(stories) {
-  try {
-    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(stories));
-  } catch (err) {
-    console.error('Error saving history to localStorage:', err);
-  }
+function saveHistoryDomain(stories) {
+  storage.set(KEYS.STORIES_INDEX, stories);
+  // Keep legacy key updated for safety
+  storage.set(KEYS.LEGACY_HISTORY, stories);
 }
 
 /**
- * Saves or updates a story in history
+ * Saves or updates a story item in history
  */
 export function saveStory(storyItem) {
   if (!storyItem.id) {
@@ -52,7 +55,7 @@ export function saveStory(storyItem) {
     stories.unshift(storyItem);
   }
 
-  saveHistoryLocal(stories);
+  saveHistoryDomain(stories);
   return storyItem;
 }
 
@@ -62,7 +65,7 @@ export function saveStory(storyItem) {
 export function deleteStory(id) {
   let stories = loadHistory();
   stories = stories.filter(s => s.id !== id);
-  saveHistoryLocal(stories);
+  saveHistoryDomain(stories);
   return stories;
 }
 
