@@ -1,8 +1,30 @@
 /**
- * Abstraction layer for AI Text and Image Provider calls (OpenAI API Standard format)
+ * Normalizes text AI endpoint URL to ensure it ends with /chat/completions
  */
+function normalizeChatEndpoint(rawEndpoint) {
+  if (!rawEndpoint || !rawEndpoint.trim()) {
+    return 'https://api.openai.com/v1/chat/completions';
+  }
+  let url = rawEndpoint.trim().replace(/\/+$/, '');
+  if (url.endsWith('/chat/completions')) {
+    return url;
+  }
+  return `${url}/chat/completions`;
+}
 
-import { getSettings } from './storage.js';
+/**
+ * Normalizes image AI endpoint URL to ensure it ends with /images/generations
+ */
+function normalizeImageEndpoint(rawEndpoint) {
+  if (!rawEndpoint || !rawEndpoint.trim()) {
+    return 'https://api.openai.com/v1/images/generations';
+  }
+  let url = rawEndpoint.trim().replace(/\/+$/, '');
+  if (url.endsWith('/images/generations')) {
+    return url;
+  }
+  return `${url}/images/generations`;
+}
 
 /**
  * Parses JSON response from AI text completions, handling potential markdown ```json wrapping
@@ -34,7 +56,7 @@ export async function callAIText({ systemPrompt, userPrompt, jsonMode = false, t
     throw new Error('API Key belum diisi. Silakan atur API Key di menu Pengaturan.');
   }
 
-  const endpoint = settings.endpoint || 'https://api.openai.com/v1/chat/completions';
+  const endpoint = normalizeChatEndpoint(settings.endpoint);
   const model = settings.model || 'gpt-4o-mini';
 
   const messages = [];
@@ -67,13 +89,17 @@ export async function callAIText({ systemPrompt, userPrompt, jsonMode = false, t
     if (!response.ok) {
       const errText = await response.text();
       let msg = `HTTP ${response.status}: ${response.statusText}`;
-      try {
-        const errJson = JSON.parse(errText);
-        if (errJson.error && errJson.error.message) {
-          msg = errJson.error.message;
+      if (response.status === 405) {
+        msg = `HTTP 405 (Method Not Allowed): Endpoint '${endpoint}' menolak metode POST. Pastikan URL endpoint di menu Pengaturan sudah benar dan berakhiran '/chat/completions'.`;
+      } else {
+        try {
+          const errJson = JSON.parse(errText);
+          if (errJson.error && errJson.error.message) {
+            msg = errJson.error.message;
+          }
+        } catch (e) {
+          if (errText) msg += ` - ${errText.slice(0, 150)}`;
         }
-      } catch (e) {
-        if (errText) msg += ` - ${errText.slice(0, 150)}`;
       }
       throw new Error(msg);
     }
@@ -107,7 +133,7 @@ export async function callAIImage({ prompt }) {
     throw new Error('API Key gambar belum diisi. Silakan atur API Key di menu Pengaturan.');
   }
 
-  const endpoint = settings.imageEndpoint || 'https://api.openai.com/v1/images/generations';
+  const endpoint = normalizeImageEndpoint(settings.imageEndpoint);
   const model = settings.imageModel || 'dall-e-3';
 
   const body = {
@@ -130,13 +156,17 @@ export async function callAIImage({ prompt }) {
     if (!response.ok) {
       const errText = await response.text();
       let msg = `HTTP ${response.status}: ${response.statusText}`;
-      try {
-        const errJson = JSON.parse(errText);
-        if (errJson.error && errJson.error.message) {
-          msg = errJson.error.message;
+      if (response.status === 405) {
+        msg = `HTTP 405 (Method Not Allowed): Image Endpoint '${endpoint}' menolak metode POST. Pastikan URL endpoint di Pengaturan berakhiran '/images/generations'.`;
+      } else {
+        try {
+          const errJson = JSON.parse(errText);
+          if (errJson.error && errJson.error.message) {
+            msg = errJson.error.message;
+          }
+        } catch (e) {
+          if (errText) msg += ` - ${errText.slice(0, 150)}`;
         }
-      } catch (e) {
-        if (errText) msg += ` - ${errText.slice(0, 150)}`;
       }
       throw new Error(msg);
     }
@@ -164,17 +194,15 @@ export async function fetchAvailableModels({ endpoint, apiKey }) {
     throw new Error('Isi API Key terlebih dahulu sebelum memindai model.');
   }
 
-  let baseUrl = endpoint || 'https://api.openai.com/v1/chat/completions';
+  let baseUrl = (endpoint || 'https://api.openai.com/v1/chat/completions').trim().replace(/\/+$/, '');
   let modelsUrl = '';
   
-  if (baseUrl.includes('/chat/completions')) {
-    modelsUrl = baseUrl.replace('/chat/completions', '/models');
-  } else if (baseUrl.includes('/images/generations')) {
-    modelsUrl = baseUrl.replace('/images/generations', '/models');
-  } else if (baseUrl.endsWith('/v1') || baseUrl.endsWith('/v1/')) {
-    modelsUrl = baseUrl.replace(/\/+$/, '') + '/models';
+  if (baseUrl.endsWith('/chat/completions')) {
+    modelsUrl = baseUrl.replace(/\/chat\/completions$/, '/models');
+  } else if (baseUrl.endsWith('/images/generations')) {
+    modelsUrl = baseUrl.replace(/\/images\/generations$/, '/models');
   } else {
-    modelsUrl = baseUrl.replace(/\/+$/, '') + '/models';
+    modelsUrl = `${baseUrl}/models`;
   }
 
   try {
@@ -211,4 +239,5 @@ export async function fetchAvailableModels({ endpoint, apiKey }) {
     throw new Error(`Gagal memindai model: ${err.message}`);
   }
 }
+
 
