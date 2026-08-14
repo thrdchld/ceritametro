@@ -136,7 +136,12 @@ class AppController {
   }
 
   scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollContainer = document.getElementById('app-content');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   bindGlobalEvents() {
@@ -250,7 +255,7 @@ class AppController {
         ${renderSidebar({ activeView: this.currentView })}
         <main class="app-main">
           ${this.state.alert ? renderAlert(this.state.alert.message, this.state.alert.type) : ''}
-          <div id="app-content" class="app-content-wrapper">${contentHtml}</div>
+          <div id="app-content" class="app-scroll-area">${contentHtml}</div>
         </main>
       </div>
     `;
