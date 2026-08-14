@@ -483,21 +483,30 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
           <textarea id="research-question-input" class="form-textarea" placeholder="Contoh: Riset teknik membuat dialog bersubteks dalam cerpen misteri urban..."></textarea>
         </div>
 
-        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem;">
-          <div style="display: flex; gap: 0.5rem;">
-            <label class="btn ${mode === 'quick' ? 'btn-primary' : 'btn-outline'} btn-sm" style="cursor: pointer;">
-              <input type="radio" name="research-mode" value="quick" ${mode === 'quick' ? 'checked' : ''} style="display:none;" />
-              ⚡ Quick Research
-            </label>
-            <label class="btn ${mode === 'deep' ? 'btn-primary' : 'btn-outline'} btn-sm" style="cursor: pointer;">
-              <input type="radio" name="research-mode" value="deep" ${mode === 'deep' ? 'checked' : ''} style="display:none;" />
-              🔬 Deep Research
-            </label>
+        <div class="form-group">
+          <label class="form-label">Pilih Mode Riset Penulisan</label>
+          <div class="mode-segmented-control" id="research-mode-segmented">
+            <button type="button" class="mode-segment-btn ${mode === 'quick' ? 'active' : ''}" data-mode="quick">
+              <span class="mode-icon">⚡</span>
+              <div class="mode-info">
+                <span class="mode-title">Quick Research</span>
+                <span class="mode-time">~10 detik</span>
+              </div>
+            </button>
+            <button type="button" class="mode-segment-btn ${mode === 'deep' ? 'active' : ''}" data-mode="deep">
+              <span class="mode-icon">🔬</span>
+              <div class="mode-info">
+                <span class="mode-title">Deep Research</span>
+                <span class="mode-time">~30 detik</span>
+              </div>
+            </button>
           </div>
-
-          <span style="font-size: 0.82rem; color: var(--text-muted);">
-            ${mode === 'deep' ? 'Membandingkan beberapa sudut pandang & sintesis mendalam' : 'Riset cepat & ringkasan teknik praktis'}
-          </span>
+          <input type="hidden" id="research-mode-hidden-input" value="${mode}" />
+          <div class="mode-description-box" id="research-mode-desc-text">
+            ${mode === 'deep' 
+              ? '🔬 <strong>Deep Research (~30s):</strong> Membandingkan sudut pandang, menyusun analisis mendalam, dan merumuskan usulan aturan komprehensif.'
+              : '⚡ <strong>Quick Research (~10s):</strong> Ringkas & cepat. Menghasilkan temuan kunci dan usulan aturan praktis secara langsung.'}
+          </div>
         </div>
 
         <div class="form-group">

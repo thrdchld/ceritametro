@@ -2,7 +2,7 @@
  * Main Application Controller & State Manager — V3 Architecture with Interactive Chatbot & Rich Progress
  */
 
-import { renderHeader, renderLoading, renderAlert, renderProposalCard } from './components.js';
+import { renderHeader, renderLoading, renderAlert, renderProposalCard, renderMobileBottomNav } from './components.js';
 import {
   renderHomeView,
   renderMode1InputView,
@@ -246,6 +246,7 @@ class AppController {
         ${this.state.alert ? renderAlert(this.state.alert.message, this.state.alert.type) : ''}
         <div id="app-content">${contentHtml}</div>
       </main>
+      ${renderMobileBottomNav({ activeView: this.currentView })}
     `;
 
     this.bindViewEvents();
@@ -539,14 +540,35 @@ class AppController {
   }
 
   bindResearchEvents() {
+    const modeSegmentBtns = document.querySelectorAll('#research-mode-segmented .mode-segment-btn');
+    modeSegmentBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        this.state.researchMode = mode;
+        
+        modeSegmentBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const hiddenInput = document.getElementById('research-mode-hidden-input');
+        if (hiddenInput) hiddenInput.value = mode;
+
+        const descBox = document.getElementById('research-mode-desc-text');
+        if (descBox) {
+          descBox.innerHTML = mode === 'deep'
+            ? '🔬 <strong>Deep Research (~30s):</strong> Membandingkan sudut pandang, menyusun analisis mendalam, dan merumuskan usulan aturan komprehensif.'
+            : '⚡ <strong>Quick Research (~10s):</strong> Ringkas & cepat. Menghasilkan temuan kunci dan usulan aturan praktis secara langsung.';
+        }
+      });
+    });
+
     const researchForm = document.getElementById('research-form');
     if (researchForm) {
       researchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const question = document.getElementById('research-question-input').value;
         const manualText = document.getElementById('research-manual-text').value;
-        const modeRadio = document.querySelector('input[name="research-mode"]:checked');
-        const mode = modeRadio ? modeRadio.value : 'quick';
+        const hiddenInput = document.getElementById('research-mode-hidden-input');
+        const mode = hiddenInput ? hiddenInput.value : (this.state.researchMode || 'quick');
 
         if (!question || !question.trim()) {
           this.showAlert('Masukkan pertanyaan riset terlebih dahulu.', 'error');

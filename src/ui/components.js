@@ -172,3 +172,44 @@ export function renderProposalCard(proposal) {
     </div>
   `;
 }
+
+/**
+ * Ergonomic Mobile Bottom Navigation Bar (2026 Mobile-First UX)
+ */
+export function renderMobileBottomNav({ activeView = 'home' }) {
+  const isNavActive = (view) => (activeView === view ? 'mobile-nav-active' : '');
+
+  return `
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-item ${isNavActive('home')}" data-route="home">
+        <span class="mobile-nav-icon">📖</span>
+        <span class="mobile-nav-label">Story</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('brain')}" data-route="brain">
+        <span class="mobile-nav-icon">🧠</span>
+        <span class="mobile-nav-label">Brain</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('research')}" data-route="research">
+        <span class="mobile-nav-icon">🔍</span>
+        <span class="mobile-nav-label">Research</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('brainstorm')}" data-route="brainstorm">
+        <span class="mobile-nav-icon">💬</span>
+        <span class="mobile-nav-label">Discuss</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('history')}" data-route="history">
+        <span class="mobile-nav-icon">📜</span>
+        <span class="mobile-nav-label">History</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('backup')}" data-route="backup">
+        <span class="mobile-nav-icon">📦</span>
+        <span class="mobile-nav-label">Backup</span>
+      </button>
+      <button class="mobile-nav-item ${isNavActive('settings')}" data-route="settings">
+        <span class="mobile-nav-icon">⚙️</span>
+        <span class="mobile-nav-label">Settings</span>
+      </button>
+    </nav>
+  `;
+}
+

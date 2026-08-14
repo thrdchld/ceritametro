@@ -738,6 +738,135 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Segmented Mode Switcher (Pill Switcher) */
+.mode-segmented-control {
+  display: flex;
+  background: #F0EAF2;
+  padding: 0.35rem;
+  border-radius: 12px;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+
+.mode-segment-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-segment-btn:hover {
+  color: var(--primary);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.mode-segment-btn.active {
+  background: #FFFFFF;
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(44, 24, 56, 0.1);
+}
+
+.mode-icon {
+  font-size: 1.15rem;
+}
+
+.mode-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.mode-title {
+  font-size: 0.88rem;
+}
+
+.mode-time {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.mode-description-box {
+  background: #FAFAFC;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.84rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* Ergonomic Mobile Bottom Nav Bar (2026 UX Trend) */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: #FFFFFF;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    z-index: 1000;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 0.25rem;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    gap: 0.15rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1.15rem;
+  }
+
+  .mobile-nav-active {
+    color: var(--primary);
+  }
+
+  .mobile-nav-active .mobile-nav-icon {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+  }
+
+  /* Add padding bottom to body so content isn't covered by bottom nav */
+  body {
+    padding-bottom: 70px;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .app-main { padding: 1rem; }
@@ -747,5 +876,6 @@ body {
   .nav-text { display: none; }
   .chat-bubble { max-width: 95%; }
 }
+
 
 
