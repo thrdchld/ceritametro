@@ -2,8 +2,7 @@
  * Main Application Controller & State Manager — V3 Architecture with Interactive Chatbot & Rich Progress
  */
 
-import { renderHeader, renderLoading, renderAlert, renderProposalCard, renderMobileBottomNav } from './components.js';
-import {
+import { renderSidebar, renderLoading, renderAlert, renderProposalCard } from './components.js';import {
   renderHomeView,
   renderMode1InputView,
   renderOutlineChoicesView,
@@ -241,18 +240,20 @@ class AppController {
     }
 
     root.innerHTML = `
-      ${renderHeader({ activeView: this.currentView })}
-      <main class="app-main">
-        ${this.state.alert ? renderAlert(this.state.alert.message, this.state.alert.type) : ''}
-        <div id="app-content">${contentHtml}</div>
-      </main>
-      ${renderMobileBottomNav({ activeView: this.currentView })}
+      <div class="app-layout">
+        ${renderSidebar({ activeView: this.currentView })}
+        <main class="app-main">
+          ${this.state.alert ? renderAlert(this.state.alert.message, this.state.alert.type) : ''}
+          <div id="app-content" class="app-content-wrapper">${contentHtml}</div>
+        </main>
+      </div>
     `;
 
     this.bindViewEvents();
   }
 
   bindViewEvents() {
+    this.bindSidebarEvents();
     this.bindMode1Events();
     this.bindOutlineEvents();
     this.bindWizardEvents();
@@ -264,6 +265,27 @@ class AppController {
     this.bindSettingsEvents();
     this.bindHistoryEvents();
     this.bindProposalApprovalEvents();
+  }
+
+  bindSidebarEvents() {
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const closeBtn = document.getElementById('mobile-menu-close');
+    const sidebar = document.getElementById('app-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    const openMenu = () => {
+      sidebar.classList.add('sidebar-open');
+      overlay.classList.add('overlay-open');
+    };
+
+    const closeMenu = () => {
+      sidebar.classList.remove('sidebar-open');
+      overlay.classList.remove('overlay-open');
+    };
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openMenu);
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    if (overlay) overlay.addEventListener('click', closeMenu);
   }
 
   bindMode1Events() {

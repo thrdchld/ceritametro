@@ -1,49 +1,87 @@
 /**
- * UI Components & Template Renderers — V3 Architecture
+ * UI Components & Template Renderers — V3 Architecture (Sidebar First)
  */
 
 /**
- * Header Navbar Component
+ * Sidebar Component (Responsive)
  */
-export function renderHeader({ activeView = 'home' }) {
+export function renderSidebar({ activeView = 'home' }) {
   const isNavActive = (view) => (activeView === view ? 'active-nav' : '');
 
   return `
-    <header class="app-header">
-      <div class="header-container">
+    <!-- Mobile Top Bar -->
+    <div class="mobile-top-bar">
+      <button id="mobile-menu-toggle" class="btn-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand-title" style="font-size: 1.15rem; letter-spacing: -0.02em;">CERITA METRO</div>
+      <div style="width: 38px;"></div> <!-- Spacer -->
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
         <a class="brand" data-route="home">
           <div class="brand-icon">CM</div>
-          <div>
+          <div class="brand-text-container">
             <div class="brand-title">CERITA METRO</div>
-            <div class="brand-tagline">Realistic Metro-Pop Mystery</div>
+            <div class="brand-tagline">Realistic Mystery Gen</div>
           </div>
         </a>
-        
-        <nav class="nav-links">
-          <button class="nav-item ${isNavActive('home')}" data-route="home" title="Story Generator">
-            📖 <span class="nav-text">Story</span>
-          </button>
-          <button class="nav-item ${isNavActive('brain')}" data-route="brain" title="Writing Brain">
-            🧠 <span class="nav-text">Brain</span>
-          </button>
-          <button class="nav-item ${isNavActive('research')}" data-route="research" title="AI Research Lab">
-            🔍 <span class="nav-text">Research</span>
-          </button>
-          <button class="nav-item ${isNavActive('brainstorm')}" data-route="brainstorm" title="Brainstorm & Editor Partner">
-            💬 <span class="nav-text">Brainstorm</span>
-          </button>
-          <button class="nav-item ${isNavActive('history')}" data-route="history" title="Riwayat Cerita">
-            📜 <span class="nav-text">History</span>
-          </button>
-          <button class="nav-item ${isNavActive('backup')}" data-route="backup" title="Backup & Restore">
-            📦 <span class="nav-text">Backup</span>
-          </button>
-          <button class="nav-item ${isNavActive('settings')}" data-route="settings" title="Pengaturan">
-            ⚙️ <span class="nav-text">Settings</span>
-          </button>
-        </nav>
+        <button id="mobile-menu-close" class="btn-icon mobile-only">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
-    </header>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">WORKSPACE</div>
+          <button class="nav-item ${isNavActive('home')}" data-route="home">
+            <span class="nav-icon">📖</span>
+            <span class="nav-text">Story Generator</span>
+          </button>
+          <button class="nav-item ${isNavActive('history')}" data-route="history">
+            <span class="nav-icon">📜</span>
+            <span class="nav-text">Riwayat Cerita</span>
+          </button>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">KNOWLEDGE LAB</div>
+          <button class="nav-item ${isNavActive('brain')}" data-route="brain">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-text">Writing Brain</span>
+          </button>
+          <button class="nav-item ${isNavActive('research')}" data-route="research">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-text">AI Research Lab</span>
+          </button>
+          <button class="nav-item ${isNavActive('brainstorm')}" data-route="brainstorm">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Editor Partner</span>
+          </button>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">SYSTEM</div>
+          <button class="nav-item ${isNavActive('backup')}" data-route="backup">
+            <span class="nav-icon">📦</span>
+            <span class="nav-text">Backup & Restore</span>
+          </button>
+          <button class="nav-item ${isNavActive('settings')}" data-route="settings">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-text">Pengaturan API</span>
+          </button>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div>Cerita Metro v3.5</div>
+      </div>
+    </aside>
   `;
 }
 
@@ -112,7 +150,7 @@ export function renderAlert(message, type = 'info') {
   const border = type === 'error' ? '#F87171' : (type === 'success' ? '#4ADE80' : '#A995B0');
 
   return `
-    <div style="background:${bg}; color:${color}; border:1px solid ${border}; padding:0.85rem 1.25rem; border-radius:10px; font-size:0.9rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-space-between;">
+    <div style="background:${bg}; color:${color}; border:1px solid ${border}; padding:0.85rem 1.25rem; border-radius:10px; font-size:0.9rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-space-between; box-shadow: var(--shadow-sm);">
       <span>${message}</span>
     </div>
   `;
@@ -133,7 +171,7 @@ export function renderProposalCard(proposal) {
         ${proposal.title} <span class="tag" style="margin-left:0.5rem;">${proposal.category}</span>
       </h4>
 
-      <p style="font-size: 0.92rem; color: var(--text-main); line-height: 1.5; background: #FFFFFF; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 0.5rem;">
+      <p style="font-size: 0.92rem; color: var(--text-main); line-height: 1.5; background: #FAFAFC; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 0.5rem;">
         "${proposal.content}"
       </p>
 
@@ -170,46 +208,6 @@ export function renderProposalCard(proposal) {
         </button>
       </div>
     </div>
-  `;
-}
-
-/**
- * Ergonomic Mobile Bottom Navigation Bar (2026 Mobile-First UX)
- */
-export function renderMobileBottomNav({ activeView = 'home' }) {
-  const isNavActive = (view) => (activeView === view ? 'mobile-nav-active' : '');
-
-  return `
-    <nav class="mobile-bottom-nav">
-      <button class="mobile-nav-item ${isNavActive('home')}" data-route="home">
-        <span class="mobile-nav-icon">📖</span>
-        <span class="mobile-nav-label">Story</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('brain')}" data-route="brain">
-        <span class="mobile-nav-icon">🧠</span>
-        <span class="mobile-nav-label">Brain</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('research')}" data-route="research">
-        <span class="mobile-nav-icon">🔍</span>
-        <span class="mobile-nav-label">Research</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('brainstorm')}" data-route="brainstorm">
-        <span class="mobile-nav-icon">💬</span>
-        <span class="mobile-nav-label">Discuss</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('history')}" data-route="history">
-        <span class="mobile-nav-icon">📜</span>
-        <span class="mobile-nav-label">History</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('backup')}" data-route="backup">
-        <span class="mobile-nav-icon">📦</span>
-        <span class="mobile-nav-label">Backup</span>
-      </button>
-      <button class="mobile-nav-item ${isNavActive('settings')}" data-route="settings">
-        <span class="mobile-nav-icon">⚙️</span>
-        <span class="mobile-nav-label">Settings</span>
-      </button>
-    </nav>
   `;
 }
 
