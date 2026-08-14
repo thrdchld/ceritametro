@@ -14,6 +14,8 @@ VISUAL IDENTITY & CONSTRAINTS:
 - DILARANG/STRICTLY FORBIDDEN: Supernatural entities, ghosts, horror gore, sensual poses, explicit faces, Western architectural tropes.
 `;
 
+const FALLBACK_IMAGE_PROMPT = 'Vintage editorial poster cover, Indonesian urban environment, muted lavender and dusty purple tones, faceless silhouette of a modest figure in quiet city night, subtle film grain, cinematic lighting, modern metro-pop mystery mood.';
+
 /**
  * Generates an English AI Image Prompt based on the story
  */
@@ -44,10 +46,10 @@ Return ONLY JSON with this format:
       temperature: 0.7
     });
 
-    return res.prompt || `Vintage editorial poster cover, Indonesian urban environment, muted lavender and dusty purple tones, faceless silhouette of a modest figure in quiet city night, subtle film grain, cinematic lighting, modern metro-pop mystery mood.`;
+    return res.prompt || FALLBACK_IMAGE_PROMPT;
   } catch (err) {
     console.warn('Fallback image prompt generation:', err);
-    return `Vintage editorial poster cover, Indonesian urban environment, muted lavender and dusty purple tones, faceless silhouette of a modest figure in quiet city night, subtle film grain, cinematic lighting, modern metro-pop mystery mood.`;
+    return FALLBACK_IMAGE_PROMPT;
   }
 }
 

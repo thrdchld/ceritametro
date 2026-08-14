@@ -62,7 +62,7 @@ export function renderHomeView() {
         📜 Riwayat Cerita
       </button>
       <button class="btn btn-outline" data-route="settings">
-        ⚙️ Pengaturan API & Supabase
+        ⚙️ Pengaturan
       </button>
     </div>
   `;
@@ -347,29 +347,20 @@ export function renderStoryResultView(storyItem) {
 }
 
 /**
- * SETTINGS VIEW
+ * SETTINGS VIEW — Improved model selection UX
+ * Models are shown as a searchable/selectable dropdown with manual input option.
+ * Scanned models are cached and shown, user can also type custom model names.
  */
 export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = []) {
-  const textModelOptions = scannedTextModels.length > 0
-    ? scannedTextModels
-    : [settings.model, 'gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'claude-3-5-sonnet', 'gemini-1.5-pro', 'llama-3.3-70b'].filter(Boolean);
-
-  const imageModelOptions = scannedImageModels.length > 0
-    ? scannedImageModels
-    : [settings.imageModel, 'dall-e-3', 'dall-e-2', 'recraft-v3', 'flux-1.1-pro'].filter(Boolean);
-
-  const uniqueTextModels = Array.from(new Set(textModelOptions));
-  const uniqueImageModels = Array.from(new Set(imageModelOptions));
-
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem;">PENGATURAN API & SUPABASE</h2>
+      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem;">PENGATURAN API</h2>
       <p style="font-size: 0.85rem; color: #991B1B; background: #FDF2F2; padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid #F87171; margin-bottom: 1.5rem;">
         ⚠️ API Key disimpan lokal di browser (localStorage). Gunakan hanya untuk aplikasi pribadi.
       </p>
 
       <form id="settings-form">
-        <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.75rem;">1. AI Text Provider (OpenAI Standard Format)</h4>
+        <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.75rem;">1. AI Text Provider</h4>
 
         <div class="form-group">
           <label class="form-label">Text Endpoint URL</label>
@@ -382,15 +373,26 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
         </div>
 
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <label class="form-label" style="margin-bottom: 0;">Pilih Model Text</label>
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-text-models">
-              🔍 Pindai Model dari API
-            </button>
+          <label class="form-label">Text Model</label>
+          <div class="model-selector">
+            <div class="model-input-row">
+              <input type="text" id="setting-model" class="form-control" value="${settings.model}" 
+                placeholder="Pilih atau ketik nama model" 
+                autocomplete="off" />
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-text-models" title="Pindai model yang tersedia dari API">
+                🔍 Pindai
+              </button>
+            </div>
+            ${scannedTextModels.length > 0 ? `
+              <div class="model-chips" id="text-model-chips">
+                ${scannedTextModels.map(m => `
+                  <button type="button" class="model-chip ${m === settings.model ? 'model-chip-active' : ''}" data-model="${m}" data-target="setting-model">
+                    ${m}
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
-          <select id="setting-model" class="form-select">
-            ${uniqueTextModels.map(m => `<option value="${m}" ${m === settings.model ? 'selected' : ''}>${m}</option>`).join('')}
-          </select>
         </div>
 
         <hr style="border:0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
@@ -403,34 +405,31 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
         </div>
 
         <div class="form-group">
-          <label class="form-label">Image API Key (Kosongkan jika sama dengan Text API Key)</label>
+          <label class="form-label">Image API Key <span style="font-weight:400; color: var(--text-muted);">(Kosongkan jika sama dengan Text)</span></label>
           <input type="password" id="setting-imageApiKey" class="form-control" value="${settings.imageApiKey}" placeholder="sk-..." />
         </div>
 
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <label class="form-label" style="margin-bottom: 0;">Pilih Model Gambar</label>
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-image-models">
-              🔍 Pindai Model Gambar dari API
-            </button>
+          <label class="form-label">Image Model</label>
+          <div class="model-selector">
+            <div class="model-input-row">
+              <input type="text" id="setting-imageModel" class="form-control" value="${settings.imageModel}" 
+                placeholder="Pilih atau ketik nama model gambar" 
+                autocomplete="off" />
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-image-models" title="Pindai model gambar yang tersedia dari API">
+                🔍 Pindai
+              </button>
+            </div>
+            ${scannedImageModels.length > 0 ? `
+              <div class="model-chips" id="image-model-chips">
+                ${scannedImageModels.map(m => `
+                  <button type="button" class="model-chip ${m === settings.imageModel ? 'model-chip-active' : ''}" data-model="${m}" data-target="setting-imageModel">
+                    ${m}
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
-          <select id="setting-imageModel" class="form-select">
-            ${uniqueImageModels.map(m => `<option value="${m}" ${m === settings.imageModel ? 'selected' : ''}>${m}</option>`).join('')}
-          </select>
-        </div>
-
-        <hr style="border:0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
-
-        <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.75rem;">3. Supabase Cloud Database (Opsional)</h4>
-
-        <div class="form-group">
-          <label class="form-label">Supabase URL</label>
-          <input type="text" id="setting-supabaseUrl" class="form-control" value="${settings.supabaseUrl || ''}" placeholder="https://xyzcompany.supabase.co" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Supabase Anon Key</label>
-          <input type="password" id="setting-supabaseAnonKey" class="form-control" value="${settings.supabaseAnonKey || ''}" placeholder="eyJhbG..." />
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">

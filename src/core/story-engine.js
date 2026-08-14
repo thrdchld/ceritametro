@@ -3,9 +3,7 @@
  */
 
 import { callAIText } from './ai-client.js';
-import writingBrainData from '../data/writing-brain.json';
 import { criticizeAndHumanizeDraft } from './critic-engine.js';
-import { cleanStoryText } from '../utils/text.js';
 
 const SYSTEM_STORY_PROMPT = `Anda adalah penulis profesional cerpen Indonesia bertema Realistic Metro-Pop Mystery.
 Gaya penulisan Anda sangat mengutamakan kualitas, ritme natural, dialog bersubteks, serta misteri logis tanpa unsur gaib.

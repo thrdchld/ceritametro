@@ -17,7 +17,7 @@ import {
 } from './views.js';
 
 import { getSettings, saveSettings } from '../core/storage.js';
-import { loadHistory, saveStory, deleteStory, getStoryById, setupHistorySupabase } from '../core/history.js';
+import { loadHistory, saveStory, deleteStory, getStoryById } from '../core/history.js';
 import { generateOutlineOptions, generateFinalStoryFromOutline } from '../core/story-engine.js';
 import {
   WIZARD_STAGES,
@@ -50,9 +50,6 @@ class AppController {
       scannedImageModels: [],
       alert: null
     };
-
-    // Initialize Supabase if settings exist
-    setupHistorySupabase();
   }
 
   init() {
@@ -81,6 +78,12 @@ class AppController {
     if (el) el.textContent = message;
   }
 
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // --- Global Event Delegation ---
+
   bindGlobalEvents() {
     document.addEventListener('click', (e) => {
       const routeTarget = e.target.closest('[data-route]');
@@ -100,16 +103,16 @@ class AppController {
     });
   }
 
-  async navigate(viewName) {
+  navigate(viewName) {
     this.currentView = viewName;
     if (viewName === 'history') {
-      this.setLoading('Memuat riwayat cerita...');
-      this.state.historyList = await loadHistory();
+      this.state.historyList = loadHistory();
     }
     this.render();
+    this.scrollToTop();
   }
 
-  async handleAction(action, target) {
+  handleAction(action, target) {
     if (action === 'start-mode-1') {
       this.currentView = 'mode1-input';
       this.render();
@@ -119,6 +122,8 @@ class AppController {
       this.executeMode3();
     }
   }
+
+  // --- Rendering ---
 
   render() {
     const root = document.getElementById('app');
@@ -172,8 +177,18 @@ class AppController {
     this.bindViewEvents();
   }
 
+  // --- View-Specific Event Bindings ---
+
   bindViewEvents() {
-    // Mode 1 submit
+    this.bindMode1Events();
+    this.bindOutlineEvents();
+    this.bindWizardEvents();
+    this.bindStoryResultEvents();
+    this.bindSettingsEvents();
+    this.bindHistoryEvents();
+  }
+
+  bindMode1Events() {
     const btnMode1Options = document.getElementById('btn-mode1-5options');
     if (btnMode1Options) {
       btnMode1Options.addEventListener('click', () => {
@@ -192,18 +207,21 @@ class AppController {
         this.startWizardStage(0);
       });
     }
+  }
 
-    // Outline choices selection
+  bindOutlineEvents() {
     const outlineBtns = document.querySelectorAll('.btn-select-outline');
     outlineBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.index, 10);
         const selected = this.state.outlineOptions[idx];
         this.generateFinalStory(selected);
       });
     });
+  }
 
-    // Wizard Stage choices selection
+  bindWizardEvents() {
+    // Wizard stage choice selection
     const choiceItems = document.querySelectorAll('.wizard-choice-item');
     choiceItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -233,7 +251,7 @@ class AppController {
       });
     }
 
-    // Wizard Review Buttons
+    // Wizard review buttons
     const btnGenerateWizardFinal = document.getElementById('btn-generate-wizard-final');
     if (btnGenerateWizardFinal) {
       btnGenerateWizardFinal.addEventListener('click', () => {
@@ -256,7 +274,7 @@ class AppController {
       });
     }
 
-    // Improve Outline Options Buttons
+    // Improve outline buttons
     const btnUseImproved = document.getElementById('btn-use-improved-outline');
     if (btnUseImproved) {
       btnUseImproved.addEventListener('click', () => {
@@ -271,8 +289,9 @@ class AppController {
         this.finishWizardToReview();
       });
     }
+  }
 
-    // Story Result View Buttons
+  bindStoryResultEvents() {
     const btnCopyStory = document.getElementById('btn-copy-story');
     if (btnCopyStory) {
       btnCopyStory.addEventListener('click', async () => {
@@ -316,6 +335,10 @@ class AppController {
     }
 
     // Title format select handlers
+    this.bindTitleFormatEvents();
+  }
+
+  bindTitleFormatEvents() {
     const fontSel = document.getElementById('title-font-select');
     const weightSel = document.getElementById('title-weight-select');
     const styleSel = document.getElementById('title-style-select');
@@ -338,89 +361,132 @@ class AppController {
         titleDisplay.classList.toggle('title-italic', e.target.value === 'italic');
       });
     }
+  }
 
-    // Settings Form submit
+  bindSettingsEvents() {
+    // Settings form submit
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) {
       settingsForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const updated = {
-          endpoint: document.getElementById('setting-endpoint').value,
-          apiKey: document.getElementById('setting-apiKey').value,
-          model: document.getElementById('setting-model').value,
-          imageEndpoint: document.getElementById('setting-imageEndpoint').value,
-          imageApiKey: document.getElementById('setting-imageApiKey').value,
-          imageModel: document.getElementById('setting-imageModel').value,
-          supabaseUrl: document.getElementById('setting-supabaseUrl').value,
-          supabaseAnonKey: document.getElementById('setting-supabaseAnonKey').value
+          endpoint: document.getElementById('setting-endpoint').value.trim(),
+          apiKey: document.getElementById('setting-apiKey').value.trim(),
+          model: document.getElementById('setting-model').value.trim(),
+          imageEndpoint: document.getElementById('setting-imageEndpoint').value.trim(),
+          imageApiKey: document.getElementById('setting-imageApiKey').value.trim(),
+          imageModel: document.getElementById('setting-imageModel').value.trim()
         };
         saveSettings(updated);
-        setupHistorySupabase();
         this.showAlert('Pengaturan berhasil disimpan!', 'success');
       });
     }
 
-    // Model Scanning Event Handlers
+    // Model chip click handlers — clicking a chip selects that model
+    const modelChips = document.querySelectorAll('.model-chip');
+    modelChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const modelName = chip.dataset.model;
+        const targetId = chip.dataset.target;
+        const input = document.getElementById(targetId);
+        if (input) {
+          input.value = modelName;
+          // Update active state visually
+          const container = chip.closest('.model-chips');
+          if (container) {
+            container.querySelectorAll('.model-chip').forEach(c => c.classList.remove('model-chip-active'));
+          }
+          chip.classList.add('model-chip-active');
+        }
+      });
+    });
+
+    // Scan text models
     const btnScanText = document.getElementById('btn-scan-text-models');
     if (btnScanText) {
       btnScanText.addEventListener('click', async () => {
         const endpoint = document.getElementById('setting-endpoint').value;
         const apiKey = document.getElementById('setting-apiKey').value;
-        this.setLoading('Memindai daftar model text yang tersedia dari API...');
+        btnScanText.disabled = true;
+        btnScanText.textContent = '⏳ Memindai...';
         try {
           const models = await fetchAvailableModels({ endpoint, apiKey });
           this.state.scannedTextModels = models;
+          // Save current form values before re-render
+          const currentSettings = {
+            endpoint: document.getElementById('setting-endpoint').value,
+            apiKey: document.getElementById('setting-apiKey').value,
+            model: document.getElementById('setting-model').value,
+            imageEndpoint: document.getElementById('setting-imageEndpoint').value,
+            imageApiKey: document.getElementById('setting-imageApiKey').value,
+            imageModel: document.getElementById('setting-imageModel').value
+          };
+          saveSettings(currentSettings);
           this.currentView = 'settings';
           this.render();
-          this.showAlert(`Berhasil menemukan ${models.length} model text dari API! Silakan pilih dari dropdown.`, 'success');
+          this.showAlert(`✅ Ditemukan ${models.length} model text! Klik model di bawah atau ketik nama model.`, 'success');
         } catch (err) {
           this.showAlert(err.message, 'error');
-          this.currentView = 'settings';
-          this.render();
+          btnScanText.disabled = false;
+          btnScanText.textContent = '🔍 Pindai';
         }
       });
     }
 
+    // Scan image models
     const btnScanImage = document.getElementById('btn-scan-image-models');
     if (btnScanImage) {
       btnScanImage.addEventListener('click', async () => {
         const endpoint = document.getElementById('setting-imageEndpoint').value;
         const apiKey = document.getElementById('setting-imageApiKey').value || document.getElementById('setting-apiKey').value;
-        this.setLoading('Memindai daftar model gambar yang tersedia dari API...');
+        btnScanImage.disabled = true;
+        btnScanImage.textContent = '⏳ Memindai...';
         try {
           const models = await fetchAvailableModels({ endpoint, apiKey });
           this.state.scannedImageModels = models;
+          // Save current form values before re-render
+          const currentSettings = {
+            endpoint: document.getElementById('setting-endpoint').value,
+            apiKey: document.getElementById('setting-apiKey').value,
+            model: document.getElementById('setting-model').value,
+            imageEndpoint: document.getElementById('setting-imageEndpoint').value,
+            imageApiKey: document.getElementById('setting-imageApiKey').value,
+            imageModel: document.getElementById('setting-imageModel').value
+          };
+          saveSettings(currentSettings);
           this.currentView = 'settings';
           this.render();
-          this.showAlert(`Berhasil menemukan ${models.length} model gambar dari API! Silakan pilih dari dropdown.`, 'success');
+          this.showAlert(`✅ Ditemukan ${models.length} model gambar! Klik model di bawah atau ketik nama model.`, 'success');
         } catch (err) {
           this.showAlert(err.message, 'error');
-          this.currentView = 'settings';
-          this.render();
+          btnScanImage.disabled = false;
+          btnScanImage.textContent = '🔍 Pindai';
         }
       });
     }
+  }
 
-    // History View Actions
+  bindHistoryEvents() {
     const openHistoryBtns = document.querySelectorAll('.btn-open-history');
     openHistoryBtns.forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const id = btn.dataset.id;
-        const item = await getStoryById(id);
+        const item = getStoryById(id);
         if (item) {
           this.state.currentStory = item;
           this.currentView = 'story-result';
           this.render();
+          this.scrollToTop();
         }
       });
     });
 
     const deleteHistoryBtns = document.querySelectorAll('.btn-delete-history');
     deleteHistoryBtns.forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const id = btn.dataset.id;
         if (confirm('Hapus cerita ini dari riwayat?')) {
-          this.state.historyList = await deleteStory(id);
+          this.state.historyList = deleteStory(id);
           this.render();
           this.showAlert('Cerita berhasil dihapus.', 'info');
         }
@@ -431,7 +497,7 @@ class AppController {
     copyHistoryBtns.forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
-        const item = await getStoryById(id);
+        const item = getStoryById(id);
         if (item) {
           const fullText = `${item.title}\n\n${item.story}`;
           const ok = await copyToClipboard(fullText);
@@ -455,9 +521,9 @@ class AppController {
         try {
           const imported = await importHistoryJSON(file);
           for (const s of imported) {
-            await saveStory(s);
+            saveStory(s);
           }
-          this.state.historyList = await loadHistory();
+          this.state.historyList = loadHistory();
           this.render();
           this.showAlert(`Berhasil mengimpor ${imported.length} cerita!`, 'success');
         } catch (err) {
@@ -598,8 +664,8 @@ class AppController {
         criticNotes: result.criticNotes
       };
 
-      // Save to localStorage & Supabase
-      await saveStory(storyItem);
+      // Save to localStorage
+      saveStory(storyItem);
 
       this.state.currentStory = storyItem;
       this.currentView = 'story-result';
@@ -621,7 +687,7 @@ class AppController {
 
       this.state.currentStory.imagePrompt = prompt;
       this.state.currentStory.imageData = imageUrl;
-      await saveStory(this.state.currentStory);
+      saveStory(this.state.currentStory);
 
       this.currentView = 'story-result';
       this.render();

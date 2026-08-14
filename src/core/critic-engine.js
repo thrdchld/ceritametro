@@ -3,7 +3,6 @@
  */
 
 import { callAIText } from './ai-client.js';
-import writingBrainData from '../data/writing-brain.json';
 import { cleanStoryText } from '../utils/text.js';
 
 /**

@@ -10,9 +10,7 @@ export const DEFAULT_SETTINGS = {
   model: 'gpt-4o-mini',
   imageEndpoint: 'https://api.openai.com/v1/images/generations',
   imageApiKey: '',
-  imageModel: 'dall-e-3',
-  supabaseUrl: '',
-  supabaseAnonKey: ''
+  imageModel: 'dall-e-3'
 };
 
 /**
