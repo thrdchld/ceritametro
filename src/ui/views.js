@@ -1,5 +1,5 @@
 /**
- * Main Application View Templates — V3 Architecture
+ * Main Application View Templates — V4 Architecture (Unified Design System)
  */
 
 import { renderProposalCard } from './components.js';
@@ -19,60 +19,65 @@ export const THEME_OPTIONS = [
 ];
 
 /**
- * HOME VIEW
+ * HOME VIEW — Generator Hub (No Redundant Navigation Buttons)
  */
-export function renderHomeView() {
+export function renderHomeView(brainEntriesCount = 0) {
   return `
-    <div style="text-align: center; margin-bottom: 2.5rem; margin-top: 1rem;">
-      <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">
+    <div class="page-header" style="text-align: center; margin-bottom: 2rem; margin-top: 0.5rem;">
+      <h1 class="page-title" style="font-size: 2.2rem;">
         CERITA METRO
       </h1>
-      <p style="font-size: 1.05rem; color: var(--primary); font-weight: 500;">
+      <p style="font-size: 1.05rem; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">
         Realistic Metro-Pop Mystery Generator & Evolving Writing Lab
       </p>
-      <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 580px; margin: 0.75rem auto 0 auto;">
-        Buat cerpen misteri urban Indonesia yang logis, beremosi natural, dan diperkuat oleh Writing Brain lokal yang terus berkembang dari riset & diskusi.
+      <p class="page-subtitle" style="max-width: 600px; margin: 0 auto;">
+        Buat cerpen misteri urban Indonesia yang logis, beremosi natural, dan diperkuat oleh Writing Brain lokal yang terus berkembang.
       </p>
     </div>
 
+    <!-- 3 Core Modes -->
     <div class="mode-grid">
       <div class="mode-card" data-action="start-mode-1">
         <div class="mode-icon">✍️</div>
-        <div class="mode-card-title">IDE SENDIRI</div>
-        <div class="mode-card-desc">Tulis ide atau skenario di kepala Anda. Pilih antara 5 Alur Otomatis atau 8-Stage Story Wizard.</div>
+        <div class="mode-card-title">Ide Sendiri</div>
+        <div class="mode-card-desc">
+          Tulis premis atau ide cerita Anda. Pilih antara 5 Pilihan Alur Otomatis atau 8-Stage Story Wizard.
+        </div>
+        <span class="mode-badge">Fleksibel & Terarah</span>
       </div>
 
       <div class="mode-card" data-action="start-mode-2">
         <div class="mode-icon">⚡</div>
-        <div class="mode-card-title">OTOMATIS</div>
-        <div class="mode-card-desc">Biarkan AI langsung membuatkan 5 pilihan alur cerita misteri realistis berdasarkan Writing Brain.</div>
+        <div class="mode-card-title">Alur Otomatis</div>
+        <div class="mode-card-desc">
+          AI langsung menyusun 5 variasi plot misteri realistis dari database Writing Brain untuk Anda pilih.
+        </div>
+        <span class="mode-badge">Instan & Cepat</span>
       </div>
 
       <div class="mode-card" data-action="start-mode-3">
         <div class="mode-icon">🧙‍♂️</div>
-        <div class="mode-card-title">WIZARD STORY</div>
-        <div class="mode-card-desc">Bangun alur cerita langkah demi langkah dari premis, tokoh, misteri, hingga ending secara interaktif.</div>
+        <div class="mode-card-title">Story Wizard</div>
+        <div class="mode-card-desc">
+          Bangun struktur cerpen langkah demi langkah: premis, tokoh, misteri, konflik, hingga ending twist.
+        </div>
+        <span class="mode-badge">Interaktif 8 Tahap</span>
       </div>
     </div>
 
-    <div style="margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;">
-      <button class="btn btn-outline" data-route="brain">
-        🧠 Writing Brain
-      </button>
-      <button class="btn btn-outline" data-route="research">
-        🔍 AI Research
-      </button>
-      <button class="btn btn-outline" data-route="brainstorm">
-        💬 Brainstorm
-      </button>
-      <button class="btn btn-outline" data-route="history">
-        📜 Riwayat
-      </button>
-      <button class="btn btn-outline" data-route="backup">
-        📦 Backup ZIP
-      </button>
-      <button class="btn btn-outline" data-route="settings">
-        ⚙️ Settings
+    <!-- Quick Brain Status Widget -->
+    <div class="hub-widget">
+      <div class="hub-info">
+        <div class="hub-icon">🧠</div>
+        <div>
+          <strong style="font-size: 0.95rem; color: var(--text-main); display: block;">Writing Brain Aktif</strong>
+          <span style="font-size: 0.82rem; color: var(--text-muted);">
+            AI cerita ditenagai oleh aturan kepenulisan lokal yang terus berevolusi.
+          </span>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" data-route="brain">
+        Buka Writing Brain →
       </button>
     </div>
   `;
@@ -84,28 +89,30 @@ export function renderHomeView() {
 export function renderMode1InputView() {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 1rem;">Mode 1: Ide Sendiri</h2>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-        Masukkan ide, kejadian, atau karakter yang ingin Anda angkat ke dalam cerita.
-      </p>
-
-      <div class="form-group">
-        <label class="form-label">Gagasan / Ide Cerita</label>
-        <textarea id="mode1-user-idea" class="form-textarea" placeholder="Contoh: Seorang eksekutor wasiat menemukan surat rahasia milik pengusaha..."></textarea>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.4rem;">Mode 1: Mulai dari Ide Sendiri</h2>
+        <p class="page-subtitle">
+          Masukkan gagasan cerita, karakter, atau potongan peristiwa yang ingin Anda kembangkan.
+        </p>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Tema Utama (Opsional)</label>
+        <label class="form-label">Gagasan / Premis Cerita</label>
+        <textarea id="mode1-user-idea" class="form-textarea" placeholder="Contoh: Seorang notaris menemukan amplop wasiat yang disegel kembali dengan lilin berbeda..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tema Utama</label>
         <select id="mode1-theme" class="form-select">
           ${THEME_OPTIONS.map(t => `<option value="${t}">${t}</option>`).join('')}
         </select>
       </div>
 
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem;">
-        <button class="btn btn-primary" id="btn-mode1-5options" style="flex:1;">
-          ⚡ 5 Pilihan Alur Otomatis
+      <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; margin-top: 1.75rem;">
+        <button class="btn btn-primary" id="btn-mode1-5options" style="flex: 1; min-width: 200px;">
+          ⚡ Buat 5 Pilihan Alur
         </button>
-        <button class="btn btn-secondary" id="btn-mode1-wizard" style="flex:1;">
+        <button class="btn btn-secondary" id="btn-mode1-wizard" style="flex: 1; min-width: 200px;">
           🧙‍♂️ Masuk ke Story Wizard
         </button>
       </div>
@@ -118,28 +125,36 @@ export function renderMode1InputView() {
  */
 export function renderOutlineChoicesView(options = []) {
   return `
-    <div style="margin-bottom: 1.5rem;">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 0.35rem;">Pilih 1 dari 5 Alur Cerita</h2>
-      <p style="font-size: 0.9rem; color: var(--text-muted);">
-        AI telah menyusun 5 variasi alur misteri realistis berdasarkan Writing Brain Anda.
+    <div class="page-header">
+      <h2 class="page-title" style="font-size: 1.4rem;">Pilih 1 dari 5 Alur Cerita</h2>
+      <p class="page-subtitle">
+        Pilih alur misteri yang paling menarik untuk dikembangkan menjadi naskah cerpen utuh.
       </p>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       ${options.map((opt, idx) => `
-        <div class="card card-hover" style="margin-bottom:0;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
-            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary);">${idx + 1}. ${opt.title}</h3>
+        <div class="card card-hover" style="margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.75rem; flex-wrap: wrap;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); font-weight: 700;">
+              ${idx + 1}. ${opt.title}
+            </h3>
             <div>
               ${(opt.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
             </div>
           </div>
-          <p style="font-size: 0.92rem; color: var(--text-main); margin-bottom: 0.75rem; line-height:1.5;">${opt.synopsis}</p>
-          <div style="background: var(--accent-light); padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-            <strong>Petunjuk:</strong> ${opt.clues || '-'} | <strong>Ending:</strong> ${opt.ending || '-'}
+          
+          <p style="font-size: 0.92rem; color: var(--text-main); margin-bottom: 0.85rem; line-height: 1.55;">
+            ${opt.synopsis}
+          </p>
+
+          <div style="background: var(--surface-muted); padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.15rem; border: 1px solid var(--border-light); line-height: 1.5;">
+            <div><strong>Petunjuk Kunci:</strong> ${opt.clues || '-'}</div>
+            <div style="margin-top: 0.25rem;"><strong>Arah Ending:</strong> ${opt.ending || '-'}</div>
           </div>
+
           <button class="btn btn-primary btn-sm btn-select-outline" data-index="${idx}">
-            [ Gunakan Alur Ini & Generate Cerita ]
+            Gunakan Alur Ini & Mulai Menulis →
           </button>
         </div>
       `).join('')}
@@ -153,11 +168,11 @@ export function renderOutlineChoicesView(options = []) {
 export function renderWizardStageView({ stageIndex, totalStages, stageInfo, choices = [], selections = {} }) {
   return `
     <div class="wizard-progress">
-      <div>
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
         <span class="wizard-badge">Tahap ${stageIndex + 1} dari ${totalStages}</span>
-        <strong style="margin-left: 0.75rem; font-family: var(--font-heading);">${stageInfo.title}</strong>
+        <strong style="font-family: var(--font-heading); font-size: 1.05rem;">${stageInfo.title}</strong>
       </div>
-      <div style="font-size: 0.85rem; color: var(--text-muted);">${stageInfo.desc}</div>
+      <div style="font-size: 0.84rem; color: var(--text-muted);">${stageInfo.desc}</div>
     </div>
 
     <div class="wizard-choices">
@@ -168,17 +183,17 @@ export function renderWizardStageView({ stageIndex, totalStages, stageInfo, choi
             <div style="font-weight: 700; font-size: 0.95rem; color: ${isAiPick ? 'var(--primary)' : 'var(--text-main)'}; margin-bottom: 0.25rem;">
               ${c.label} ${isAiPick ? '⭐' : ''}
             </div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">${c.detail}</div>
+            <div style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.45;">${c.detail}</div>
           </div>
         `;
       }).join('')}
     </div>
 
-    <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
-      <button class="btn btn-outline" id="btn-wizard-prev" ${stageIndex === 0 ? 'disabled style="opacity:0.5;"' : ''}>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+      <button class="btn btn-outline btn-sm" id="btn-wizard-prev" ${stageIndex === 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
         ← Kembali
       </button>
-      <span style="font-size:0.85rem; color:var(--text-muted); align-self:center;">Pilih salah satu opsi untuk lanjut</span>
+      <span style="font-size: 0.82rem; color: var(--text-muted);">Klik salah satu opsi di atas untuk lanjut</span>
     </div>
   `;
 }
@@ -189,31 +204,35 @@ export function renderWizardStageView({ stageIndex, totalStages, stageInfo, choi
 export function renderWizardReviewView({ wizardData, whyItWorks }) {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 1rem;">REVIEW ALUR CERITA</h2>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.4rem;">Tinjau Alur Cerita Anda</h2>
+        <p class="page-subtitle">Periksa ringkasan struktur cerita sebelum AI mulai menulis naskah final.</p>
+      </div>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; margin-bottom: 1.25rem;">
-        <div><strong>Judul:</strong> ${wizardData.title || wizardData.premise || 'Tanpa Judul'}</div>
-        <div><strong>Premis:</strong> ${wizardData.premise || '-'}</div>
-        <div><strong>Tokoh:</strong> ${wizardData.character || '-'}</div>
-        <div><strong>Lokasi:</strong> ${wizardData.location || '-'}</div>
-        <div><strong>Misteri:</strong> ${wizardData.mystery || '-'}</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.85rem; font-size: 0.88rem; margin-bottom: 1.5rem; background: var(--surface-muted); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div><strong>Judul / Premis:</strong> ${wizardData.title || wizardData.premise || '-'}</div>
+        <div><strong>Tokoh Utama:</strong> ${wizardData.character || '-'}</div>
+        <div><strong>Setting Lokasi:</strong> ${wizardData.location || '-'}</div>
+        <div><strong>Misteri Utama:</strong> ${wizardData.mystery || '-'}</div>
         <div><strong>Konflik:</strong> ${wizardData.conflict || '-'}</div>
-        <div><strong>Petunjuk:</strong> ${wizardData.clues || '-'}</div>
+        <div><strong>Petunjuk / Clue:</strong> ${wizardData.clues || '-'}</div>
         <div><strong>Pengungkapan:</strong> ${wizardData.reveal || '-'}</div>
         <div><strong>Ending:</strong> ${wizardData.ending || '-'}</div>
       </div>
 
-      <div style="background: var(--accent-light); border-left: 4px solid var(--primary); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-        <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-bottom: 0.25rem;">KENAPA ALUR INI BEKERJA?</div>
-        <div style="font-size: 0.9rem; color: var(--text-main);">${whyItWorks}</div>
-      </div>
+      ${whyItWorks ? `
+        <div style="background: var(--primary-light); border-left: 4px solid var(--primary); padding: 1rem 1.15rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+          <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-bottom: 0.25rem;">ANALISIS DINAMIKA CERITA:</div>
+          <div style="font-size: 0.88rem; color: var(--text-main); line-height: 1.5;">${whyItWorks}</div>
+        </div>
+      ` : ''}
 
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        <button class="btn btn-primary" id="btn-generate-wizard-final" style="flex: 2;">
-          [ GENERATE CERITA FINAL ]
+      <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+        <button class="btn btn-primary" id="btn-generate-wizard-final" style="flex: 2; min-width: 180px;">
+          🚀 Buat Cerita Final Sekarang
         </button>
-        <button class="btn btn-secondary" id="btn-improve-wizard-outline" style="flex: 1;">
-          [ PERBAIKI ALUR ]
+        <button class="btn btn-secondary" id="btn-improve-wizard-outline" style="flex: 1; min-width: 140px;">
+          ✨ Perbaiki Alur dengan AI
         </button>
       </div>
     </div>
@@ -226,37 +245,39 @@ export function renderWizardReviewView({ wizardData, whyItWorks }) {
 export function renderImproveOutlineView({ currentOutline, improvedOutline, improvementReason }) {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 0.75rem;">Perbandingan Alur Cerita</h2>
-      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-        <strong>Alasan Perbaikan:</strong> ${improvementReason}
-      </p>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.3rem;">Perbandingan Alur Cerita</h2>
+        <p class="page-subtitle">
+          <strong>Alasan Saran Perbaikan:</strong> ${improvementReason}
+        </p>
+      </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
-        <div style="background: #FAFAFC; padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">
-          <h4 style="font-family: var(--font-heading); color: var(--text-muted); margin-bottom: 0.5rem;">VERSI SAAT INI</h4>
-          <div style="font-size: 0.85rem; line-height: 1.5;">
-            <p><strong>Misteri:</strong> ${currentOutline.mystery || '-'}</p>
-            <p><strong>Petunjuk:</strong> ${currentOutline.clues || '-'}</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="background: var(--surface-muted); padding: 1.15rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+          <h4 style="font-family: var(--font-heading); color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.95rem;">VERSI SAAT INI</h4>
+          <div style="font-size: 0.86rem; line-height: 1.5;">
+            <p style="margin-bottom: 0.35rem;"><strong>Misteri:</strong> ${currentOutline.mystery || '-'}</p>
+            <p style="margin-bottom: 0.35rem;"><strong>Petunjuk:</strong> ${currentOutline.clues || '-'}</p>
             <p><strong>Ending:</strong> ${currentOutline.ending || '-'}</p>
           </div>
         </div>
 
-        <div style="background: var(--accent-light); padding: 1rem; border-radius: 8px; border: 1px solid var(--primary);">
-          <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.5rem;">VERSI PERBAIKAN ⭐</h4>
-          <div style="font-size: 0.85rem; line-height: 1.5;">
-            <p><strong>Misteri:</strong> ${improvedOutline.mystery || '-'}</p>
-            <p><strong>Petunjuk:</strong> ${improvedOutline.clues || '-'}</p>
+        <div style="background: var(--primary-light); padding: 1.15rem; border-radius: var(--radius-sm); border: 1.5px solid var(--primary);">
+          <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">VERSI PERBAIKAN ⭐</h4>
+          <div style="font-size: 0.86rem; line-height: 1.5;">
+            <p style="margin-bottom: 0.35rem;"><strong>Misteri:</strong> ${improvedOutline.mystery || '-'}</p>
+            <p style="margin-bottom: 0.35rem;"><strong>Petunjuk:</strong> ${improvedOutline.clues || '-'}</p>
             <p><strong>Ending:</strong> ${improvedOutline.ending || '-'}</p>
           </div>
         </div>
       </div>
 
-      <div style="display: flex; gap: 1rem;">
-        <button class="btn btn-primary" id="btn-use-improved-outline" style="flex: 1;">
-          [ Gunakan Versi Perbaikan ]
+      <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+        <button class="btn btn-primary" id="btn-use-improved-outline" style="flex: 1; min-width: 180px;">
+          Gunakan Versi Perbaikan
         </button>
-        <button class="btn btn-outline" id="btn-keep-current-outline" style="flex: 1;">
-          [ Pertahankan Versi Saat Ini ]
+        <button class="btn btn-outline" id="btn-keep-current-outline" style="flex: 1; min-width: 180px;">
+          Pertahankan Versi Awal
         </button>
       </div>
     </div>
@@ -264,7 +285,7 @@ export function renderImproveOutlineView({ currentOutline, improvedOutline, impr
 }
 
 /**
- * STORY RESULT VIEW
+ * STORY RESULT VIEW — Unified & Clean
  */
 export function renderStoryResultView(storyItem) {
   const wordCnt = countWords(storyItem.story);
@@ -272,29 +293,29 @@ export function renderStoryResultView(storyItem) {
   return `
     <div class="story-output-container">
       
-      <!-- CARD 1: CERITA FACEBOOK & STORY CRITIQUE FEEDBACK LOOP -->
+      <!-- CARD 1: CERITA FINAL & ACTIONS -->
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
-          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary);">CERITA FINAL</h3>
+        <div class="card-header">
+          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); font-weight: 700;">Naskah Cerita</h3>
           <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">±${wordCnt} kata</span>
         </div>
 
-        <!-- Format Title Controls -->
-        <div style="background: var(--accent-light); padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-          <span style="font-size: 0.85rem; font-weight: 600; color: var(--primary);">Tampilan Judul:</span>
+        <!-- Typography Toolbar -->
+        <div class="story-toolbar">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Format:</span>
           
-          <select id="title-font-select" class="form-select" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.85rem;">
-            <option value="serif">Serif (Klasik Sastra)</option>
+          <select id="title-font-select" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem;">
+            <option value="serif">Serif (Klasik)</option>
             <option value="sans">Sans-Serif (Modern)</option>
           </select>
 
-          <select id="title-weight-select" class="form-select" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.85rem;">
-            <option value="bold">Tebal (Bold)</option>
+          <select id="title-weight-select" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem;">
+            <option value="bold">Tebal</option>
             <option value="normal">Normal</option>
           </select>
 
-          <select id="title-style-select" class="form-select" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.85rem;">
-            <option value="normal">Normal</option>
+          <select id="title-style-select" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem;">
+            <option value="normal">Tegak</option>
             <option value="italic">Miring (Italic)</option>
           </select>
         </div>
@@ -305,52 +326,47 @@ export function renderStoryResultView(storyItem) {
           <div id="story-body-render">${storyItem.story}</div>
         </div>
 
-        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap;">
-          <button class="btn btn-primary" id="btn-copy-story" style="flex: 2;">
-            📋 [ COPY CERITA ]
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-copy-story" style="flex: 2; min-width: 160px;">
+            📋 Salin Naskah Cerita
           </button>
-          <button class="btn btn-secondary" id="btn-critique-story" style="flex: 1.5;" title="Diskusikan kelemahan cerita ini dengan AI untuk memperbarui Writing Brain">
-            💬 [ CRITIQUE THIS STORY ]
+          <button class="btn btn-secondary" id="btn-critique-story" style="flex: 1.5; min-width: 160px;">
+            💬 Kritik dengan Editor AI
           </button>
-          <button class="btn btn-outline" id="btn-export-story-md" style="flex: 1;">
+          <button class="btn btn-outline" id="btn-export-story-md" style="flex: 1; min-width: 120px;">
             📥 Export MD
           </button>
         </div>
       </div>
 
-      <!-- CARD 2: PROMPT GAMBAR -->
+      <!-- CARD 2: COVER IMAGE GENERATOR (Integrated Prompt & Image) -->
       <div class="card">
-        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">PROMPT GAMBAR AI</h3>
-        
-        <div class="form-group">
-          <textarea id="image-prompt-textarea" class="form-textarea" style="font-family: monospace; font-size: 0.88rem;">${storyItem.imagePrompt || ''}</textarea>
+        <div class="card-header">
+          <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); font-weight: 700;">Cover Gambar Cerita</h3>
         </div>
-
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button class="btn btn-secondary btn-sm" id="btn-copy-image-prompt">
-            📋 [ COPY PROMPT ]
-          </button>
-          <button class="btn btn-primary btn-sm" id="btn-generate-image-now">
-            🖼️ [ EDIT & GENERATE GAMBAR ]
-          </button>
-        </div>
-      </div>
-
-      <!-- CARD 3: GAMBAR COVER -->
-      <div class="card">
-        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">GAMBAR COVER</h3>
         
-        <div style="text-align: center; background: #FAFAFC; border: 1px dashed var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+        <div style="text-align: center; background: var(--surface-muted); border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 1.5rem; margin-bottom: 1.25rem;">
           ${storyItem.imageData ? `
-            <img src="${storyItem.imageData}" alt="Cover Cerita" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: var(--shadow-md);" />
+            <img src="${storyItem.imageData}" alt="Cover Cerita" style="max-width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-md); margin: 0 auto;" />
           ` : `
-            <div style="color: var(--text-muted); font-size: 0.9rem;">Belum ada gambar yang dihasilkan. Klik tombol di bawah untuk membuat gambar cover AI.</div>
+            <div style="color: var(--text-muted); font-size: 0.88rem;">
+              Belum ada cover visual. Buat gambar ilustrasi dengan prompt di bawah.
+            </div>
           `}
         </div>
 
-        <div style="display: flex; gap: 0.75rem;">
-          <button class="btn btn-primary" id="btn-regenerate-image">
-            🔄 ${storyItem.imageData ? '[ GENERATE ULANG ]' : '[ GENERATE GAMBAR ]'}
+        <div class="form-group">
+          <label class="form-label">Prompt Visual AI</label>
+          <textarea id="image-prompt-textarea" class="form-textarea" style="font-family: monospace; font-size: 0.85rem; min-height: 80px;">${storyItem.imagePrompt || ''}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm" id="btn-generate-image-now">
+            🖼️ ${storyItem.imageData ? 'Generate Ulang Cover' : 'Generate Cover Gambar'}
+          </button>
+          <button class="btn btn-outline btn-sm" id="btn-copy-image-prompt">
+            📋 Salin Prompt
           </button>
         </div>
       </div>
@@ -368,7 +384,6 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
   const researchRulesCount = activeEntries.filter(e => e.source === 'research').length;
   const brainstormRulesCount = activeEntries.filter(e => e.source === 'brainstorm').length;
 
-  // Filter entries
   let filtered = activeEntries;
   if (filterCategory !== 'all') {
     filtered = filtered.filter(e => e.category === filterCategory);
@@ -380,17 +395,17 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
 
   return `
     <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
         <div>
-          <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">WRITING BRAIN DASHBOARD</h2>
-          <p style="font-size: 0.88rem; color: var(--text-muted);">
-            Lapisan pengetahuan kepenulisan lokal yang terus berkembang secara bertahap melalui approval workflow.
+          <h2 class="page-title" style="font-size: 1.4rem;">Writing Brain Dashboard</h2>
+          <p class="page-subtitle">
+            Lapisan pengetahuan kepenulisan lokal yang terus berevolusi melalui sistem persetujuan (approval).
           </p>
         </div>
 
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <button class="btn btn-primary btn-sm" id="btn-wb-add-entry">
-            ➕ Add Knowledge
+            ➕ Tambah Aturan
           </button>
           <button class="btn btn-secondary btn-sm" id="btn-wb-health-check">
             🏥 Health Check
@@ -402,24 +417,24 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
         <div class="stat-card">
           <div class="stat-num">${activeEntries.length}</div>
-          <div class="stat-label">Active Knowledge</div>
+          <div class="stat-label">Total Knowledge</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">${userRulesCount}</div>
-          <div class="stat-label">User Rules</div>
+          <div class="stat-label">Aturan Pengguna</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">${researchRulesCount}</div>
-          <div class="stat-label">Research Rules</div>
+          <div class="stat-label">Hasil Riset</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">${brainstormRulesCount}</div>
-          <div class="stat-label">Brainstorm Rules</div>
+          <div class="stat-label">Hasil Diskusi</div>
         </div>
       </div>
 
       ${healthReport ? `
-        <div class="card" style="background: var(--accent-light); border: 1px solid var(--primary); margin-bottom: 1.5rem;">
+        <div class="card" style="background: var(--primary-light); border: 1.5px solid var(--primary); margin-bottom: 1.5rem;">
           <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.5rem;">🏥 BRAIN HEALTH REPORT</h4>
           <p style="font-size: 0.88rem;"><strong>Score:</strong> ${healthReport.healthScore}/100 | <strong>Duplikat:</strong> ${healthReport.duplicatesCount} | <strong>Entri Kosong:</strong> ${healthReport.emptyEntriesCount}</p>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">Health Check hanya berupa laporan dan tidak pernah mengubah data secara otomatis.</p>
@@ -437,26 +452,28 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
       </div>
 
       <!-- Knowledge Items List -->
-      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
         ${filtered.length === 0 ? `
-          <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Tidak ada knowledge entry yang sesuai filter.</div>
+          <div style="text-align: center; color: var(--text-muted); padding: 2rem; background: var(--surface-muted); border-radius: var(--radius-sm);">
+            Tidak ada entri pengetahuan yang sesuai filter.
+          </div>
         ` : filtered.map(e => `
           <div class="wb-entry-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; gap: 0.5rem;">
               <div>
                 <span class="tag">${e.category}</span>
-                <strong style="font-size: 0.95rem; color: var(--text-main);">${e.title}</strong>
+                <strong style="font-size: 0.92rem; color: var(--text-main);">${e.title}</strong>
               </div>
-              <span style="font-size: 0.75rem; color: var(--text-muted); background: #E6DEE8; padding: 0.15rem 0.5rem; border-radius: 4px;">v${e.version || 1} • ${e.source}</span>
+              <span style="font-size: 0.72rem; color: var(--text-muted); background: var(--secondary-light); padding: 0.15rem 0.45rem; border-radius: 4px; flex-shrink: 0;">v${e.version || 1} • ${e.source}</span>
             </div>
             <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.5; margin-bottom: 0.5rem;">${e.content}</p>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-size: 0.78rem; color: var(--text-muted);">
+              <div style="font-size: 0.76rem; color: var(--text-muted);">
                 ${(e.tags || []).map(t => `#${t}`).join(' ')}
               </div>
               <div style="display: flex; gap: 0.4rem;">
-                <button class="btn btn-outline btn-sm btn-edit-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.78rem;">Edit</button>
-                <button class="btn btn-secondary btn-sm btn-delete-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.78rem; color: #991B1B;">Hapus</button>
+                <button class="btn btn-outline btn-sm btn-edit-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.76rem;">Edit</button>
+                <button class="btn btn-danger btn-sm btn-delete-wb" data-id="${e.id}" style="padding: 0.2rem 0.5rem; font-size: 0.76rem;">Hapus</button>
               </div>
             </div>
           </div>
@@ -472,29 +489,31 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
 export function renderResearchView({ sessions = [], activeSession = null, mode = 'quick' }) {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">AI RESEARCH LAB</h2>
-      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-        Minta AI melakukan riset teknik penulisan & sintetis pengetahuan. Hasil riset akan menghasilkan usulan aturan (proposals) yang membutuhkan approval Anda.
-      </p>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.4rem;">AI Research Lab</h2>
+        <p class="page-subtitle">
+          Riset teknik penulisan, analisis dinamika misteri, dan sintesis aturan baru untuk Writing Brain Anda.
+        </p>
+      </div>
 
       <form id="research-form">
         <div class="form-group">
-          <label class="form-label">Topik / Pertanyaan Riset</label>
-          <textarea id="research-question-input" class="form-textarea" placeholder="Contoh: Riset teknik membuat dialog bersubteks dalam cerpen misteri urban..."></textarea>
+          <label class="form-label">Topik atau Pertanyaan Riset</label>
+          <textarea id="research-question-input" class="form-textarea" placeholder="Contoh: Riset teknik menyusun petunjuk terselubung (clues) tanpa disadari pembaca di awal cerpen..."></textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Pilih Mode Riset Penulisan</label>
+          <label class="form-label">Pilih Mode Riset</label>
           <div class="mode-segmented-control" id="research-mode-segmented">
             <button type="button" class="mode-segment-btn ${mode === 'quick' ? 'active' : ''}" data-mode="quick">
-              <span class="mode-icon">⚡</span>
+              <span class="mode-icon" style="width: auto; height: auto; background: none; font-size: 1.1rem; margin: 0;">⚡</span>
               <div class="mode-info">
                 <span class="mode-title">Quick Research</span>
                 <span class="mode-time">~10 detik</span>
               </div>
             </button>
             <button type="button" class="mode-segment-btn ${mode === 'deep' ? 'active' : ''}" data-mode="deep">
-              <span class="mode-icon">🔬</span>
+              <span class="mode-icon" style="width: auto; height: auto; background: none; font-size: 1.1rem; margin: 0;">🔬</span>
               <div class="mode-info">
                 <span class="mode-title">Deep Research</span>
                 <span class="mode-time">~30 detik</span>
@@ -504,14 +523,14 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
           <input type="hidden" id="research-mode-hidden-input" value="${mode}" />
           <div class="mode-description-box" id="research-mode-desc-text">
             ${mode === 'deep' 
-              ? '🔬 <strong>Deep Research (~30s):</strong> Membandingkan sudut pandang, menyusun analisis mendalam, dan merumuskan usulan aturan komprehensif.'
-              : '⚡ <strong>Quick Research (~10s):</strong> Ringkas & cepat. Menghasilkan temuan kunci dan usulan aturan praktis secara langsung.'}
+              ? '🔬 <strong>Deep Research (~30s):</strong> Analisis multi-perspektif mendalam dan perumusan usulan aturan terstruktur.'
+              : '⚡ <strong>Quick Research (~10s):</strong> Sintesis cepat untuk menemukan teknik praktis dan usulan aturan ringkas.'}
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">Teks Sumber / Catatan Manual (Opsional)</label>
-          <textarea id="research-manual-text" class="form-textarea" style="min-height: 80px; font-size: 0.88rem;" placeholder="Masukkan teks artikel, referensi, atau URL jika provider AI Anda tidak memiliki akses web langsung..."></textarea>
+          <textarea id="research-manual-text" class="form-textarea" style="min-height: 80px; font-size: 0.85rem;" placeholder="Tempelkan kutipan artikel atau buku jika ingin AI menganalisis bahan referensi khusus..."></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">
@@ -523,9 +542,9 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
     <!-- Active Research Report -->
     ${activeSession ? `
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <div class="card-header">
           <div>
-            <span class="wizard-badge">${activeSession.mode === 'deep' ? 'DEEP RESEARCH REPORT' : 'QUICK RESEARCH REPORT'}</span>
+            <span class="wizard-badge">${activeSession.mode === 'deep' ? 'DEEP RESEARCH' : 'QUICK RESEARCH'}</span>
             <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--primary); margin-top: 0.35rem;">"${activeSession.question}"</h3>
           </div>
           <span style="font-size: 0.8rem; color: var(--text-muted);">${new Date(activeSession.createdAt).toLocaleTimeString('id-ID')}</span>
@@ -540,7 +559,7 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
         </div>
 
         ${(activeSession.recommendations || []).length > 0 ? `
-          <div style="background: var(--accent-light); padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.88rem;">
+          <div style="background: var(--surface-muted); padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.88rem; border: 1px solid var(--border-light);">
             <strong>📌 Rekomendasi Penerapan:</strong>
             <ul style="padding-left: 1.25rem; margin-top: 0.35rem;">
               ${activeSession.recommendations.map(r => `<li>${r}</li>`).join('')}
@@ -550,7 +569,7 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
 
         <!-- Proposed Knowledge Cards -->
         <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.05rem; margin-bottom: 0.75rem;">
-          📝 USULAN RULE UNTUK WRITING BRAIN (${(activeSession.proposedKnowledge || []).length})
+          📝 Usulan Aturan untuk Writing Brain (${(activeSession.proposedKnowledge || []).length})
         </h4>
 
         <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -562,12 +581,12 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
     <!-- Past Sessions List -->
     ${sessions.length > 0 ? `
       <div class="card">
-        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">RIWAYAT RISET</h3>
+        <h3 class="section-title">Riwayat Sesi Riset</h3>
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-          ${sessions.slice(0, 10).map(s => `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #FAFAFC; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--border);">
-              <span style="font-size: 0.88rem; font-weight: 500;">"${s.question.slice(0, 50)}..."</span>
-              <button class="btn btn-outline btn-sm btn-open-research" data-id="${s.id}">Buka Report</button>
+          ${sessions.slice(0, 8).map(s => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--surface-muted); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border); gap: 0.5rem;">
+              <span style="font-size: 0.88rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">"${s.question}"</span>
+              <button class="btn btn-outline btn-sm btn-open-research" data-id="${s.id}" style="flex-shrink: 0;">Buka Laporan</button>
             </div>
           `).join('')}
         </div>
@@ -585,10 +604,10 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
 
   return `
     <div class="card" style="display: flex; flex-direction: column; min-height: 520px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+      <div class="card-header">
         <div>
-          <h2 style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--primary);">EDITOR PARTNER & BRAINSTORM LAB</h2>
-          <p style="font-size: 0.82rem; color: var(--text-muted);">Diskusi interaktif & kritik cerita untuk membentuk Writing Brain.</p>
+          <h2 class="page-title" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Editor Partner & Diskusi</h2>
+          <p class="page-subtitle" style="font-size: 0.82rem;">Diskusikan alur, evaluasi karakter, atau diskusikan kelemahan cerita.</p>
         </div>
         <button class="btn btn-secondary btn-sm" id="btn-new-brainstorm">➕ Diskusi Baru</button>
       </div>
@@ -597,17 +616,17 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
       <div class="chat-window" id="brainstorm-chat-window">
         ${messages.length === 0 ? `
           <div style="text-align: center; color: var(--text-muted); margin: auto; padding: 2rem;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
-            <p style="font-size: 0.9rem;">Mulai diskusi dengan Editor AI mengenai alur, dialog, kelemahan cerita, atau aturan penulisan.</p>
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">💬</div>
+            <p style="font-size: 0.9rem;">Mulai berdiskusi dengan Editor AI mengenai karakter, plot twist, atau evaluasi naskah Anda.</p>
           </div>
         ` : messages.map(msg => `
           <div class="chat-bubble ${msg.sender === 'user' ? 'chat-user' : 'chat-ai'}">
-            <div style="font-size: 0.75rem; opacity: 0.8; margin-bottom: 0.25rem;">${msg.sender === 'user' ? 'ANDA' : 'EDITOR AI'}</div>
+            <div style="font-size: 0.72rem; opacity: 0.8; margin-bottom: 0.25rem; font-weight: 700;">${msg.sender === 'user' ? 'ANDA' : 'EDITOR AI'}</div>
             <div style="font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap;">${msg.text}</div>
             
             ${msg.critiqueBreakdown && msg.critiqueBreakdown.problems ? `
               <div style="margin-top: 0.75rem; background: rgba(0,0,0,0.04); padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.85rem;">
-                <strong>🔍 Kelemahan:</strong> ${msg.critiqueBreakdown.problems}<br/>
+                <strong>🔍 Catatan:</strong> ${msg.critiqueBreakdown.problems}<br/>
                 <strong>💡 Saran:</strong> ${msg.critiqueBreakdown.suggestedImprovement}
               </div>
             ` : ''}
@@ -617,8 +636,8 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
 
       <!-- Proposals generated in this session -->
       ${proposals.length > 0 ? `
-        <div style="margin-top: 1rem; border-t: 1px solid var(--border); padding-top: 1rem;">
-          <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 0.95rem; margin-bottom: 0.5rem;">📝 USULAN RULE DARI DISKUSI:</h4>
+        <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 0.95rem; margin-bottom: 0.5rem;">📝 Usulan Aturan dari Diskusi:</h4>
           ${proposals.map(p => renderProposalCard(p)).join('')}
         </div>
       ` : ''}
@@ -626,19 +645,19 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
       <!-- Message Input Form -->
       <form id="brainstorm-form" style="margin-top: 1rem;">
         <div class="form-group" style="margin-bottom: 0.5rem;">
-          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 70px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda... (Tekan Enter untuk kirim, Shift+Enter untuk baris baru)"></textarea>
+          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 70px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda... (Enter kirim, Shift+Enter baris baru)"></textarea>
         </div>
 
         <div style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
           <div style="display: flex; gap: 0.5rem;">
             <button type="submit" class="btn btn-primary btn-sm" id="btn-send-discuss">
-              💬 [ Discuss ]
+              💬 Diskusi
             </button>
             <button type="button" class="btn btn-secondary btn-sm" id="btn-send-critique">
-              🔍 [ Critique ]
+              🔍 Minta Kritik
             </button>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">Enter ↵ untuk Discuss • Shift+Enter baris baru</div>
+          <div style="font-size: 0.76rem; color: var(--text-muted);">Enter ↵ kirim • Shift+Enter baris baru</div>
         </div>
       </form>
     </div>
@@ -651,44 +670,42 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
 export function renderBackupView({ historyMeta = [], restorePreview = null }) {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary); margin-bottom: 0.25rem;">BACKUP & RESTORE APLIKASI</h2>
-      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        Cadangkan seluruh kondisi aplikasi (Writing Brain, Research, Brainstorm, History, Settings, Images) ke dalam satu file ZIP terstruktur yang mudah dipindahkan antar-device.
-      </p>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.4rem;">Backup & Restore Aplikasi</h2>
+        <p class="page-subtitle">
+          Simpan seluruh kondisi aplikasi (Writing Brain, Riset, Diskusi, Cerita, Pengaturan) ke dalam satu file ZIP terstruktur.
+        </p>
+      </div>
 
       <!-- SECTION 1: EXPORT -->
-      <div style="background: #FAFAFC; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
-        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">📦 EXPORT FULL BACKUP ZIP</h3>
+      <div style="background: var(--surface-muted); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 1.5rem;">
+        <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.5rem;">📦 Export Full Backup ZIP</h3>
         
-        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Pilih komponen data yang ingin dimasukkan ke dalam backup ZIP:
+        <div style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+          Pilih komponen data yang ingin dicadangkan:
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; font-size: 0.88rem; margin-bottom: 1.25rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; font-size: 0.86rem; margin-bottom: 1.15rem;">
           <label><input type="checkbox" id="chk-bk-brain" checked /> Writing Brain</label>
           <label><input type="checkbox" id="chk-bk-research" checked /> Research Sessions</label>
           <label><input type="checkbox" id="chk-bk-brainstorm" checked /> Brainstorm Lab</label>
           <label><input type="checkbox" id="chk-bk-stories" checked /> Story History</label>
           <label><input type="checkbox" id="chk-bk-images" checked /> Generated Images</label>
           <label><input type="checkbox" id="chk-bk-ai" checked /> AI Settings</label>
-          <label><input type="checkbox" id="chk-bk-keys" /> Include API Keys (Security Warning)</label>
-        </div>
-
-        <div style="background: #FDF2F2; color: #991B1B; padding: 0.65rem 0.85rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1.25rem; border: 1px solid #F87171;">
-          ⚠️ <strong>Catatan Keamanan:</strong> Secara default API Key tidak diikutkan agar file backup aman dibagikan. Jika Anda mencentang "Include API Keys", simpan file ZIP secara rahasia!
+          <label><input type="checkbox" id="chk-bk-keys" /> Sertakan API Key</label>
         </div>
 
         <button class="btn btn-primary btn-block" id="btn-export-full-zip">
-          📦 [ GENERATE & DOWNLOAD FULL ZIP BACKUP ]
+          📦 Download File Backup ZIP
         </button>
       </div>
 
       <!-- SECTION 2: IMPORT / RESTORE -->
-      <div style="background: #FAFAFC; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem;">
-        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.75rem;">📥 IMPORT & RESTORE BACKUP ZIP</h3>
+      <div style="background: var(--surface-muted); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 1.5rem;">
+        <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.5rem;">📥 Import & Pulihkan Data</h3>
         
-        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Pilih file backup ZIP (ceritametro-backup-YYYY-MM-DD_HH-mm-ss.zip) dari device lain untuk dipulihkan.
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Pilih file backup ZIP (ceritametro-backup-*.zip) dari perangkat lain untuk memulihkan kondisi aplikasi.
         </p>
 
         <label class="btn btn-secondary btn-block" style="cursor: pointer; text-align: center;">
@@ -699,25 +716,24 @@ export function renderBackupView({ historyMeta = [], restorePreview = null }) {
 
       <!-- RESTORE PREVIEW MODAL -->
       ${restorePreview ? `
-        <div class="card" style="background: var(--accent-light); border: 2px solid var(--primary); margin-bottom: 1.5rem;">
-          <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.2rem; margin-bottom: 0.5rem;">📋 PRANJAU ISI BACKUP ZIP</h3>
+        <div class="card" style="background: var(--primary-light); border: 2px solid var(--primary); margin-bottom: 1.5rem;">
+          <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 1.15rem; margin-bottom: 0.5rem;">📋 Pratinjau Isi Backup</h3>
           
-          <div style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 1rem;">
+          <div style="font-size: 0.86rem; line-height: 1.6; margin-bottom: 1rem;">
             <p><strong>File:</strong> ${restorePreview.manifest.backupFileName || 'backup.zip'}</p>
             <p><strong>Dibuat Pada:</strong> ${restorePreview.manifest.createdAtLocal || '-'}</p>
             <p><strong>Jumlah Cerita:</strong> ${restorePreview.stories.length} cerita</p>
             <p><strong>Writing Brain Entries:</strong> ${restorePreview.writingBrainEntries.length} entri</p>
-            <p><strong>Research Sessions:</strong> ${restorePreview.researchSessions.length} sesi</p>
-            <p><strong>Brainstorm Conversations:</strong> ${restorePreview.brainstormConversations.length} diskusi</p>
-            <p><strong>API Keys:</strong> ${restorePreview.manifest.includesApiKeys ? 'Tersedia di Backup' : 'Tidak Ada di Backup'}</p>
+            <p><strong>Sesi Riset:</strong> ${restorePreview.researchSessions.length} sesi</p>
+            <p><strong>Diskusi:</strong> ${restorePreview.brainstormConversations.length} diskusi</p>
           </div>
 
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <button class="btn btn-primary" id="btn-restore-merge" style="flex: 1;">
-              🔀 [ MERGE (Gabungkan Data) ]
+          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-restore-merge" style="flex: 1; min-width: 150px;">
+              🔀 Gabungkan Data (Merge)
             </button>
-            <button class="btn btn-secondary" id="btn-restore-replace" style="flex: 1; color: #991B1B;" title="Menggantikan seluruh data lokal saat ini">
-              ⚠️ [ REPLACE ALL (Timpa Semua) ]
+            <button class="btn btn-danger" id="btn-restore-replace" style="flex: 1; min-width: 150px;">
+              ⚠️ Timpa Semua (Replace)
             </button>
             <button class="btn btn-outline" id="btn-restore-cancel">Batal</button>
           </div>
@@ -727,10 +743,10 @@ export function renderBackupView({ historyMeta = [], restorePreview = null }) {
       <!-- BACKUP HISTORY METADATA -->
       ${historyMeta.length > 0 ? `
         <div>
-          <h4 style="font-family: var(--font-heading); font-size: 1rem; color: var(--primary); margin-bottom: 0.5rem;">LOG PEMBUATAN BACKUP TERAKHIR</h4>
+          <h4 class="section-title" style="font-size: 0.95rem; margin-bottom: 0.5rem;">Riwayat Pembuatan Backup</h4>
           <div style="display: flex; flex-direction: column; gap: 0.4rem;">
             ${historyMeta.map(h => `
-              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; background: #FAFAFC; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; background: var(--surface-muted); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
                 <span>📦 <strong>${h.fileName}</strong></span>
                 <span style="color: var(--text-muted);">${h.createdAtLocal} (${(h.size / 1024).toFixed(1)} KB)</span>
               </div>
@@ -748,32 +764,36 @@ export function renderBackupView({ historyMeta = [], restorePreview = null }) {
 export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = []) {
   return `
     <div class="card">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem;">PENGATURAN API</h2>
-      <p style="font-size: 0.85rem; color: #991B1B; background: #FDF2F2; padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid #F87171; margin-bottom: 1.5rem;">
-        ⚠️ API Key disimpan lokal di browser (localStorage). Gunakan hanya untuk aplikasi pribadi.
-      </p>
+      <div class="page-header" style="margin-bottom: 1.25rem;">
+        <h2 class="page-title" style="font-size: 1.4rem;">Pengaturan API Provider</h2>
+        <p class="page-subtitle">
+          Konfigurasikan endpoint dan API Key provider AI yang Anda gunakan.
+        </p>
+      </div>
+
+      <div style="font-size: 0.84rem; color: var(--danger); background: var(--danger-bg); padding: 0.65rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--danger-border); margin-bottom: 1.5rem;">
+        🔒 API Key disimpan secara lokal di browser Anda (localStorage) dan tidak pernah dikirim ke server lain.
+      </div>
 
       <form id="settings-form">
-        <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.75rem;">1. AI Text Provider</h4>
+        <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.75rem;">1. AI Text Provider</h3>
 
         <div class="form-group">
-          <label class="form-label">Text Endpoint URL</label>
+          <label class="form-label">Endpoint URL</label>
           <input type="text" id="setting-endpoint" class="form-control" value="${settings.endpoint}" placeholder="https://api.openai.com/v1/chat/completions" />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Text API Key</label>
+          <label class="form-label">API Key</label>
           <input type="password" id="setting-apiKey" class="form-control" value="${settings.apiKey}" placeholder="sk-..." />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Text Model</label>
+          <label class="form-label">Nama Model Teks</label>
           <div class="model-selector">
-            <div class="model-input-row">
-              <input type="text" id="setting-model" class="form-control" value="${settings.model}" 
-                placeholder="Pilih atau ketik nama model" 
-                autocomplete="off" />
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-text-models" title="Pindai model yang tersedia dari API">
+            <div class="model-input-row" style="display: flex; gap: 0.5rem;">
+              <input type="text" id="setting-model" class="form-control" value="${settings.model}" placeholder="Pilih atau ketik model" autocomplete="off" />
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-text-models" style="white-space: nowrap;">
                 🔍 Pindai
               </button>
             </div>
@@ -789,28 +809,26 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
           </div>
         </div>
 
-        <hr style="border:0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
 
-        <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.75rem;">2. AI Image Provider</h4>
+        <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.75rem;">2. AI Image Provider</h3>
 
         <div class="form-group">
-          <label class="form-label">Image Endpoint URL</label>
+          <label class="form-label">Endpoint URL Gambar</label>
           <input type="text" id="setting-imageEndpoint" class="form-control" value="${settings.imageEndpoint}" placeholder="https://api.openai.com/v1/images/generations" />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Image API Key <span style="font-weight:400; color: var(--text-muted);">(Kosongkan jika sama dengan Text)</span></label>
+          <label class="form-label">API Key Gambar (Opsional jika sama dengan Text)</label>
           <input type="password" id="setting-imageApiKey" class="form-control" value="${settings.imageApiKey}" placeholder="sk-..." />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Image Model</label>
+          <label class="form-label">Nama Model Gambar</label>
           <div class="model-selector">
-            <div class="model-input-row">
-              <input type="text" id="setting-imageModel" class="form-control" value="${settings.imageModel}" 
-                placeholder="Pilih atau ketik nama model gambar" 
-                autocomplete="off" />
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-image-models" title="Pindai model gambar yang tersedia dari API">
+            <div class="model-input-row" style="display: flex; gap: 0.5rem;">
+              <input type="text" id="setting-imageModel" class="form-control" value="${settings.imageModel}" placeholder="Pilih atau ketik model gambar" autocomplete="off" />
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-image-models" style="white-space: nowrap;">
                 🔍 Pindai
               </button>
             </div>
@@ -839,35 +857,37 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
  */
 export function renderHistoryView(stories = []) {
   return `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary);">RIWAYAT CERITA</h2>
-      <button class="btn btn-secondary btn-sm" data-route="backup">📦 Kelola Backup ZIP</button>
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div>
+        <h2 class="page-title" style="font-size: 1.4rem;">Riwayat Cerita</h2>
+        <p class="page-subtitle">Daftar naskah cerpen yang telah Anda buat sebelumnya.</p>
+      </div>
     </div>
 
     ${stories.length === 0 ? `
       <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
         <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📜</div>
         <p style="color: var(--text-muted); font-size: 0.95rem;">Belum ada riwayat cerita yang disimpan.</p>
-        <button class="btn btn-primary" data-route="home" style="margin-top: 1rem;">Mulai Buat Cerita Baru</button>
+        <button class="btn btn-primary btn-sm" data-route="home" style="margin-top: 1rem;">Mulai Buat Cerita Baru</button>
       </div>
     ` : `
       <div style="display: flex; flex-direction: column; gap: 1rem;">
         ${stories.map(s => {
-          const dateStr = new Date(s.createdAt || Date.now()).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+          const dateStr = new Date(s.createdAt || Date.now()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
           const wordCnt = countWords(s.story);
           return `
-            <div class="card card-hover" style="margin-bottom:0;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--primary);">${s.title}</h3>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">${dateStr}</span>
+            <div class="card card-hover" style="margin-bottom: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--primary); font-weight: 700;">${s.title}</h3>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">${dateStr}</span>
               </div>
-              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                Mode: ${s.mode || 'Otomatis'} | ±${wordCnt} kata
+              <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+                Mode: ${s.mode || 'Otomatis'} • ±${wordCnt} kata
               </p>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-primary btn-sm btn-open-history" data-id="${s.id}">Buka Cerita</button>
-                <button class="btn btn-outline btn-sm btn-copy-history" data-id="${s.id}">Copy Plain Text</button>
-                <button class="btn btn-secondary btn-sm btn-delete-history" data-id="${s.id}" style="color:#991B1B;">Hapus</button>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm btn-open-history" data-id="${s.id}">Buka Naskah</button>
+                <button class="btn btn-outline btn-sm btn-copy-history" data-id="${s.id}">Salin Teks</button>
+                <button class="btn btn-danger btn-sm btn-delete-history" data-id="${s.id}">Hapus</button>
               </div>
             </div>
           `;

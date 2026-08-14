@@ -146,6 +146,12 @@ class AppController {
         e.preventDefault();
         const route = routeTarget.dataset.route;
         this.navigate(route);
+
+        // Auto-close sidebar on mobile
+        const sidebar = document.getElementById('app-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) sidebar.classList.remove('sidebar-open');
+        if (overlay) overlay.classList.remove('overlay-open');
         return;
       }
 
