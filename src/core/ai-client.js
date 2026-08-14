@@ -1,4 +1,10 @@
 /**
+ * Abstraction layer for AI Text and Image Provider calls (OpenAI API Standard format)
+ */
+
+import { getSettings } from './storage.js';
+
+/**
  * Normalizes text AI endpoint URL to ensure it ends with /chat/completions
  */
 function normalizeChatEndpoint(rawEndpoint) {
