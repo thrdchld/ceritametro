@@ -1,5 +1,5 @@
 /**
- * Critic Engine & Humanization Pass
+ * Critic Engine & Humanization Pass — Quality Audit V2 Refined
  */
 
 import { callAIText } from './ai-client.js';
@@ -9,20 +9,38 @@ import { cleanStoryText } from '../utils/text.js';
  * Critiques a draft story and performs a targeted humanization rewrite
  */
 export async function criticizeAndHumanizeDraft({ draftStory, storyLogic, updateStatus }) {
-  if (updateStatus) updateStatus('Memeriksa kualitas & dialog cerita...');
+  if (updateStatus) updateStatus('Melakukan Quality Audit & Humanization Pass...');
 
-  const systemPrompt = `Anda adalah editor sastra & kritikus cerpen Indonesia berpengalaman khusus genre Realistic Metro-Pop Mystery.
-Tugas Anda adalah memeriksa draft cerpen dan melakukan revisi penulisan (humanization pass) agar cerita terasa sangat alami, modern, dan bebas dari gaya penulisan AI yang kaku.
+  const systemPrompt = `Anda adalah editor sastra & kritikus cerpen Indonesia senior khusus genre Realistic Metro-Pop Mystery.
+Tugas Anda adalah melakukan audit ketat dan merevisi draft cerita (Humanization Pass) agar prosa terasa 100% seperti tulisan manusia, hidup, dan bebas dari gaya sinopsis/AI kaku.
 
-ATURAN KRITIK & REVISI:
-1. Hapus semua penjelasan yang berlebihan (over-telling). Tunjukkan melalui aksi (Show, Don't Tell).
-2. Perbaiki dialog agar tidak kaku, tambahkan subteks, jeda, dan non-verbal.
-3. Hapus frasa klise AI ("di tengah hiruk-pikuk", "tanpa terasa", "ia menyadari bahwa", "hidup mengajarkan", "ternyata").
-4. Pastikan ritme kalimat bervariasi (panjang-pendek natural).
-5. HAPUS SEMUA SIMBOL MARKDOWN (**bold**, *italic*, # header, dll). Hasil harus 100% plain text.
-6. Pertahankan kata ±800-1200 kata. Jangan memotong jalan cerita.`;
+CHECKLIST AUDIT & REVISI WAJIB (QUALITY AUDIT V2):
 
-  const userPrompt = `Berikut adalah data Story Logic dan Draft Cerpen saat ini.
+1. POLESDAN KURANGI NARATOR OVER-EXPLAINING:
+   Cari dan hapus pola: "Raka tahu bahwa...", "Ia menyadari bahwa...", "Ini membuatnya...", "Suasana terasa...", "Ia merasa...".
+   Ubah penjelasan emosi/pikiran ini menjadi AKSI FISIK, BEHAVIOR, DIALOG, atau DETAIL RUANG. Biarkan pembaca yang menyimpulkan.
+
+2. REVISI DIALOG SINOPSIS MENJADI DIALOG ALAMI:
+   Jika ada dialog yang terdengar seperti membacakan data/sinopsis kepada pembaca (contoh: "Saya sudah memeriksa akta..."), REVISI MENJADI PERCAKAPAN NYATA!
+   Berikan dialog: subteks, perlawanan/resistensi, nada ragu, kebingungan, dan respon non-verbal. Karakter TIDAK boleh langsung membeberkan informasi paling penting.
+
+3. KETATKAN REVEAL (Pengungkapan Ringkas):
+   Jika pengungkapan misteri di draft menggunakan monolog penjelasan panjang, POTONG!
+   Gunakan 1 dokumen, 1 foto, 1 tindakan, 1 kalimat singkat, atau 1 detail fisik yang langsung membuat petunjuk sebelumnya masuk akal.
+
+4. REVISI ENDING MENJADI ENDING BERBASIS ADEGAN:
+   HAPUS paragraf penutup yang berisi refleksi moral ("Ia belajar bahwa...", "Ia sadar bahwa...", "Ini bukti bahwa...").
+   Ganti ending dengan ADEGAN KONKRET: gerakan fisik, benda di tangan, tatapan, kalimat pendek, atau tindakan sederhana. Lalu selesai.
+
+5. BASMI FRASA KLISE AI & METAFORA PUITIS GENERIK:
+   Hapus frasa AI: "di tengah hiruk-pikuk", "tanpa terasa", "pada akhirnya", "sejak saat itu", "dadanya sesak", "hatinya menciut", "langit kelam", "suasana terasa semakin panas", "takdir", "harapan", "perjalanan hidup".
+   Ganti metafora puitis generik dengan detail fisik konkret (misal: "kulit jok mobil panas").
+
+6. BERSIHKAN MARKDOWN & JAGALAH RITME:
+   Variasikan panjang kalimat. HAPUS 100% SIMBOL MARKDOWN (*, **, #, __) dari judul dan cerita. Hasil HARUS 100% plain text.
+   Target panjang: 800 - 1.200 kata.`;
+
+  const userPrompt = `Berikut adalah data Story Logic dan Draft Cerita saat ini.
 
 --- LOGIKA CERITA ---
 Premis: ${storyLogic.premise || ''}
@@ -30,18 +48,20 @@ Karakter: ${storyLogic.character || ''}
 Misteri Utama: ${storyLogic.mystery || ''}
 Jawaban Sebenarnya: ${storyLogic.trueAnswer || ''}
 Petunjuk: ${storyLogic.clues || ''}
-Reveal & Ending: ${storyLogic.ending || ''}
+Ending: ${storyLogic.ending || ''}
 
---- DRAFT SAAT INI ---
+--- DRAFT CERITA SAAT INI ---
 ${draftStory}
 
---- TUGAS ---
-Lakukan perbaikan (humanization pass) pada draft di atas dan tuliskan VERSI FINAL CERITA.
+--- TUGAS REVISI ---
+Lakukan revisi mendalam (humanization pass) pada draft di atas berdasarkan 6 Checklist Audit V2.
+Audit dialog yang terlalu informatif, hapus penjelasan narator berlebihan, singkatkan reveal, buat ending berbasis adegan visual tanpa moralisasi, dan hapus frasa AI & markdown.
+
 Respon HARUS dalam format JSON berikut:
 {
-  "criticNotes": "1-2 kalimat ringkasan perbaikan yang dilakukan",
+  "criticNotes": "1-2 kalimat ringkasan revisi prosa & dialog yang dilakukan",
   "finalTitle": "Judul Cerpen Plain Text",
-  "finalStory": "Isi cerita lengkap plain text tanpa markdown artifacts (*, **, #)"
+  "finalStory": "Isi cerita lengkap plain text tanpa markdown artifacts (*, **, #, __)"
 }`;
 
   try {
@@ -49,7 +69,7 @@ Respon HARUS dalam format JSON berikut:
       systemPrompt,
       userPrompt,
       jsonMode: true,
-      temperature: 0.6
+      temperature: 0.65
     });
 
     const cleanedStory = cleanStoryText(res.finalStory || draftStory);
@@ -58,7 +78,7 @@ Respon HARUS dalam format JSON berikut:
     return {
       title: cleanedTitle,
       story: cleanedStory,
-      criticNotes: res.criticNotes || 'Revisi ritme & dialog selesai.'
+      criticNotes: res.criticNotes || 'Revisi Quality Audit V2 selesai (subteks dialog, aksi fisik, ending visual).'
     };
   } catch (err) {
     console.warn('Critic Engine fallback to cleaned draft due to AI error:', err);

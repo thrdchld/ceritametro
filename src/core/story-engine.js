@@ -1,21 +1,45 @@
 /**
- * Story Generation Pipeline Engine
+ * Story Generation Pipeline Engine — Quality Audit V2 Refined
  */
 
 import { callAIText } from './ai-client.js';
 import { criticizeAndHumanizeDraft } from './critic-engine.js';
 
-const SYSTEM_STORY_PROMPT = `Anda adalah penulis profesional cerpen Indonesia bertema Realistic Metro-Pop Mystery.
-Gaya penulisan Anda sangat mengutamakan kualitas, ritme natural, dialog bersubteks, serta misteri logis tanpa unsur gaib.
+export const SYSTEM_STORY_PROMPT = `Anda adalah penulis profesional cerpen Indonesia bertema Realistic Metro-Pop Mystery.
+Gaya penulisan Anda sangat hidup, berfokus pada adegan (scene-first), ritme manusiawi, dialog bersubteks, serta misteri logis tanpa unsur gaib.
 
-PRINSIP PENULISAN WAJIB:
-1. TERLARANG: Hantu, setan, jin, kutukan, supernatural, perjalanan waktu, gaib.
-2. Misteri berasal dari realita kehidupan kota Indonesia (rahasia keluarga, pekerjaan, dokumen, pesan tersembunyi, kebetulan masuk akal).
-3. Fair-play mystery: Petunjuk (clues) harus dipasang sebelum rahasia terungkap.
-4. Show, Don't Tell: Jangan tulis "ia merasa sedih", tapi tunjukkan lewat tindakan & gestur fisik.
-5. Bahasa Indonesia natural, modern, semi-formal, enak dibaca di smartphone.
-6. HAPUS SEMUA SIMBOL MARKDOWN (*, **, #, __) dari teks cerita final. Teks harus 100% plain text.
-7. Panjang cerita ideal: 800 - 1.200 kata.`;
+PRINSIP PENULISAN WAJIB (QUALITY AUDIT V2):
+
+1. ATURAN HIERARKI PENULISAN:
+   Gunakan urutan prioritas: ACTION -> BEHAVIOR -> DIALOGUE -> PHYSICAL DETAIL -> THOUGHT -> EXPLICIT EXPLANATION.
+   DILARANG NARATOR OVER-EXPLAINING! Hapus/hindari pola: "Raka tahu bahwa...", "Ia menyadari bahwa...", "Ini membuatnya...", "Suasana terasa...", "Ia merasa...". Biarkan pembaca menyimpulkan emosi dan situasi dari adegan.
+
+2. DIALOG BERSUBTEKS (BUKAN Laporan Sinopsis):
+   Dialog karakter HARUS memiliki tujuan, tekanan, hubungan, subteks, resistensi, dan jeda.
+   DILARANG membuat karakter berbicara seperti membacakan sinopsis/laporan data (Contoh BURUK: "Saya sudah memeriksa akta kelahiran Nastiti..."). Karakter TIDAK selalu memberikan informasi utama secara langsung.
+
+3. MISTERI NON-LINEAR & HIPOTESIS BERTAHAP:
+   Struktur misteri: Clue A -> Hipotesis A -> Clue B -> Hipotesis A Diragukan -> Hipotesis B -> Clue C -> Reinterpretasi -> Reveal.
+   Karakter BISA salah tafsir, ragu, atau menarik kesimpulan sementara sebelum fakta sebenarnya terungkap. Misteri tidak boleh terlalu instan/linear. Untuk rahasia keluarga/warisan, fokuskan misteri pada ALASAN/MOTIF di balik kerahasiaan bertahun-tahun, bukan sekadar identitas.
+
+4. REVEAL RINGKAS & FOKUS BUKAN MONOLOG LENGKAP:
+   Saat rahasia terungkap, DILARANG membuat karakter menjelaskan seluruh sejarah masa lalu dalam satu monolog panjang.
+   Gunakan 1 dokumen, 1 kalimat pendek, 1 foto, 1 tindakan, atau 1 detail fisik yang membuat semua petunjuk sebelumnya masuk akal. Pembaca yang menyambungkan titik-titiknya.
+
+5. ENDING BERBASIS ADEGAN (Bukan Paragraf Moral):
+   Tutup cerita dengan adegan konkret: benda, gerakan fisik, kalimat pendek, tatapan, atau tindakan. Lalu selesai.
+   DILARANG menutup cerita dengan kesimpulan moral/refleksi: "Ia belajar bahwa...", "Ia sadar bahwa...", "Raka tahu bahwa...", "Ini adalah bukti bahwa...".
+
+6. KONKRET > PUITIS (Grounded Physical Detail):
+   Utamakan detail fisik spesifik daripada metafora puitis generik (Contoh BAGUS: "Kulit jok mobil sudah panas ketika Raka masuk" daripada "Jakarta terasa seperti tungku").
+
+7. RITME KALIMAT MANUSIAWI (Human Rhythm):
+   Variasikan panjang-pendek kalimat dan paragraf secara alami. Jangan membuat semua paragraf terlalu pendek atau semua kalimat terlalu panjang.
+
+8. ANTI-AI PHRASES & ZERO MARKDOWN:
+   DILARANG frasa klise AI: "di tengah hiruk-pikuk", "tanpa terasa", "pada akhirnya", "sejak saat itu", "dadanya sesak", "hatinya menciut", "langit kelam", "suasana terasa semakin panas", "takdir", "harapan", "perjalanan hidup".
+   DILARANG SEMUA SIMBOL MARKDOWN (*, **, #, __) di dalam teks cerita. Teks cerita HARUS 100% plain text.
+   Panjang cerita ideal: 800 - 1.200 kata.`;
 
 /**
  * Generates 5 distinct story outline options for Mode 2 (Otomatis) or Mode 1A (Ide Sendiri)
@@ -24,28 +48,33 @@ export async function generateOutlineOptions({ userIdea = '', theme = 'Bebas', u
   if (updateStatus) updateStatus('Menyusun 5 pilihan alur cerita...');
 
   const systemPrompt = `${SYSTEM_STORY_PROMPT}
-Tugas Anda adalah menghasilkan 5 konsep alur cerpen misteri metro-pop yang unik, menarik, dan realistis.`;
+Tugas Anda adalah menghasilkan 5 konsep alur cerpen misteri metro-pop yang unik, bernuansa misteri ambigu/non-linear, dan realistis.`;
 
   const userPrompt = `Input Pengguna:
 ${userIdea ? `Ide Utama: ${userIdea}` : 'Biarkan AI menentukan 5 ide alur misteri realistis urban Indonesia yang menarik.'}
 Tema: ${theme}
 
 Buatlah 5 opsi alur cerita yang berbeda.
+Setiap alur harus memiliki:
+- Teka-teki yang ambigu (tidak langsung ketahuan dari awal)
+- Petunjuk yang memicu salah tafsir awal (Hipotesis A) sebelum fakta sebenarnya (Reveal) terungkap
+- Alasan/motif manusiawi yang mendalam di balik kerahasiaan
+
 Kembalikan respon DALAM FORMAT JSON BERIKUT:
 {
   "options": [
     {
       "id": "1",
       "title": "Judul Sementara",
-      "tags": ["Keluarga", "Dokumen", "Dua Bahasa"],
-      "synopsis": "Ringkasan alur cerita singkat dari awal hingga akhir...",
+      "tags": ["Keluarga", "Dokumen", "Rahasia Kota"],
+      "synopsis": "Ringkasan alur cerita singkat dengan eskalasi konflik...",
       "premise": "Premis dasar cerita",
-      "conflict": "Konflik utama",
-      "mystery": "Teka-teki yang membingungkan",
-      "trueAnswer": "Kenyataan logis di balik misteri",
-      "clues": "Petunjuk yang akan ditanam",
-      "reveal": "Pengungkapan di akhir",
-      "ending": "Gaya ending (open ending / bittersweet / dll)"
+      "conflict": "Konflik utama & taruhan emosional",
+      "mystery": "Teka-teki utama yang membingungkan",
+      "trueAnswer": "Kenyataan logis & motif sejati di balik misteri",
+      "clues": "Petunjuk A (membuat salah tafsir) dan Petunjuk B (reinterpretasi)",
+      "reveal": "Gaya pengungkapan ringkas (dokumen/benda/tindakan)",
+      "ending": "Ending berbasis adegan visual"
     }
   ]
 }`;
@@ -68,7 +97,7 @@ export async function generateFinalStoryFromOutline({ outline, updateStatus }) {
   if (updateStatus) updateStatus('Membangun logika cerita & scene plan...');
 
   const logicSystemPrompt = `${SYSTEM_STORY_PROMPT}
-Tugas Anda adalah merancang Story Logic dan Scene Plan terstruktur sebelum menulis draft cerita.`;
+Tugas Anda adalah merancang Scene Plan terstruktur (3-4 adegan) sebelum menulis draft cerita. Setiap adegan wajib memiliki Goal, Obstacle, Action, Change, dan New Info/Hypothesis.`;
 
   const logicUserPrompt = `Alur Cerita Terpilih:
 Judul: ${outline.title}
@@ -79,17 +108,26 @@ Jawaban Sebenarnya: ${outline.trueAnswer || ''}
 Petunjuk: ${outline.clues || ''}
 Reveal: ${outline.reveal || ''}
 
-Tentukan Scene Plan (3-4 adegan utama).
+Susun Scene Plan 3-4 adegan di mana karakter mengalami keraguan/salah tafsir awal sebelum menemukan kebenaran.
+Khusus jika mengenai surat rahasia/warisan/anak: fokuskan misteri pada MENGAPA rahasia disimpan bertahun-tahun, bukan sekadar hubungan darah.
+
 Kembalikan JSON:
 {
   "premise": "${outline.premise || outline.synopsis}",
-  "character": "Deskripsi singkat karakter utama & motivasinya",
+  "character": "Deskripsi karakter utama, keinginan konkret, dan ketakutannya",
   "mystery": "${outline.mystery || ''}",
   "trueAnswer": "${outline.trueAnswer || ''}",
   "clues": "${outline.clues || ''}",
   "ending": "${outline.ending || ''}",
   "scenes": [
-    { "sceneNumber": 1, "goal": "Tujuan adegan", "action": "Aksi utama", "change": "Perubahan situasi" }
+    {
+      "sceneNumber": 1,
+      "goal": "Tujuan konkret karakter di adegan ini",
+      "obstacle": "Hambatan / resistensi lawan bicara / situasi",
+      "action": "Aksi fisik & interaksi utama",
+      "change": "Perubahan situasi / emosi",
+      "newInfo": "Petunjuk baru & hipotesis sementara karakter (bisa salah)"
+    }
   ]
 }`;
 
@@ -107,25 +145,34 @@ Kembalikan JSON:
   }
 
   // Step 2: Write Draft
-  if (updateStatus) updateStatus('Menulis draft cerita (±1.000 kata)...');
+  if (updateStatus) updateStatus('Menulis draft adegan demi adegan (±1.000 kata)...');
 
   const draftSystemPrompt = `${SYSTEM_STORY_PROMPT}
-Gunakan Story Logic yang sudah dirancang untuk menulis cerpen utuh.
-Tuliskan adegan demi adegan secara hidup, bukan ringkasan. Dialog harus alami dengan subteks. Tunjukkan emosi lewat gestur.`;
+Tuliskan cerpen utuh adegan demi adegan secara hidup berdasarkan Scene Plan.
+PATUHI STRICTLY ATURAN QUALITY AUDIT V2:
+- Tulis aksi, gestur, dan detail fisik konkret. KURANGI narasi narator yang menjelaskan pikiran/emosi ("Raka tahu bahwa...", "Ia menyadari...").
+- Dialog bersubteks, penuh jeda & nada ragu, BUKAN laporan sinopsis.
+- Reveal cukup 1 detail/dokumen/tindakan, BUKAN monolog panjang.
+- Ending berbasis adegan visual (benda/gerakan/tatapan), BUKAN kesimpulan moral.
+- ZEROS MARKDOWN SYMBOLS.`;
 
-  const draftUserPrompt = `Tuliskan cerita lengkap berdasarkan logika berikut:
+  const draftUserPrompt = `Tuliskan cerpen lengkap berdasarkan logika & adegan berikut:
 Judul: ${storyLogic.title}
 Premis: ${storyLogic.premise}
-Karakter: ${storyLogic.character || 'Karakter utama'}
-Misteri: ${storyLogic.mystery}
+Karakter Utama: ${storyLogic.character || 'Karakter utama'}
+Misteri Utama: ${storyLogic.mystery}
 Jawaban Sebenarnya: ${storyLogic.trueAnswer}
-Petunjuk wajib muncul: ${storyLogic.clues}
-Reveal & Ending: ${storyLogic.reveal} | ${storyLogic.ending}
+Petunjuk: ${storyLogic.clues}
+Ending: ${storyLogic.ending}
 
-TARGET TERPENTING:
-- Tulis langsung cerita lengkap sekitar 800 - 1.200 kata.
-- JANGAN gunakan simbol markdown (**bold**, *italic*, #).
-- Tuliskan judul di baris paling atas, diikuti isi cerita.`;
+Scene Plan:
+${JSON.stringify(storyLogic.scenes || [], null, 2)}
+
+ATURAN DRAFTING:
+1. Tulis langsung isi cerita lengkap sekitar 800 - 1.200 kata.
+2. Tuliskan judul di baris paling atas (tanpa tanda # atau **), lalu langsung isi cerita.
+3. JANGAN gunakan simbol markdown (**bold**, *italic*, # header, __).
+4. Pastikan dialog terasa seperti percakapan nyata manusia (ada tawar-menawar, kebingungan, ketegangan, bukan penjelasan kaku).`;
 
   const rawDraft = await callAIText({
     systemPrompt: draftSystemPrompt,

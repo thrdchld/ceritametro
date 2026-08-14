@@ -1,18 +1,18 @@
 /**
- * 8-Stage Adaptive Story Wizard Engine
+ * 8-Stage Adaptive Story Wizard Engine — Quality Audit V2 Refined
  */
 
 import { callAIText } from './ai-client.js';
 
 export const WIZARD_STAGES = [
-  { key: 'premise', title: 'Premis', desc: 'Garis besar ide cerita utama' },
-  { key: 'character', title: 'Tokoh Utama', desc: 'Latar belakang & keinginan karakter' },
-  { key: 'location', title: 'Lokasi', desc: 'Suasana & tempat kejadian urban' },
-  { key: 'mystery', title: 'Misteri Utama', desc: 'Teka-teki realistis yang harus dipecahkan' },
-  { key: 'conflict', title: 'Konflik Utama', desc: 'Hambatan & taruhan emosional' },
-  { key: 'clues', title: 'Petunjuk Tersembunyi', desc: 'Clues yang akan dipasang secara fair-play' },
-  { key: 'reveal', title: 'Pengungkapan Rahasia', desc: 'Kenyataan di balik teka-teki' },
-  { key: 'ending', title: 'Bentuk Ending', desc: 'Penyelesaian & penutup cerita' }
+  { key: 'premise', title: 'Premis', desc: 'Garis besar ide cerita & masalah utama' },
+  { key: 'character', title: 'Tokoh Utama', desc: 'Latar belakang, keinginan konkret & ketakutan' },
+  { key: 'location', title: 'Lokasi', desc: 'Suasana & tempat kejadian urban yang spesifik' },
+  { key: 'mystery', title: 'Misteri Utama', desc: 'Teka-teki realistis dengan motif manusiawi' },
+  { key: 'conflict', title: 'Konflik Utama', desc: 'Hambatan & taruhan emosional antar tokoh' },
+  { key: 'clues', title: 'Petunjuk Tersembunyi', desc: 'Clues yang memicu salah tafsir awal sebelum reveal' },
+  { key: 'reveal', title: 'Pengungkapan Rahasia', desc: 'Kenyataan ringkas di balik teka-teki' },
+  { key: 'ending', title: 'Bentuk Ending', desc: 'Penutup berbasis adegan visual (tanpa moral)' }
 ];
 
 /**
@@ -22,15 +22,15 @@ export async function generateInitialPremises({ theme = 'Bebas', updateStatus })
   if (updateStatus) updateStatus('Menyusun 5 pilihan premis cerita...');
 
   const systemPrompt = `Anda adalah penulis profesional cerpen Indonesia bertema Realistic Metro-Pop Mystery.
-Tugas Anda adalah membuat 5 premis cerita misteri urban realistis yang menarik. Tanpa unsur gaib/hantu.`;
+Tugas Anda adalah membuat 5 premis cerita misteri urban realistis yang menarik, tanpa unsur gaib/hantu, dan berfokus pada teka-teki kehidupan manusia modern.`;
 
   const userPrompt = `Tema: ${theme}
 
-Buatlah 5 opsi premis unik.
+Buatlah 5 opsi premis unik dengan konflik dan kerahasiaan yang ambigu.
 Format JSON wajib:
 {
   "options": [
-    { "id": "1", "title": "Judul Sementara", "summary": "Deskripsi premis singkat...", "tags": ["Keluarga", "Misteri Dokumen"] }
+    { "id": "1", "title": "Judul Sementara", "summary": "Deskripsi premis singkat...", "tags": ["Keluarga", "Dokumen", "Rahasia Kota"] }
   ]
 }`;
 
@@ -52,7 +52,8 @@ export async function generateWizardStageChoices({ stageIndex, currentSelections
   if (updateStatus) updateStatus(`Menyusun pilihan untuk tahap ${stage.title}...`);
 
   const systemPrompt = `Anda adalah konsultan struktur cerita misteri metro-pop realistis Indonesia.
-Berikan 4 pilihan kreatif yang selaras dengan pilihan-pilihan tahap sebelumnya + 1 opsi rekomendasi AI terpintar.`;
+Berikan 4 pilihan kreatif yang selaras dengan tahap sebelumnya + 1 opsi rekomendasi AI terpintar.
+Gunakan prinsip Quality Audit V2: utamakan motif realistis, konflik bersubteks, petunjuk fair-play, dan ending visual.`;
 
   const userPrompt = `Tahap Saat Ini: ${stage.title} (${stage.desc})
 
@@ -100,14 +101,14 @@ Format JSON wajib:
 export async function generateOutlineReview(wizardData, updateStatus) {
   if (updateStatus) updateStatus('Menganalisis efektivitas alur cerita...');
 
-  const systemPrompt = `Anda adalah editor sastra senior. Evaluasi alur cerita yang disajikan dan berikan penjelasan 2-3 kalimat mengapa alur cerita ini bekerja dengan baik secara dramatis & logis.`;
+  const systemPrompt = `Anda adalah editor sastra senior. Evaluasi alur cerita yang disajikan dan berikan penjelasan 2-3 kalimat mengapa alur cerita ini bekerja dengan baik secara dramatis & logis (menggunakan prinsip scene-first & subtext).`;
 
   const userPrompt = `Data Alur Cerita:
 ${JSON.stringify(wizardData, null, 2)}
 
 Format JSON wajib:
 {
-  "whyItWorks": "2-3 kalimat penjelasan ilmiah kepenulisan kenapa alur ini menarik & logis."
+  "whyItWorks": "2-3 kalimat penjelasan ilmiah kepenulisan kenapa alur ini menarik, logis, dan kaya subteks."
 }`;
 
   try {
@@ -117,7 +118,7 @@ Format JSON wajib:
       jsonMode: true,
       temperature: 0.7
     });
-    return res.whyItWorks || 'Alur ini memiliki fondasi misteri logis dengan eskalasi emosi yang seimbang.';
+    return res.whyItWorks || 'Alur ini memiliki fondasi misteri logis dengan keraguan karakter dan ending visual yang seimbang.';
   } catch (e) {
     return 'Alur cerita ini menghubungkan motivasi karakter dengan rahasia logis secara fair-play.';
   }
@@ -129,12 +130,13 @@ Format JSON wajib:
 export async function improveOutline(wizardData, updateStatus) {
   if (updateStatus) updateStatus('Merancang perbaikan alur cerita...');
 
-  const systemPrompt = `Anda adalah editor sastra senior. Perbaiki alur cerita di bawah ini agar dinamika misteri, konflik, dan penanam petunjuknya jauh lebih kuat tanpa mengubah esensi inti premis.`;
+  const systemPrompt = `Anda adalah editor sastra senior. Perbaiki alur cerita di bawah ini agar dinamika misteri non-linear, dialog bersubteks, dan penanam petunjuknya jauh lebih kuat tanpa mengubah esensi inti premis.`;
 
   const userPrompt = `Versi Alur Saat Ini:
 ${JSON.stringify(wizardData, null, 2)}
 
-Berikan versi perbaikan yang lebih tajam dan jelaskan alasannya singkat (1-2 kalimat).
+Berikan versi perbaikan yang lebih tajam (petunjuk memicu salah tafsir awal, reveal ringkas, ending berbasis adegan) dan jelaskan alasannya singkat (1-2 kalimat).
+
 Format JSON wajib:
 {
   "improvedOutline": {
@@ -160,6 +162,6 @@ Format JSON wajib:
 
   return {
     improvedOutline: res.improvedOutline || wizardData,
-    improvementReason: res.improvementReason || 'Peningkatan struktur penanaman petunjuk & konflik.'
+    improvementReason: res.improvementReason || 'Peningkatan struktur penanaman petunjuk & ending berbasis adegan.'
   };
 }
