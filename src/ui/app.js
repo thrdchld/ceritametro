@@ -252,8 +252,25 @@ class AppController {
 
     root.innerHTML = `
       <div class="app-layout">
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
         ${renderSidebar({ activeView: this.currentView })}
         <main class="app-main">
+          <!-- Mobile Top Bar with Hamburger Button in Top-Left -->
+          <header class="mobile-topbar">
+            <button id="mobile-menu-toggle" class="btn-icon" aria-label="Buka Menu" style="cursor: pointer;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <div class="mobile-topbar-brand">
+              <span class="mobile-brand-icon">CM</span>
+              <span class="mobile-brand-title">CERITA METRO</span>
+            </div>
+            <div style="width: 32px;"></div>
+          </header>
+
           ${this.state.alert ? renderAlert(this.state.alert.message, this.state.alert.type) : ''}
           <div id="app-content" class="app-scroll-area">${contentHtml}</div>
         </main>
