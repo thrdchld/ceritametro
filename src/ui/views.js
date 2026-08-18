@@ -23,14 +23,14 @@ export const THEME_OPTIONS = [
  */
 export function renderHomeView(brainEntriesCount = 0) {
   return `
-    <div class="page-header" style="text-align: center; margin-bottom: 2rem; margin-top: 0.5rem;">
-      <h1 class="page-title" style="font-size: 2.2rem;">
+    <div class="page-header" style="text-align: center; margin-bottom: 1.25rem; margin-top: 0.25rem;">
+      <h1 class="page-title" style="font-size: 1.65rem; letter-spacing: -0.03em;">
         CERITA METRO
       </h1>
-      <p style="font-size: 1.05rem; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">
+      <p style="font-size: 0.92rem; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem;">
         Realistic Metro-Pop Mystery Generator & Evolving Writing Lab
       </p>
-      <p class="page-subtitle" style="max-width: 600px; margin: 0 auto;">
+      <p class="page-subtitle" style="max-width: 620px; margin: 0 auto; font-size: 0.84rem;">
         Buat cerpen misteri urban Indonesia yang logis, beremosi natural, dan diperkuat oleh Writing Brain lokal yang terus berkembang.
       </p>
     </div>
@@ -291,7 +291,7 @@ export function renderStoryResultView(storyItem) {
   const wordCnt = countWords(storyItem.story);
 
   return `
-    <div class="story-output-container">
+    <div class="story-layout-grid">
       
       <!-- CARD 1: CERITA FINAL & ACTIONS -->
       <div class="card">
@@ -603,7 +603,7 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
   const proposals = conversation ? conversation.proposals : [];
 
   return `
-    <div class="card" style="display: flex; flex-direction: column; min-height: 520px;">
+    <div class="card studio-card">
       <div class="card-header">
         <div>
           <h2 class="page-title" style="font-size: 1.3rem; margin-bottom: 0.2rem;">Editor Partner & Diskusi</h2>
