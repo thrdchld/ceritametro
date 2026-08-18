@@ -1,6 +1,7 @@
 import { build } from 'esbuild-wasm';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { createHash } from 'crypto';
 
 async function runBuild() {
   console.log('📦 Starting Cerita Metro production build...');
@@ -12,11 +13,23 @@ async function runBuild() {
     mkdirSync('dist/assets', { recursive: true });
   }
 
+  // Compute password hash from GitHub Secret or environment variable
+  let passwordHash = '';
+  if (process.env.APP_PASSWORD_HASH && process.env.APP_PASSWORD_HASH.trim()) {
+    passwordHash = process.env.APP_PASSWORD_HASH.trim();
+  } else if (process.env.APP_PASSWORD && process.env.APP_PASSWORD.trim()) {
+    passwordHash = createHash('sha256').update(process.env.APP_PASSWORD.trim()).digest('hex');
+    console.log('🔒 Master password configured from environment variable (hashed with SHA-256).');
+  }
+
   await build({
     stdin: {
       contents: readFileSync('./src/main.js', 'utf-8'),
       resolveDir: resolve('src'),
       loader: 'js'
+    },
+    define: {
+      '__APP_PASSWORD_HASH__': JSON.stringify(passwordHash)
     },
     plugins: [
       {

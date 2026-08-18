@@ -313,6 +313,44 @@ img {
   margin-bottom: 2rem;
 }
 
+/* Lock Screen Container & Card */
+.lock-screen-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 1.5rem;
+  background: radial-gradient(circle at 50% 25%, var(--primary-light), var(--bg-main) 75%);
+}
+
+.lock-card {
+  max-width: 390px;
+  width: 100%;
+  padding: 1.75rem 1.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 1.5px solid var(--border);
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  animation: lockCardFade 0.25s ease;
+}
+
+@keyframes lockCardFade {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.lock-shake {
+  animation: lockShake 0.35s ease;
+}
+
+@keyframes lockShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
 /* ==========================================================================
    4. COMPACT TYPOGRAPHY & HEADINGS
    ========================================================================== */

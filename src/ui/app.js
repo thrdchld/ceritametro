@@ -2,7 +2,8 @@
  * Main Application Controller & State Manager — V3 Architecture with Interactive Chatbot & Rich Progress
  */
 
-import { renderSidebar, renderLoading, renderAlert, renderProposalCard } from './components.js';import {
+import { renderSidebar, renderLoading, renderAlert, renderProposalCard } from './components.js';
+import {
   renderHomeView,
   renderMode1InputView,
   renderOutlineChoicesView,
@@ -15,8 +16,17 @@ import { renderSidebar, renderLoading, renderAlert, renderProposalCard } from '.
   renderBrainstormView,
   renderBackupView,
   renderSettingsView,
-  renderHistoryView
+  renderHistoryView,
+  renderLockScreenView
 } from './views.js';
+
+import {
+  isAuthenticated,
+  isAuthRequired,
+  loginWithPassword,
+  lockApplication,
+  setLocalPassword
+} from '../core/auth.js';
 
 import { getSettings, saveSettings } from '../core/storage.js';
 import { loadHistory, saveStory, deleteStory, getStoryById } from '../core/history.js';
@@ -93,12 +103,25 @@ class AppController {
       activeBrainstormConvId: null,
       restorePreview: null,
       loadingState: null,
-      alert: null
+      alert: null,
+
+      // Auth & Security State
+      lockErrorMessage: ''
     };
   }
 
   init() {
     this.bindGlobalEvents();
+    if (!isAuthenticated()) {
+      this.currentView = 'lock-screen';
+    }
+    this.render();
+  }
+
+  lockApp() {
+    lockApplication();
+    this.state.lockErrorMessage = '';
+    this.currentView = 'lock-screen';
     this.render();
   }
 
@@ -192,6 +215,13 @@ class AppController {
   render() {
     const root = document.getElementById('app');
     if (!root) return;
+
+    // App Lock Gate: If locked, render lock screen immediately
+    if (!isAuthenticated()) {
+      root.innerHTML = renderLockScreenView(this.state.lockErrorMessage);
+      this.bindLockScreenEvents();
+      return;
+    }
 
     let contentHtml = '';
 
@@ -295,11 +325,60 @@ class AppController {
     this.bindProposalApprovalEvents();
   }
 
+  bindLockScreenEvents() {
+    const form = document.getElementById('lock-screen-form');
+    const pwdInput = document.getElementById('lock-password-input');
+    const rememberMe = document.getElementById('lock-remember-me');
+    const toggleVis = document.getElementById('btn-toggle-password-visibility');
+    const lockCard = document.querySelector('.lock-card');
+
+    if (toggleVis && pwdInput) {
+      toggleVis.addEventListener('click', () => {
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          toggleVis.textContent = '🙈';
+        } else {
+          pwdInput.type = 'password';
+          toggleVis.textContent = '👁️';
+        }
+      });
+    }
+
+    if (form && pwdInput) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pwd = pwdInput.value;
+        const remember = rememberMe ? rememberMe.checked : false;
+
+        const res = await loginWithPassword(pwd, remember);
+        if (res.success) {
+          this.state.lockErrorMessage = '';
+          this.currentView = 'home';
+          this.render();
+        } else {
+          this.state.lockErrorMessage = res.error || 'Password salah!';
+          if (lockCard) {
+            lockCard.classList.remove('lock-shake');
+            void lockCard.offsetWidth; // trigger reflow
+            lockCard.classList.add('lock-shake');
+          }
+          this.render();
+          const newPwdInput = document.getElementById('lock-password-input');
+          if (newPwdInput) {
+            newPwdInput.focus();
+            newPwdInput.select();
+          }
+        }
+      });
+    }
+  }
+
   bindSidebarEvents() {
     const toggleBtn = document.getElementById('mobile-menu-toggle');
     const closeBtn = document.getElementById('mobile-menu-close');
     const sidebar = document.getElementById('app-sidebar');
     const overlay = document.getElementById('sidebar-overlay');
+    const lockBtn = document.getElementById('btn-sidebar-lock');
 
     const openMenu = () => {
       sidebar.classList.add('sidebar-open');
@@ -314,6 +393,7 @@ class AppController {
     if (toggleBtn) toggleBtn.addEventListener('click', openMenu);
     if (closeBtn) closeBtn.addEventListener('click', closeMenu);
     if (overlay) overlay.addEventListener('click', closeMenu);
+    if (lockBtn) lockBtn.addEventListener('click', () => this.lockApp());
   }
 
   bindMode1Events() {
@@ -1115,6 +1195,28 @@ class AppController {
           btnScanImage.disabled = false;
           btnScanImage.textContent = '🔍 Pindai';
         }
+      });
+    }
+
+    const btnLockNow = document.getElementById('btn-lock-app-now');
+    if (btnLockNow) {
+      btnLockNow.addEventListener('click', () => {
+        this.lockApp();
+      });
+    }
+
+    const btnSetLocalPwd = document.getElementById('btn-set-local-password');
+    if (btnSetLocalPwd) {
+      btnSetLocalPwd.addEventListener('click', async () => {
+        const newPwd = prompt('Masukkan password master baru untuk perangkat ini (atau kosongkan untuk menghapus):');
+        if (newPwd === null) return;
+        await setLocalPassword(newPwd);
+        if (newPwd && newPwd.trim()) {
+          this.showAlert('Password master lokal berhasil disimpan & aktif!', 'success');
+        } else {
+          this.showAlert('Password lokal dihapus. Proteksi akan mengikuti GitHub Secret jika dikonfigurasi.', 'info');
+        }
+        this.render();
       });
     }
   }

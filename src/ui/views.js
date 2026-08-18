@@ -844,10 +844,77 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
+
+        <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.5rem;">3. Keamanan & Kunci Aplikasi</h3>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Password master dikonfigurasi melalui GitHub Secret (<code>APP_PASSWORD</code>) atau password lokal. Anda dapat mengunci aplikasi kapan saja.
+        </p>
+
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-lock-app-now">
+            🔒 Kunci Aplikasi Sekarang
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-set-local-password">
+            🔑 Atur / Ubah Password Lokal
+          </button>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.25rem;">
           💾 Simpan Pengaturan
         </button>
       </form>
+    </div>
+  `;
+}
+
+/**
+ * LOCK SCREEN VIEW — Fullscreen App Lock
+ */
+export function renderLockScreenView(errorMessage = '') {
+  return `
+    <div class="lock-screen-container">
+      <div class="card lock-card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div class="brand-icon" style="width: 44px; height: 44px; font-size: 1.15rem; margin: 0 auto 0.75rem auto;">CM</div>
+          <h2 class="page-title" style="font-size: 1.3rem; margin-bottom: 0.25rem;">CERITA METRO</h2>
+          <p class="page-subtitle" style="font-size: 0.84rem;">
+            Aplikasi Terkunci — Masukkan password untuk melanjutkan.
+          </p>
+        </div>
+
+        ${errorMessage ? `
+          <div style="background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; text-align: center;">
+            ${errorMessage}
+          </div>
+        ` : ''}
+
+        <form id="lock-screen-form">
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label class="form-label" for="lock-password-input">Password Master</label>
+            <div style="position: relative;">
+              <input type="password" id="lock-password-input" class="form-control" placeholder="Ketik password..." autocomplete="current-password" autofocus required style="padding-right: 40px;" />
+              <button type="button" id="btn-toggle-password-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 4px;" aria-label="Lihat Password">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; font-size: 0.82rem; color: var(--text-muted);">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+              <input type="checkbox" id="lock-remember-me" checked /> Ingat di perangkat ini
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="padding: 0.65rem 1rem;">
+            🔓 Buka Aplikasi
+          </button>
+        </form>
+
+        <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid var(--border-light); font-size: 0.74rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
+          🔒 Dilindungi enkripsi SHA-256 & GitHub Secret (<code>APP_PASSWORD</code>)
+        </div>
+      </div>
     </div>
   `;
 }

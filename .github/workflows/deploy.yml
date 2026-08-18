@@ -30,6 +30,9 @@ jobs:
         run: npm ci || npm install
       - name: Build
         run: npm run build
+        env:
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          APP_PASSWORD_HASH: ${{ secrets.APP_PASSWORD_HASH }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

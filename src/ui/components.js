@@ -68,8 +68,11 @@ export function renderSidebar({ activeView = 'home' }) {
         </div>
       </nav>
       
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" style="display: flex; justify-content: space-between; align-items: center;">
         <div>Cerita Metro v4.0</div>
+        <button id="btn-sidebar-lock" class="btn-icon" style="width: 28px; height: 28px; font-size: 0.8rem;" title="Kunci Aplikasi">
+          🔒
+        </button>
       </div>
     </aside>
   `;
