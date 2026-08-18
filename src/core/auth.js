@@ -9,7 +9,8 @@ import { storage, KEYS } from './storage.js';
 export const AUTH_KEYS = {
   SESSION_STORAGE_KEY: 'ceritametro.auth.session',
   LOCAL_STORAGE_REMEMBER_KEY: 'ceritametro.auth.remember',
-  LOCAL_PASSWORD_HASH_KEY: 'ceritametro.auth.local_hash'
+  LOCAL_PASSWORD_HASH_KEY: 'ceritametro.auth.local_hash',
+  MANUAL_LOCK_FLAG: 'ceritametro.auth.manually_locked'
 };
 
 /**
@@ -32,7 +33,7 @@ export async function sha256Hex(text) {
  */
 export function getMasterPasswordHash() {
   // 1. Injected at build time via GitHub Secret (esbuild / Vite define)
-  if (typeof __APP_PASSWORD_HASH__ !== 'undefined' && __APP_PASSWORD_HASH__ && __APP_PASSWORD_HASH__.trim() !== '') {
+  if (typeof __APP_PASSWORD_HASH__ !== 'undefined' && __APP_PASSWORD_HASH__ && typeof __APP_PASSWORD_HASH__ === 'string' && __APP_PASSWORD_HASH__.trim() !== '') {
     return __APP_PASSWORD_HASH__.trim();
   }
 
@@ -51,6 +52,21 @@ export function getMasterPasswordHash() {
 }
 
 /**
+ * Returns the source of the active password protection
+ * @returns {'github_secret' | 'local_storage' | 'none'}
+ */
+export function getAuthSource() {
+  if (typeof __APP_PASSWORD_HASH__ !== 'undefined' && __APP_PASSWORD_HASH__ && typeof __APP_PASSWORD_HASH__ === 'string' && __APP_PASSWORD_HASH__.trim() !== '') {
+    return 'github_secret';
+  }
+  const localHash = storage.get(AUTH_KEYS.LOCAL_PASSWORD_HASH_KEY);
+  if (localHash && typeof localHash === 'string' && localHash.trim() !== '') {
+    return 'local_storage';
+  }
+  return 'none';
+}
+
+/**
  * Checks if authentication protection is active (has a configured hash)
  * @returns {boolean}
  */
@@ -63,7 +79,16 @@ export function isAuthRequired() {
  * @returns {boolean}
  */
 export function isAuthenticated() {
-  // If no password is configured anywhere, open access is allowed
+  // 1. Check if user manually locked the app
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      if (sessionStorage.getItem(AUTH_KEYS.MANUAL_LOCK_FLAG) === 'true') {
+        return false;
+      }
+    }
+  } catch (e) {}
+
+  // 2. If no password is configured and not manually locked, open access is allowed
   if (!isAuthRequired()) {
     return true;
   }
@@ -71,7 +96,7 @@ export function isAuthenticated() {
   const expectedHash = getMasterPasswordHash();
   const expectedToken = expectedHash.slice(0, 24);
 
-  // 1. Check current tab sessionStorage
+  // 3. Check current tab sessionStorage
   try {
     if (typeof sessionStorage !== 'undefined') {
       const sessionRaw = sessionStorage.getItem(AUTH_KEYS.SESSION_STORAGE_KEY);
@@ -84,7 +109,7 @@ export function isAuthenticated() {
     }
   } catch (e) {}
 
-  // 2. Check persistent localStorage if "Remember Me" was checked
+  // 4. Check persistent localStorage if "Remember Me" was checked
   try {
     if (typeof localStorage !== 'undefined') {
       const rememberRaw = localStorage.getItem(AUTH_KEYS.LOCAL_STORAGE_REMEMBER_KEY);
@@ -104,23 +129,32 @@ export function isAuthenticated() {
  * Verifies entered password and unlocks the application
  * @param {string} inputPassword 
  * @param {boolean} rememberMe 
- * @returns {Promise<{ success: boolean, error?: string }>}
+ * @returns {Promise<{ success: boolean, error?: string, isNewlySet?: boolean }>}
  */
 export async function loginWithPassword(inputPassword, rememberMe = false) {
   if (!inputPassword || !inputPassword.trim()) {
     return { success: false, error: 'Masukkan password terlebih dahulu.' };
   }
 
-  const expectedHash = getMasterPasswordHash();
+  let expectedHash = getMasterPasswordHash();
+
+  // If no password configured yet, set this input as local master password and unlock!
   if (!expectedHash) {
-    return { success: false, error: 'Password belum dikonfigurasi di GitHub Secret atau Pengaturan.' };
+    await setLocalPassword(inputPassword);
+    expectedHash = await sha256Hex(inputPassword);
+  } else {
+    const inputHash = await sha256Hex(inputPassword);
+    if (inputHash.toLowerCase() !== expectedHash.toLowerCase()) {
+      return { success: false, error: 'Password salah! Periksa kembali password Anda.' };
+    }
   }
 
-  const inputHash = await sha256Hex(inputPassword);
-
-  if (inputHash.toLowerCase() !== expectedHash.toLowerCase()) {
-    return { success: false, error: 'Password salah! Periksa kembali password Anda.' };
-  }
+  // Clear manual lock flag
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(AUTH_KEYS.MANUAL_LOCK_FLAG);
+    }
+  } catch (e) {}
 
   // Generate session payload
   const token = expectedHash.slice(0, 24);
@@ -151,6 +185,7 @@ export function lockApplication() {
   try {
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(AUTH_KEYS.SESSION_STORAGE_KEY);
+      sessionStorage.setItem(AUTH_KEYS.MANUAL_LOCK_FLAG, 'true');
     }
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(AUTH_KEYS.LOCAL_STORAGE_REMEMBER_KEY);

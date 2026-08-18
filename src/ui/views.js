@@ -761,7 +761,7 @@ export function renderBackupView({ historyMeta = [], restorePreview = null }) {
 /**
  * SETTINGS VIEW
  */
-export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = []) {
+export function renderSettingsView(settings, scannedTextModels = [], scannedImageModels = [], authStatus = 'none') {
   return `
     <div class="card">
       <div class="page-header" style="margin-bottom: 1.25rem;">
@@ -847,9 +847,23 @@ export function renderSettingsView(settings, scannedTextModels = [], scannedImag
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0;" />
 
         <h3 class="section-title" style="font-size: 1.05rem; margin-bottom: 0.5rem;">3. Keamanan & Kunci Aplikasi</h3>
-        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Password master dikonfigurasi melalui GitHub Secret (<code>APP_PASSWORD</code>) atau password lokal. Anda dapat mengunci aplikasi kapan saja.
-        </p>
+        
+        <div style="background: var(--surface-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.3rem;">
+            <span style="font-weight: 600; color: var(--text-main);">Status Proteksi:</span>
+            <span>
+              ${authStatus === 'github_secret' 
+                ? '<span style="color: var(--success); font-weight: 700;">🟢 Terkunci via GitHub Secret (APP_PASSWORD)</span>' 
+                : authStatus === 'local_storage'
+                ? '<span style="color: var(--primary); font-weight: 700;">🟡 Terkunci via Password Lokal Perangkat</span>'
+                : '<span style="color: var(--text-muted);">⚪ Belum Terkunci (Atur secret di GitHub atau buat password lokal)</span>'
+              }
+            </span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+            Password master dienkripsi dengan SHA-256 dan melindungi akses ke seluruh menu Cerita Metro.
+          </p>
+        </div>
 
         <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 1rem;">
           <button type="button" class="btn btn-secondary btn-sm" id="btn-lock-app-now">

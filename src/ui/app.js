@@ -23,6 +23,7 @@ import {
 import {
   isAuthenticated,
   isAuthRequired,
+  getAuthSource,
   loginWithPassword,
   lockApplication,
   setLocalPassword
@@ -275,7 +276,7 @@ class AppController {
         restorePreview: this.state.restorePreview
       });
     } else if (this.currentView === 'settings') {
-      contentHtml = renderSettingsView(getSettings(), this.state.scannedTextModels, this.state.scannedImageModels);
+      contentHtml = renderSettingsView(getSettings(), this.state.scannedTextModels, this.state.scannedImageModels, getAuthSource());
     } else if (this.currentView === 'history') {
       contentHtml = renderHistoryView(this.state.historyList);
     }

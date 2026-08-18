@@ -29,7 +29,9 @@ async function runBuild() {
       loader: 'js'
     },
     define: {
-      '__APP_PASSWORD_HASH__': JSON.stringify(passwordHash)
+      '__APP_PASSWORD_HASH__': JSON.stringify(passwordHash),
+      'globalThis.__APP_PASSWORD_HASH__': JSON.stringify(passwordHash),
+      'window.__APP_PASSWORD_HASH__': JSON.stringify(passwordHash)
     },
     plugins: [
       {
@@ -40,12 +42,12 @@ async function runBuild() {
               let fullPath = resolve(args.resolveDir, args.path);
               if (!existsSync(fullPath) && existsSync(fullPath + '.js')) fullPath += '.js';
               if (!existsSync(fullPath) && existsSync(fullPath + '.json')) fullPath += '.json';
-              return { path: fullPath };
+              return { path: fullPath, namespace: 'metro-ns' };
             } else if (!args.path.startsWith('/')) {
               try {
                 const subpathResolved = resolve('node_modules', args.path);
-                if (existsSync(subpathResolved)) return { path: subpathResolved };
-                if (existsSync(subpathResolved + '.js')) return { path: subpathResolved + '.js' };
+                if (existsSync(subpathResolved)) return { path: subpathResolved, namespace: 'metro-ns' };
+                if (existsSync(subpathResolved + '.js')) return { path: subpathResolved + '.js', namespace: 'metro-ns' };
 
                 const pkgDir = resolve('node_modules', args.path);
                 if (existsSync(pkgDir + '/package.json')) {
@@ -53,11 +55,21 @@ async function runBuild() {
                   const mainFile = pkgJson.module || pkgJson.main || 'index.js';
                   let resolvedMain = resolve(pkgDir, mainFile);
                   if (!existsSync(resolvedMain) && existsSync(resolvedMain + '.js')) resolvedMain += '.js';
-                  return { path: resolvedMain };
+                  return { path: resolvedMain, namespace: 'metro-ns' };
                 }
               } catch (e) {}
             }
             return null;
+          });
+
+          b.onLoad({ filter: /.*/, namespace: 'metro-ns' }, args => {
+            const contents = readFileSync(args.path, 'utf-8');
+            const loader = args.path.endsWith('.css') ? 'css' : args.path.endsWith('.json') ? 'json' : 'js';
+            return {
+              contents,
+              loader,
+              resolveDir: resolve(args.path, '..')
+            };
           });
         }
       }
@@ -73,9 +85,10 @@ async function runBuild() {
     }
   });
 
+  const timestamp = Date.now();
   let html = readFileSync('index.html', 'utf-8');
-  html = html.replace('<script type="module" src="./src/main.js"></script>', '<script type="module" src="./assets/bundle.js"></script>');
-  html = html.replace('<link rel="stylesheet" href="./src/styles.css" />', '<link rel="stylesheet" href="./assets/bundle.css" />');
+  html = html.replace('<script type="module" src="./src/main.js"></script>', `<script type="module" src="./assets/bundle.js?v=${timestamp}"></script>`);
+  html = html.replace('<link rel="stylesheet" href="./src/styles.css" />', `<link rel="stylesheet" href="./assets/bundle.css?v=${timestamp}" />`);
 
   writeFileSync('dist/index.html', html);
 
