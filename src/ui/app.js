@@ -17,8 +17,10 @@ import {
   renderBackupView,
   renderSettingsView,
   renderHistoryView,
-  renderLockScreenView
+  renderLockScreenView,
+  RANDOM_SPARK_PREMISES
 } from './views.js';
+import { countWords } from '../utils/text.js';
 
 import {
   isAuthenticated,
@@ -229,7 +231,7 @@ class AppController {
     if (this.currentView === 'home') {
       contentHtml = renderHomeView();
     } else if (this.currentView === 'mode1-input') {
-      contentHtml = renderMode1InputView();
+      contentHtml = renderMode1InputView(this.state.selectedTheme || 'Bebas');
     } else if (this.currentView === 'outline-choices') {
       contentHtml = renderOutlineChoicesView(this.state.outlineOptions);
     } else if (this.currentView === 'wizard-stage') {
@@ -398,11 +400,51 @@ class AppController {
   }
 
   bindMode1Events() {
+    const ideaInput = document.getElementById('mode1-user-idea');
+
+    // Inspiration Starter Chips
+    const chips = document.querySelectorAll('.inspiration-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.dataset.text;
+        if (ideaInput) {
+          ideaInput.value = text;
+          ideaInput.focus();
+        }
+      });
+    });
+
+    // Random Surprise Premise Generator
+    const btnSurprise = document.getElementById('btn-surprise-premise');
+    if (btnSurprise) {
+      btnSurprise.addEventListener('click', () => {
+        const idx = Math.floor(Math.random() * RANDOM_SPARK_PREMISES.length);
+        const text = RANDOM_SPARK_PREMISES[idx];
+        if (ideaInput) {
+          ideaInput.value = text;
+          ideaInput.focus();
+        }
+      });
+    }
+
+    // Segmented Theme Pills
+    const themePills = document.querySelectorAll('#theme-pills-container .pill-btn');
+    themePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        themePills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const hidden = document.getElementById('mode1-theme-value');
+        if (hidden) hidden.value = pill.dataset.theme;
+        this.state.selectedTheme = pill.dataset.theme;
+      });
+    });
+
     const btnMode1Options = document.getElementById('btn-mode1-5options');
     if (btnMode1Options) {
       btnMode1Options.addEventListener('click', () => {
-        const idea = document.getElementById('mode1-user-idea').value;
-        const theme = document.getElementById('mode1-theme').value;
+        const idea = ideaInput ? ideaInput.value : '';
+        const hidden = document.getElementById('mode1-theme-value');
+        const theme = hidden ? hidden.value : (this.state.selectedTheme || 'Bebas');
         this.executeMode1A(idea, theme);
       });
     }
@@ -410,8 +452,9 @@ class AppController {
     const btnMode1Wizard = document.getElementById('btn-mode1-wizard');
     if (btnMode1Wizard) {
       btnMode1Wizard.addEventListener('click', () => {
-        const idea = document.getElementById('mode1-user-idea').value;
-        const theme = document.getElementById('mode1-theme').value;
+        const idea = ideaInput ? ideaInput.value : '';
+        const hidden = document.getElementById('mode1-theme-value');
+        const theme = hidden ? hidden.value : (this.state.selectedTheme || 'Bebas');
         this.state.wizardSelections = { premise: idea, theme };
         this.startWizardStage(0);
       });
@@ -430,6 +473,17 @@ class AppController {
   }
 
   bindWizardEvents() {
+    // Interactive Stepper: Jump to any completed/previous stage
+    const stepperSteps = document.querySelectorAll('.stepper-step:not([disabled])');
+    stepperSteps.forEach(step => {
+      step.addEventListener('click', () => {
+        const idx = parseInt(step.dataset.stepIndex, 10);
+        if (!isNaN(idx)) {
+          this.startWizardStage(idx);
+        }
+      });
+    });
+
     const choiceItems = document.querySelectorAll('.wizard-choice-item');
     choiceItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -499,6 +553,56 @@ class AppController {
   }
 
   bindStoryResultEvents() {
+    // Dual-Mode Switcher (Reader vs Inline Editor)
+    const btnReader = document.getElementById('btn-view-reader');
+    const btnEditor = document.getElementById('btn-view-editor');
+    const displayBox = document.getElementById('story-display-box');
+    const editContainer = document.getElementById('story-edit-container');
+    const typoToolbar = document.getElementById('story-typography-toolbar');
+    const titleDisplay = document.getElementById('story-title-render');
+    const bodyDisplay = document.getElementById('story-body-render');
+    const titleEdit = document.getElementById('story-edit-title-input');
+    const bodyEdit = document.getElementById('story-edit-body-input');
+    const wordCountDisplay = document.getElementById('story-word-count-display');
+
+    if (btnReader && btnEditor && displayBox && editContainer) {
+      btnReader.addEventListener('click', () => {
+        btnReader.classList.add('active');
+        btnEditor.classList.remove('active');
+        displayBox.style.display = 'block';
+        editContainer.style.display = 'none';
+        if (typoToolbar) typoToolbar.style.display = 'flex';
+      });
+
+      btnEditor.addEventListener('click', () => {
+        btnEditor.classList.add('active');
+        btnReader.classList.remove('active');
+        displayBox.style.display = 'none';
+        editContainer.style.display = 'block';
+        if (typoToolbar) typoToolbar.style.display = 'none';
+        if (bodyEdit) bodyEdit.focus();
+      });
+    }
+
+    const btnSaveInline = document.getElementById('btn-save-inline-edit');
+    if (btnSaveInline && titleEdit && bodyEdit && this.state.currentStory) {
+      btnSaveInline.addEventListener('click', () => {
+        const newTitle = titleEdit.value.trim() || this.state.currentStory.title;
+        const newBody = bodyEdit.value.trim() || this.state.currentStory.story;
+        this.state.currentStory.title = newTitle;
+        this.state.currentStory.story = newBody;
+        
+        if (titleDisplay) titleDisplay.textContent = newTitle;
+        if (bodyDisplay) bodyDisplay.innerHTML = newBody;
+        if (wordCountDisplay) wordCountDisplay.textContent = `±${countWords(newBody)} kata`;
+        
+        saveStory(this.state.currentStory);
+        this.showAlert('Perubahan naskah berhasil disimpan!', 'success');
+        
+        if (btnReader) btnReader.click();
+      });
+    }
+
     const btnCopyStory = document.getElementById('btn-copy-story');
     if (btnCopyStory) {
       btnCopyStory.addEventListener('click', async () => {
@@ -553,14 +657,6 @@ class AppController {
     const btnGenImageNow = document.getElementById('btn-generate-image-now');
     if (btnGenImageNow) {
       btnGenImageNow.addEventListener('click', () => {
-        const prompt = document.getElementById('image-prompt-textarea').value;
-        this.generateImage(prompt);
-      });
-    }
-
-    const btnRegenImage = document.getElementById('btn-regenerate-image');
-    if (btnRegenImage) {
-      btnRegenImage.addEventListener('click', () => {
         const prompt = document.getElementById('image-prompt-textarea').value;
         this.generateImage(prompt);
       });
@@ -632,13 +728,14 @@ class AppController {
       });
     }
 
-    const catFilter = document.getElementById('wb-category-filter');
-    if (catFilter) {
-      catFilter.addEventListener('change', (e) => {
-        this.state.wbFilterCategory = e.target.value;
+    // Category Filter Pills in Writing Brain
+    const filterPills = document.querySelectorAll('#wb-filter-pills .pill-btn');
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        this.state.wbFilterCategory = pill.dataset.cat;
         this.render();
       });
-    }
+    });
 
     const editBtns = document.querySelectorAll('.btn-edit-wb');
     editBtns.forEach(btn => {
@@ -671,6 +768,19 @@ class AppController {
   }
 
   bindResearchEvents() {
+    // Quick Research Topic Chips
+    const researchChips = document.querySelectorAll('.btn-research-chip');
+    researchChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const q = chip.dataset.query;
+        const input = document.getElementById('research-question-input');
+        if (input) {
+          input.value = q;
+          input.focus();
+        }
+      });
+    });
+
     const modeSegmentBtns = document.querySelectorAll('#research-mode-segmented .mode-segment-btn');
     modeSegmentBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -680,14 +790,11 @@ class AppController {
         modeSegmentBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const hiddenInput = document.getElementById('research-mode-hidden-input');
-        if (hiddenInput) hiddenInput.value = mode;
-
-        const descBox = document.getElementById('research-mode-desc-text');
+        const descBox = document.getElementById('research-mode-desc');
         if (descBox) {
           descBox.innerHTML = mode === 'deep'
-            ? '🔬 <strong>Deep Research (~30s):</strong> Membandingkan sudut pandang, menyusun analisis mendalam, dan merumuskan usulan aturan komprehensif.'
-            : '⚡ <strong>Quick Research (~10s):</strong> Ringkas & cepat. Menghasilkan temuan kunci dan usulan aturan praktis secara langsung.';
+            ? '<strong>Deep Research:</strong> Eksplorasi mendalam (teknik sastra, psikologi karakter, dinamika plot) dengan sintesis 3–5 usulan aturan.'
+            : '<strong>Quick Research:</strong> Analisis terarah untuk sintesis cepat 1–2 usulan aturan Writing Brain.';
         }
       });
     });
@@ -697,9 +804,7 @@ class AppController {
       researchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const question = document.getElementById('research-question-input').value;
-        const manualText = document.getElementById('research-manual-text').value;
-        const hiddenInput = document.getElementById('research-mode-hidden-input');
-        const mode = hiddenInput ? hiddenInput.value : (this.state.researchMode || 'quick');
+        const mode = this.state.researchMode || 'quick';
 
         if (!question || !question.trim()) {
           this.showAlert('Masukkan pertanyaan riset terlebih dahulu.', 'error');
@@ -717,7 +822,6 @@ class AppController {
           const report = await executeResearch({
             question,
             mode,
-            manualSourceText: manualText,
             updateStatus: (msg) => {
               let step = 1;
               if (msg.includes('sintesis') || msg.includes('analisis')) step = 2;
@@ -758,6 +862,16 @@ class AppController {
     const chatWin = document.getElementById('brainstorm-chat-window');
 
     if (!brainstormForm || !inputArea || !chatWin) return;
+
+    // Quick Prompt Chips in Chatbot
+    const promptChips = document.querySelectorAll('.btn-brainstorm-prompt');
+    promptChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const prompt = chip.dataset.prompt;
+        inputArea.value = prompt;
+        inputArea.focus();
+      });
+    });
 
     // Auto-scroll chat to bottom
     chatWin.scrollTop = chatWin.scrollHeight;

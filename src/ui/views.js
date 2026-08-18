@@ -1,23 +1,52 @@
 /**
  * Main Application View Templates — Bespoke Indonesian Noir Editorial Studio
- * Replaces generic AI slop with precision vector typography and layout craft.
+ * Modern Tactile Inputs, Interactive Wizard Stepper, Inspiration Chips & Dual-Mode Story Editor
  */
 
 import { renderProposalCard } from './components.js';
 import { countWords } from '../utils/text.js';
 import { BRAIN_CATEGORIES } from '../core/writing-brain.js';
+import { WIZARD_STAGES } from '../core/wizard-engine.js';
 import { Icons } from './icons.js';
 
 export const THEME_OPTIONS = [
   'Bebas',
-  'Keluarga & Rahasia',
-  'Ekonomi & Ambisi',
-  'Dunia Kerja & Korporat',
-  'Romansa & Obsesi',
   'Metropolitan Noir',
+  'Keluarga & Rahasia',
+  'Korporat & Ambisi',
+  'Romansa & Obsesi',
   'Persahabatan & Khianat',
-  'Kehilangan & Masa Lalu',
-  'Lainnya'
+  'Kehilangan & Masa Lalu'
+];
+
+export const INSPIRATION_CHIPS = [
+  { label: 'Wasiat Ganda Notaris', text: 'Seorang notaris Jakarta Pusat menemukan brankas klien konglomeratnya berisi dua surat wasiat dengan tanggal sama persis namun ahli waris bertolak belakang.' },
+  { label: 'Kamar 404 Apartemen Sudirman', text: 'Kamar 404 apartemen mewah selalu berbau bunga sedap malam setiap jam 2 pagi, padahal pemilik unit dilaporkan hilang sejak enam bulan lalu.' },
+  { label: 'Rekaman Dashcam Hujan Lebat', text: 'Seorang sopir taksi online menemukan kartu nama berlumur darah terselip di bawah jok belakang usai mengantar penumpang misterius saat badai.' },
+  { label: 'Amplop Cokelat di Loker Kantor', text: 'Seorang auditor junior firma akuntan SCBD mendapati laptop kerjanya ditukar dengan model identik yang berisi salinan mutasi rekening gelap atas namanya.' },
+  { label: 'Manuskrip Penulis Lenyap', text: 'Seorang editor penerbitan menerima draf babak akhir novel pembunuhan yang detail peristiwanya persis kejadian nyata di Jakarta kemarin malam.' }
+];
+
+export const RANDOM_SPARK_PREMISES = [
+  'Seorang kurir ekspres mengantar paket tanpa nama pengirim ke rumah mewah di Menteng, hanya untuk mendapati penerimanya adalah dirinya sendiri sepuluh tahun lalu.',
+  'Seorang kurator museum mendapati lukisan potret keluarga kolonial abad ke-19 tiba-tiba memiliki wajah pejabat korup yang baru saja tewas misterius.',
+  'Seorang barista kafe 24 jam di Cikini menemukan buku catatan harian tertinggal di meja pojok yang menuliskan detik demi detik pembunuhan yang akan terjadi di kafe itu subuh nanti.',
+  'Seorang teknisi lift gedung pencakar langit menemukan pintu rahasia di antara lantai 13 dan 14 yang menghubungkan ke koridor gelap tak tercatat di denah arsitektur.',
+  'Seorang wartawan investigasi menerima panggilan telepon dari nomor ponsel rekannya yang telah dimakamkan tiga hari lalu, memintanya memeriksa loker stasiun Manggarai.'
+];
+
+export const RESEARCH_QUICK_PROMPTS = [
+  'Teknik menanam clue terselubung (fair-play clues) tanpa disadari pembaca',
+  'Mekanisme plot twist bertingkat (double reversal) dalam cerpen misteri',
+  'Motif kejahatan realistis di dunia korporat metropolitan Jakarta',
+  'Menciptakan tensi dan atmosfer noir metropolitan Indonesia yang otentik'
+];
+
+export const BRAINSTORM_QUICK_PROMPTS = [
+  '🔍 Tolong bedah kelemahan logika dan plot hole dalam ide ceritaku ini...',
+  '⚡ Berikan 3 alternatif plot twist yang tidak tertebak untuk naskah ini...',
+  '🎭 Evaluasi apakah motivasi tokoh utama sudah cukup kuat dan realistis...',
+  '🏙️ Bagaimana cara mempertajam deskripsi suasana agar lebih berasa noir?'
 ];
 
 /**
@@ -92,35 +121,60 @@ export function renderHomeView(brainEntriesCount = 0) {
 }
 
 /**
- * MODE 1 INPUT VIEW
+ * MODE 1 INPUT VIEW — Tactile Prompt Composer with Inspiration Chips
  */
-export function renderMode1InputView() {
+export function renderMode1InputView(selectedTheme = 'Bebas') {
   return `
     <div class="card">
-      <div class="page-header" style="margin-bottom: 1.25rem;">
-        <h2 class="page-title" style="font-size: 1.35rem;">Mode 1: Eksplorasi Ide Sendiri</h2>
+      <div class="page-header" style="margin-bottom: 1.15rem;">
+        <h2 class="page-title" style="font-size: 1.35rem;">Eksplorasi Ide Sendiri</h2>
         <p class="page-subtitle">
-          Ketikkan premis, karakter, atau potongan peristiwa yang ingin Anda kembangkan.
+          Tuliskan gagasan cerita Anda, atau klik inspirasi pembuka di bawah untuk memicu imajinasi seketika.
         </p>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Gagasan / Premis Awal</label>
-        <textarea id="mode1-user-idea" class="form-textarea" placeholder="Contoh: Seorang notaris menemukan amplop wasiat yang disegel kembali dengan lilin berbeda..."></textarea>
+      <!-- Inspiration Sparks Bar -->
+      <div class="inspiration-bar">
+        <div class="inspiration-header">
+          <span>${Icons.sparkles(13)} PEMICU INSPIRASI MISTERI:</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-surprise-premise" style="padding: 0.15rem 0.5rem; font-size: 0.74rem;">
+            ${Icons.refresh(12)} Acak Inspirasi
+          </button>
+        </div>
+        <div class="inspiration-chips-row">
+          ${INSPIRATION_CHIPS.map(chip => `
+            <button type="button" class="inspiration-chip" data-text="${chip.text.replace(/"/g, '&quot;')}">
+              ${chip.label}
+            </button>
+          `).join('')}
+        </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Tema Utama</label>
-        <select id="mode1-theme" class="form-select">
-          ${THEME_OPTIONS.map(t => `<option value="${t}">${t}</option>`).join('')}
-        </select>
+      <!-- Premise Text Area -->
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="mode1-user-idea">Gagasan / Premis Cerita</label>
+        <textarea id="mode1-user-idea" class="form-textarea" style="min-height: 105px; font-size: 0.92rem;" placeholder="Ketik ide awal, tokoh, atau peristiwa misteri yang ingin Anda ceritakan..."></textarea>
       </div>
 
-      <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; margin-top: 1.75rem;">
-        <button class="btn btn-primary" id="btn-mode1-5options" style="flex: 1; min-width: 200px;">
-          ${Icons.zap(16)} Buat 5 Pilihan Alur
+      <!-- Tactile Theme Selector (Segmented Pills) -->
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label">Pilih Nuansa & Tema Utama</label>
+        <div class="segmented-pills" id="theme-pills-container">
+          ${THEME_OPTIONS.map(theme => `
+            <button type="button" class="pill-btn ${theme === selectedTheme ? 'active' : ''}" data-theme="${theme}">
+              ${theme}
+            </button>
+          `).join('')}
+        </div>
+        <input type="hidden" id="mode1-theme-value" value="${selectedTheme}" />
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 0.85rem; flex-wrap: wrap; margin-top: 1.25rem;">
+        <button class="btn btn-primary" id="btn-mode1-5options" style="flex: 1.5; min-width: 200px; padding: 0.65rem 1.15rem;">
+          ${Icons.zap(16)} Buat 5 Pilihan Alur Cepat
         </button>
-        <button class="btn btn-secondary" id="btn-mode1-wizard" style="flex: 1; min-width: 200px;">
+        <button class="btn btn-secondary" id="btn-mode1-wizard" style="flex: 1; min-width: 180px; padding: 0.65rem 1.15rem;">
           ${Icons.wand(16)} Masuk ke Story Wizard
         </button>
       </div>
@@ -171,26 +225,46 @@ export function renderOutlineChoicesView(options = []) {
 }
 
 /**
- * WIZARD STAGES VIEW
+ * WIZARD STAGES VIEW — With Interactive Stepper Ribbon (Jump to any stage)
  */
 export function renderWizardStageView({ stageIndex, totalStages, stageInfo, choices = [], selections = {} }) {
   return `
-    <div class="wizard-progress">
-      <div style="display: flex; align-items: center; gap: 0.65rem;">
-        <span class="wizard-badge">TAHAP ${stageIndex + 1} DARI ${totalStages}</span>
-        <strong style="font-family: var(--font-heading); font-size: 1.05rem;">${stageInfo.title}</strong>
-      </div>
-      <div style="font-size: 0.84rem; color: var(--text-muted);">${stageInfo.desc}</div>
+    <!-- Interactive Stepper Ribbon: Allows Jumping Back and Forth -->
+    <div class="wizard-stepper-ribbon">
+      ${WIZARD_STAGES.map((stg, idx) => {
+        const isCompleted = selections[stg.key] !== undefined;
+        const isCurrent = idx === stageIndex;
+        const isClickable = isCompleted || idx <= stageIndex;
+        return `
+          <button type="button" class="stepper-step ${isCurrent ? 'active' : ''} ${isCompleted ? 'completed' : ''}" data-step-index="${idx}" ${isClickable ? '' : 'disabled'}>
+            <span class="step-num">${isCompleted && !isCurrent ? Icons.check(11) : idx + 1}</span>
+            <span class="step-label">${stg.title}</span>
+          </button>
+        `;
+      }).join('')}
     </div>
 
+    <!-- Active Stage Information Header -->
+    <div class="card" style="margin-bottom: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap;">
+        <div>
+          <span style="font-family: monospace; font-size: 0.72rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em;">TAHAP ${stageIndex + 1} DARI ${totalStages}</span>
+          <h2 class="page-title" style="font-size: 1.3rem; margin-top: 0.2rem;">${stageInfo.title}</h2>
+          <p class="page-subtitle" style="font-size: 0.84rem;">${stageInfo.desc}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Choice Cards -->
     <div class="wizard-choices">
       ${choices.map((c, idx) => {
         const isAiPick = idx === 4 || c.label.includes('AI Pilihkan');
+        const isSelected = selections[stageInfo.key] === (c.detail || c.label);
         return `
-          <div class="wizard-choice-item ${isAiPick ? 'wizard-choice-ai' : ''}" data-choice-index="${idx}">
+          <div class="wizard-choice-item ${isAiPick ? 'wizard-choice-ai' : ''} ${isSelected ? 'selected' : ''}" data-choice-index="${idx}">
             <div style="font-weight: 700; font-size: 0.94rem; color: ${isAiPick ? 'var(--primary)' : 'var(--text-main)'}; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: space-between;">
               <span>${c.label}</span>
-              ${isAiPick ? `<span style="font-size: 0.72rem; color: var(--primary); font-weight: 600;">${Icons.sparkles(14)} REKOMENDASI AI</span>` : ''}
+              ${isAiPick ? `<span style="font-size: 0.72rem; color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">${Icons.sparkles(13)} REKOMENDASI AI</span>` : ''}
             </div>
             <div style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.45;">${c.detail}</div>
           </div>
@@ -198,11 +272,12 @@ export function renderWizardStageView({ stageIndex, totalStages, stageInfo, choi
       }).join('')}
     </div>
 
+    <!-- Navigation Footbar -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
       <button class="btn btn-outline btn-sm" id="btn-wizard-prev" ${stageIndex === 0 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
-        ← Kembali
+        ← Tahap Sebelumnya
       </button>
-      <span style="font-size: 0.8rem; color: var(--text-muted);">Pilih salah satu kartu untuk lanjut</span>
+      <span style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace;">Pilih salah satu kartu untuk melanjutkan</span>
     </div>
   `;
 }
@@ -270,20 +345,20 @@ export function renderImproveOutlineView({ currentOutline, improvedOutline, impr
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div style="background: var(--surface-muted); padding: 1.15rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
           <h4 style="font-family: var(--font-heading); color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0.75rem;">Alur Awal</h4>
-          <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; white-space: pre-wrap;">${currentOutline}</p>
+          <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; white-space: pre-wrap;">${typeof currentOutline === 'object' ? JSON.stringify(currentOutline, null, 2) : currentOutline}</p>
         </div>
 
         <div style="background: #FFFFFF; padding: 1.15rem; border-radius: var(--radius-sm); border: 1.5px solid var(--primary); box-shadow: var(--shadow-xs);">
           <h4 style="font-family: var(--font-heading); color: var(--primary); font-size: 0.95rem; margin-bottom: 0.75rem;">Alur yang Disempurnakan</h4>
-          <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; white-space: pre-wrap;">${improvedOutline}</p>
+          <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; white-space: pre-wrap;">${typeof improvedOutline === 'object' ? JSON.stringify(improvedOutline, null, 2) : improvedOutline}</p>
         </div>
       </div>
 
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <button class="btn btn-primary" id="btn-accept-improved-outline" style="flex: 1.5; min-width: 180px;">
+        <button class="btn btn-primary" id="btn-use-improved-outline" style="flex: 1.5; min-width: 180px;">
           ${Icons.check(16)} Terapkan Alur yang Disempurnakan
         </button>
-        <button class="btn btn-outline" id="btn-keep-original-outline" style="flex: 1; min-width: 140px;">
+        <button class="btn btn-outline" id="btn-keep-current-outline" style="flex: 1; min-width: 140px;">
           Gunakan Alur Awal
         </button>
       </div>
@@ -292,7 +367,7 @@ export function renderImproveOutlineView({ currentOutline, improvedOutline, impr
 }
 
 /**
- * STORY RESULT VIEW — Typeset Literary Reader & Studio
+ * STORY RESULT VIEW — Typeset Reader & Live Inline Editor Canvas
  */
 export function renderStoryResultView(storyItem) {
   const wordCnt = countWords(storyItem.story);
@@ -303,13 +378,20 @@ export function renderStoryResultView(storyItem) {
       <!-- CARD 1: CERITA FINAL & ACTIONS -->
       <div class="card">
         <div class="card-header">
-          <h3 style="font-family: var(--font-heading); font-size: 1.12rem; color: var(--text-main); font-weight: 700;">Naskah Cerita</h3>
-          <span style="font-size: 0.82rem; color: var(--text-muted); font-family: monospace;">±${wordCnt} kata</span>
+          <div class="story-mode-switch">
+            <button type="button" class="mode-switch-btn active" id="btn-view-reader">
+              ${Icons.fileText(14)} Mode Baca
+            </button>
+            <button type="button" class="mode-switch-btn" id="btn-view-editor">
+              ${Icons.pen(14)} Mode Edit Naskah
+            </button>
+          </div>
+          <span style="font-size: 0.82rem; color: var(--text-muted); font-family: monospace;" id="story-word-count-display">±${wordCnt} kata</span>
         </div>
 
-        <!-- Typography Toolbar -->
-        <div class="story-toolbar">
-          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Tipografi:</span>
+        <!-- Typography Toolbar (In Read Mode) -->
+        <div class="story-toolbar" id="story-typography-toolbar">
+          <span style="font-size: 0.76rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Gaya Teks:</span>
           
           <select id="title-font-select" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.82rem;">
             <option value="serif">Serif (Literer)</option>
@@ -327,21 +409,36 @@ export function renderStoryResultView(storyItem) {
           </select>
         </div>
 
-        <!-- Story Display Box -->
+        <!-- Story Display Box (Reader Mode) -->
         <div class="story-box" id="story-display-box">
           <div class="story-title-display title-serif title-bold" id="story-title-render">${storyItem.title}</div>
           <div id="story-body-render">${storyItem.story}</div>
         </div>
 
+        <!-- Live Inline Editor Container (Edit Mode) -->
+        <div id="story-edit-container" style="display: none; margin-bottom: 1rem;">
+          <label class="form-label" for="story-edit-title-input">Judul Cerita</label>
+          <input type="text" id="story-edit-title-input" class="form-control" value="${storyItem.title}" style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;" />
+          
+          <label class="form-label" for="story-edit-body-input">Isi Naskah Cerpen</label>
+          <textarea id="story-edit-body-input" class="form-textarea story-live-editor">${storyItem.story}</textarea>
+          
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.65rem;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-save-inline-edit">
+              ${Icons.check(14)} Simpan Perubahan Naskah
+            </button>
+          </div>
+        </div>
+
         <!-- Action Buttons -->
-        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
-          <button class="btn btn-primary" id="btn-copy-story" style="flex: 2; min-width: 160px;">
+        <div style="display: flex; gap: 0.65rem; margin-top: 1.25rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-copy-story" style="flex: 2; min-width: 150px;">
             ${Icons.copy(16)} Salin Naskah
           </button>
-          <button class="btn btn-secondary" id="btn-critique-story" style="flex: 1.5; min-width: 160px;">
-            ${Icons.chat(16)} Bedah dengan Editor AI
+          <button class="btn btn-secondary" id="btn-critique-story" style="flex: 1.5; min-width: 150px;">
+            ${Icons.chat(16)} Bedah di Editor AI
           </button>
-          <button class="btn btn-outline" id="btn-export-story-md" style="flex: 1; min-width: 120px;">
+          <button class="btn btn-outline" id="btn-export-story-md" style="flex: 1; min-width: 110px;">
             ${Icons.download(16)} Export MD
           </button>
         </div>
@@ -421,7 +518,7 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
       </div>
 
       <!-- Stats Grid -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
         <div class="stat-card">
           <div class="stat-num">${activeEntries.length}</div>
           <div class="stat-label">TOTAL KAIDAH</div>
@@ -441,21 +538,31 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
       </div>
 
       ${healthReport ? `
-        <div class="card" style="background: var(--primary-light); border: 1.5px solid var(--primary); margin-bottom: 1.5rem;">
+        <div class="card" style="background: var(--primary-light); border: 1.5px solid var(--primary); margin-bottom: 1.25rem;">
           <h4 style="font-family: var(--font-heading); color: var(--primary); margin-bottom: 0.35rem; font-size: 0.95rem;">LAPORAN HEALTH CHECK</h4>
           <p style="font-size: 0.86rem;"><strong>Skor:</strong> ${healthReport.healthScore}/100 | <strong>Duplikasi:</strong> ${healthReport.duplicatesCount} | <strong>Entri Kosong:</strong> ${healthReport.emptyEntriesCount}</p>
           <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">Health check bersifat analitis dan tidak mengubah data tanpa konfirmasi.</p>
         </div>
       ` : ''}
 
-      <!-- Filters & Search -->
-      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-        <input type="text" id="wb-search-input" class="form-control" placeholder="Cari kaidah cerita..." value="${searchQuery}" style="flex: 2; min-width: 180px;" />
-        
-        <select id="wb-category-filter" class="form-select" style="flex: 1; min-width: 160px;">
-          <option value="all">Semua Kategori (${BRAIN_CATEGORIES.length})</option>
-          ${BRAIN_CATEGORIES.map(cat => `<option value="${cat}" ${filterCategory === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-        </select>
+      <!-- Search Input -->
+      <div style="margin-bottom: 0.85rem;">
+        <input type="text" id="wb-search-input" class="form-control" placeholder="Cari kaidah cerita..." value="${searchQuery}" />
+      </div>
+
+      <!-- Tactile Category Filter Pills -->
+      <div class="segmented-pills" id="wb-filter-pills" style="margin-bottom: 1.15rem;">
+        <button type="button" class="pill-btn ${filterCategory === 'all' ? 'active' : ''}" data-cat="all">
+          Semua (${activeEntries.length})
+        </button>
+        ${BRAIN_CATEGORIES.map(cat => {
+          const count = activeEntries.filter(e => e.category === cat).length;
+          return `
+            <button type="button" class="pill-btn ${filterCategory === cat ? 'active' : ''}" data-cat="${cat}">
+              ${cat} (${count})
+            </button>
+          `;
+        }).join('')}
       </div>
 
       <!-- Knowledge Items List -->
@@ -491,7 +598,7 @@ export function renderWritingBrainView({ entries = [], profile = {}, healthRepor
 }
 
 /**
- * AI RESEARCH VIEW
+ * AI RESEARCH VIEW — With Preset Topic Chips
  */
 export function renderResearchView({ sessions = [], activeSession = null, mode = 'quick' }) {
   return `
@@ -503,10 +610,24 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
         </p>
       </div>
 
+      <!-- Quick Research Topic Chips -->
+      <div class="inspiration-bar">
+        <div class="inspiration-header">
+          <span>${Icons.sparkles(13)} REKOMENDASI TOPIK RISET:</span>
+        </div>
+        <div class="inspiration-chips-row">
+          ${RESEARCH_QUICK_PROMPTS.map(p => `
+            <button type="button" class="inspiration-chip btn-research-chip" data-query="${p.replace(/"/g, '&quot;')}">
+              ${p}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
       <form id="research-form">
         <div class="form-group">
           <label class="form-label">Topik atau Pertanyaan Riset</label>
-          <textarea id="research-question-input" class="form-textarea" placeholder="Contoh: Riset teknik menyusun petunjuk terselubung (clues) tanpa disadari pembaca di awal cerpen..."></textarea>
+          <textarea id="research-question-input" class="form-textarea" placeholder="Ketik topik riset sastra/misteri..."></textarea>
         </div>
 
         <div class="form-group">
@@ -530,8 +651,8 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
 
           <div class="mode-description-box" id="research-mode-desc">
             ${mode === 'quick' 
-              ? '⚡ <strong>Quick Research:</strong> Analisis terarah untuk sintesis cepat 1–2 usulan aturan Writing Brain.' 
-              : '🔬 <strong>Deep Research:</strong> Eksplorasi mendalam (teknik sastra, psikologi karakter, dinamika plot) dengan sintesis 3–5 usulan aturan.'
+              ? '<strong>Quick Research:</strong> Analisis terarah untuk sintesis cepat 1–2 usulan aturan Writing Brain.' 
+              : '<strong>Deep Research:</strong> Eksplorasi mendalam (teknik sastra, psikologi karakter, dinamika plot) dengan sintesis 3–5 usulan aturan.'
             }
           </div>
         </div>
@@ -566,7 +687,7 @@ export function renderResearchView({ sessions = [], activeSession = null, mode =
 }
 
 /**
- * BRAINSTORMING & EDITOR PARTNER VIEW — Studio Layout
+ * BRAINSTORMING & EDITOR PARTNER VIEW — Studio Layout with Quick Action Prompts
  */
 export function renderBrainstormView({ conversation = null, mode = 'discuss' }) {
   const messages = conversation ? conversation.messages : [];
@@ -612,10 +733,18 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
         </div>
       ` : ''}
 
-      <!-- Message Input Form -->
+      <!-- Message Input Form with Quick Prompts -->
       <form id="brainstorm-form" style="margin-top: 0.75rem;">
+        <div class="chat-quick-actions">
+          ${BRAINSTORM_QUICK_PROMPTS.map(p => `
+            <button type="button" class="quick-action-chip btn-brainstorm-prompt" data-prompt="${p.replace(/"/g, '&quot;')}">
+              ${p}
+            </button>
+          `).join('')}
+        </div>
+
         <div class="form-group" style="margin-bottom: 0.45rem;">
-          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 65px;" placeholder="Ketik ide, pertanyaan, atau keluhan tulisan Anda... (Enter kirim, Shift+Enter baris baru)"></textarea>
+          <textarea id="brainstorm-input-text" class="form-textarea" style="min-height: 65px;" placeholder="Ketik pesan atau pertanyaan untuk Editor AI... (Enter kirim, Shift+Enter baris baru)"></textarea>
         </div>
 
         <div style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
@@ -624,7 +753,7 @@ export function renderBrainstormView({ conversation = null, mode = 'discuss' }) 
               ${Icons.chat(14)} Kirim Diskusi
             </button>
             <button type="button" class="btn btn-secondary btn-sm" id="btn-send-critique">
-              ${Icons.search(14)} Minta Kritik
+              ${Icons.search(14)} Minta Kritik Tajam
             </button>
           </div>
           <div style="font-size: 0.74rem; color: var(--text-muted); font-family: monospace;">Enter ↵ kirim • Shift+Enter baris baru</div>

@@ -1,53 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Outfit:wght@500;600;700;800&display=swap');
 
 /* ==========================================================================
-   1. DESIGN TOKENS & SYSTEM VARIABLES
+   1. DESIGN TOKENS & SYSTEM VARIABLES (EDITORIAL METRO NOIR)
    ========================================================================== */
 :root {
-  /* Brand Palette (Metro Mystery Theme) */
-  --primary: #5C4666;
-  --primary-hover: #473450;
-  --primary-light: #F3EDF5;
-  --primary-glow: rgba(92, 70, 102, 0.15);
+  /* Editorial Palette */
+  --primary: #4A2E4B;
+  --primary-hover: #382039;
+  --primary-light: #F2EBF4;
+  --primary-glow: rgba(74, 46, 75, 0.15);
   
-  --secondary: #96819F;
-  --secondary-light: #EBE4EE;
+  --secondary: #7A637C;
+  --secondary-light: #ECE5EE;
   
-  --accent: #7E638A;
-  --accent-light: #F6F1F8;
+  --accent: #5F3D61;
+  --accent-light: #F8F3F9;
+  --accent-warm: #D97706;
   
-  /* Neutral Surfaces & Text */
-  --bg-main: #F8F6F9;
+  /* Neutral Warm Paper & Deep Ink */
+  --bg-main: #F7F5F2;
   --surface-card: #FFFFFF;
-  --surface-muted: #FAF8FB;
+  --surface-muted: #F2EFEA;
   --surface-elevated: #FFFFFF;
   
-  --text-main: #231E26;
-  --text-muted: #6B6270;
-  --text-subtle: #9B91A0;
+  --text-main: #1A1615;
+  --text-muted: #5C5550;
+  --text-subtle: #8C847D;
   
-  --border: #E5DEE8;
-  --border-light: #F0EBF2;
-  --border-focus: #5C4666;
+  --border: #E5E0D8;
+  --border-light: #EFEBE4;
+  --border-focus: #4A2E4B;
   
   /* Semantic Colors */
-  --danger: #B91C1C;
+  --danger: #991B1B;
   --danger-bg: #FEF2F2;
   --danger-border: #FECACA;
   
-  --success: #15803D;
+  --success: #166534;
   --success-bg: #F0FDF4;
   --success-border: #BBF7D0;
   
-  --warning: #B45309;
+  --warning: #92400E;
   --warning-bg: #FFFBEB;
   --warning-border: #FDE68A;
   
   /* Elevation & Shadows */
-  --shadow-xs: 0 1px 2px rgba(41, 30, 46, 0.04);
-  --shadow-sm: 0 2px 8px rgba(41, 30, 46, 0.06);
-  --shadow-md: 0 6px 20px rgba(41, 30, 46, 0.08);
-  --shadow-lg: 0 12px 32px rgba(41, 30, 46, 0.15);
+  --shadow-xs: 0 1px 2px rgba(26, 22, 21, 0.04);
+  --shadow-sm: 0 2px 8px rgba(26, 22, 21, 0.06);
+  --shadow-md: 0 6px 20px rgba(26, 22, 21, 0.08);
+  --shadow-lg: 0 12px 32px rgba(26, 22, 21, 0.12);
   
   /* Radii */
   --radius-sm: 8px;
@@ -112,12 +113,12 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(92, 70, 102, 0.22);
+  background: rgba(74, 46, 75, 0.18);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(92, 70, 102, 0.42);
+  background: rgba(74, 46, 75, 0.35);
 }
 
 /* ==========================================================================
@@ -165,7 +166,7 @@ img {
 .brand-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #FFFFFF;
   border-radius: 8px;
   display: flex;
@@ -245,6 +246,9 @@ img {
 
 .nav-icon {
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -307,7 +311,8 @@ img {
 .app-scroll-area > .mode-grid,
 .app-scroll-area > .hub-widget,
 .app-scroll-area > .story-layout-grid,
-.app-scroll-area > .studio-card {
+.app-scroll-area > .studio-card,
+.app-scroll-area > .wizard-stepper-ribbon {
   max-width: 1140px;
   width: 100%;
   margin-left: auto;
@@ -421,7 +426,7 @@ img {
 }
 
 /* ==========================================================================
-   6. COMPACT BUTTON DESIGN SYSTEM
+   6. TACTILE BUTTONS & MICRO-PRESS
    ========================================================================== */
 .btn {
   font-family: var(--font-sans);
@@ -448,13 +453,13 @@ img {
   background-color: var(--primary);
   color: #FFFFFF;
   border-color: var(--primary);
-  box-shadow: 0 1px 4px rgba(92, 70, 102, 0.2);
+  box-shadow: 0 1px 4px rgba(74, 46, 75, 0.2);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  box-shadow: 0 3px 10px rgba(92, 70, 102, 0.3);
+  box-shadow: 0 3px 10px rgba(74, 46, 75, 0.3);
 }
 
 .btn-secondary {
@@ -530,7 +535,7 @@ img {
 }
 
 /* ==========================================================================
-   7. COMPACT FORM CONTROLS
+   7. MODERN TACTILE FORM CONTROLS & INSPIRATION CHIPS
    ========================================================================== */
 .form-group {
   margin-bottom: 0.95rem;
@@ -567,6 +572,86 @@ img {
   resize: vertical;
   min-height: 90px;
   line-height: 1.5;
+}
+
+/* Inspiration Chips & Bar */
+.inspiration-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.inspiration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.inspiration-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.inspiration-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-main);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inspiration-chip:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.inspiration-chip:active {
+  transform: scale(0.96);
+}
+
+/* Segmented Theme Pills */
+.segmented-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pill-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pill-btn.active {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px rgba(74, 46, 75, 0.25);
 }
 
 /* ==========================================================================
@@ -664,28 +749,86 @@ img {
 }
 
 /* ==========================================================================
-   9. STORY WIZARD STEPS
+   9. INTERACTIVE STORY WIZARD STEPPER & CARDS
    ========================================================================== */
-.wizard-progress {
+.wizard-stepper-ribbon {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.15rem;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.65rem 0.85rem;
   background: var(--surface-card);
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.15rem;
+  scrollbar-width: none;
 }
 
-.wizard-badge {
+.wizard-stepper-ribbon::-webkit-scrollbar {
+  display: none;
+}
+
+.stepper-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.stepper-step:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--primary);
+}
+
+.stepper-step.active {
   background: var(--primary-light);
   color: var(--primary);
   font-weight: 700;
-  font-size: 0.78rem;
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-pill);
+  border-color: var(--primary);
+}
+
+.stepper-step.completed {
+  color: var(--text-main);
+}
+
+.stepper-step:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stepper-step .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text-main);
+  font-size: 0.72rem;
+  font-family: monospace;
+}
+
+.stepper-step.active .step-num {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.stepper-step.completed .step-num {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-border);
 }
 
 .wizard-choices {
@@ -720,13 +863,44 @@ img {
 }
 
 /* ==========================================================================
-   10. STORY RESULT & FLUID 2-COLUMN DESKTOP VIEW
+   10. STORY RESULT & DUAL-MODE READER/EDITOR
    ========================================================================== */
 .story-layout-grid {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 1.35rem;
   align-items: start;
+}
+
+.story-mode-switch {
+  display: flex;
+  background: var(--surface-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  gap: 0.25rem;
+  width: fit-content;
+}
+
+.mode-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-switch-btn.active {
+  background: #FFFFFF;
+  color: var(--primary);
+  box-shadow: var(--shadow-xs);
 }
 
 .story-box {
@@ -739,6 +913,20 @@ img {
   padding: 2rem 2.25rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.story-live-editor {
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--text-main);
+  background: #FFFFFF;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--primary);
+  min-height: 380px;
+  width: 100%;
   box-shadow: var(--shadow-xs);
 }
 
@@ -769,7 +957,7 @@ img {
 }
 
 /* ==========================================================================
-   11. AI RESEARCH LAB & SEGMENTED CONTROL
+   11. AI RESEARCH LAB & QUICK PROMPTS
    ========================================================================== */
 .mode-segmented-control {
   display: flex;
@@ -807,7 +995,7 @@ img {
   background: var(--primary);
   color: #FFFFFF;
   font-weight: 700;
-  box-shadow: 0 1px 6px rgba(92, 70, 102, 0.3);
+  box-shadow: 0 1px 6px rgba(74, 46, 75, 0.3);
   border-color: var(--primary-hover);
 }
 
@@ -852,6 +1040,30 @@ img {
   display: flex;
   flex-direction: column;
   padding: 1.25rem 1.5rem 1rem 1.5rem;
+}
+
+.chat-quick-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.quick-action-chip {
+  font-size: 0.76rem;
+  color: var(--text-main);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-action-chip:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 .chat-window {
@@ -972,9 +1184,10 @@ img {
 }
 
 .stat-label {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 .wb-entry-card {
@@ -1130,12 +1343,10 @@ img {
 }
 
 @media (max-width: 768px) {
-  /* Layout changes to vertical flex column */
   .app-layout {
     flex-direction: column;
   }
 
-  /* Sidebar becomes an absolute/fixed drawer outside document flow */
   .app-sidebar {
     position: fixed;
     top: 0;
@@ -1161,7 +1372,6 @@ img {
     display: inline-flex;
   }
 
-  /* Mobile Top Bar (Clean header with Hamburger Button in Top-Left) */
   .mobile-topbar {
     display: flex;
     align-items: center;
@@ -1183,7 +1393,7 @@ img {
   .mobile-brand-icon {
     width: 26px;
     height: 26px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #FFFFFF;
     border-radius: 6px;
     display: flex;
@@ -1202,7 +1412,6 @@ img {
     letter-spacing: -0.02em;
   }
 
-  /* Main Workspace fills full width & remaining height */
   .app-main {
     width: 100%;
     height: 100%;
@@ -1211,7 +1420,6 @@ img {
     margin-left: 0;
   }
 
-  /* Inner scroll container inside app-main */
   .app-scroll-area {
     flex: 1;
     height: calc(100% - 48px);
@@ -1229,14 +1437,13 @@ img {
     max-height: 400px;
   }
 
-  /* Backdrop Blur Overlay */
   .sidebar-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(35, 30, 46, 0.48);
+    background-color: rgba(26, 22, 21, 0.45);
     z-index: 999;
     opacity: 0;
     pointer-events: none;
